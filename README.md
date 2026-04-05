@@ -1,4 +1,4 @@
-# Kenya DHS Insurance Compendium
+# Kenya DHS Studies
 
 This repository contains reproducible source materials for DHS-based analyses of health insurance, financial protection, and service-use equity in Kenya.
 
@@ -17,7 +17,7 @@ Only source materials are versioned. Rendered Word files, exported tables and fi
 ## Structure
 
 ```text
-Kenya_DHS_Insurance_Compendium/
+Kenya_DHS_Studies/
 |-- ST03_NCD_Insurance_Service_Use/
 |   |-- README.md
 |   |-- 01_protocol/
@@ -59,6 +59,8 @@ This repository does not include DHS microdata. Reproduction requires an approve
 ## Citation
 
 Please cite this repository using [CITATION.cff](CITATION.cff) and cite the relevant manuscript if you use study-specific methods or code.
+
+Repository URL: https://github.com/gondamol/Kenya_DHS_Studies
 
 ## License
 

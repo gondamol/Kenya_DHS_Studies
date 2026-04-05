@@ -6,11 +6,11 @@ authors:
     orcid: https://orcid.org/0009-0008-1501-601X
     affiliation: "School of Health Sciences, Jaramogi Oginga Odinga University of Science and Technology"
     email: nwere@ejooust.ac.ke
-title: "Kenya DHS Insurance Compendium"
+title: "Kenya DHS Studies"
 version: 0.1.0
 date-released: 2026-04-05
-url: "https://github.com/gondamol/kenya-dhs-insurance-compendium"
-repository-code: "https://github.com/gondamol/kenya-dhs-insurance-compendium"
+url: "https://github.com/gondamol/Kenya_DHS_Studies"
+repository-code: "https://github.com/gondamol/Kenya_DHS_Studies"
 keywords:
   - Kenya
   - demographic and health survey

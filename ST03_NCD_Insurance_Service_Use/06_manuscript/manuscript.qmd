@@ -52,7 +52,7 @@ author-note:
       This study used publicly available de-identified data from the Kenya Demographic and Health Survey 2022. The original survey received ethical approval from the Kenya Medical Research Institute (KEMRI) Scientific and Ethics Review Unit and the ICF Institutional Review Board. No additional ethical approval was required for this secondary analysis.
 
     data-availability: |
-      The datasets analysed during the current study are available from The DHS Program at https://dhsprogram.com/data/ following registration and approval of a standard data-access request. Study-specific analysis scripts are available from the corresponding author upon reasonable request.
+      The datasets analysed during the current study are available from The DHS Program at https://dhsprogram.com/data/ following registration and approval of a standard data-access request. Study-specific analysis scripts are available at https://github.com/gondamol/Kenya_DHS_Studies.
 
 format:
   docx:
@@ -283,7 +283,7 @@ For regression analyses, we estimated survey-weighted generalized linear models 
 
 Secondary pooled models also tested insurance-by-sex and sex-by-wealth interaction terms using design-based Wald tests. Because current insurance and current medication use were measured contemporaneously, the models were not intended to establish temporal ordering.
 
-All analyses were performed in R `r software_versions$r` using the survey package (version `r software_versions$survey`) for complex sample estimation [17]. Final concentration indices were estimated with a custom bootstrap-based weighted-rank routine implemented in R [15,16]. Full analysis scripts are available from the corresponding author upon reasonable request.
+All analyses were performed in R `r software_versions$r` using the survey package (version `r software_versions$survey`) for complex sample estimation [17]. Final concentration indices were estimated with a custom bootstrap-based weighted-rank routine implemented in R [15,16]. Full analysis scripts are available at https://github.com/gondamol/Kenya_DHS_Studies.
 
 # Results
 
@@ -453,7 +453,7 @@ Not applicable.
 
 ## Availability of data and materials
 
-The datasets analysed during the current study are available from The DHS Program (www.dhsprogram.com) following registration and approval of the standard data access application. Study-specific analysis scripts are available from the corresponding author upon reasonable request.
+The datasets analysed during the current study are available from The DHS Program (www.dhsprogram.com) following registration and approval of the standard data access application. Study-specific analysis scripts are available at https://github.com/gondamol/Kenya_DHS_Studies.
 
 ## Competing interests
 
