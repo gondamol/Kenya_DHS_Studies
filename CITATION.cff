@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite it as below."
+authors:
+  - family-names: Amollo
+    given-names: Nichodemus Werre
+    orcid: https://orcid.org/0009-0008-1501-601X
+    affiliation: "School of Health Sciences, Jaramogi Oginga Odinga University of Science and Technology"
+    email: nwere@ejooust.ac.ke
+title: "Kenya DHS Insurance Compendium"
+version: 0.1.0
+date-released: 2026-04-05
+url: "https://github.com/gondamol/kenya-dhs-insurance-compendium"
+repository-code: "https://github.com/gondamol/kenya-dhs-insurance-compendium"
+keywords:
+  - Kenya
+  - demographic and health survey
+  - health insurance
+  - hypertension
+  - diabetes
+  - reproducible research
+license: MIT
+abstract: >
+  Reproducible source materials for DHS-based analyses of health insurance,
+  financial protection, and service-use equity in Kenya.
+

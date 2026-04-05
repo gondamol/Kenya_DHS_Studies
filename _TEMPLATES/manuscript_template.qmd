@@ -1,0 +1,457 @@
+---
+title: "Your Manuscript Title Here: A Comprehensive Analysis"
+subtitle: ""  # Optional - remove if not needed
+shorttitle: "Short Title for Headers"  # Used in running headers
+
+# ============================================================================
+# AUTHOR INFORMATION
+# ============================================================================
+# Include complete information for all authors
+# Mark the corresponding author with "corresponding: true"
+# Include ORCID IDs for all authors (obtain from https://orcid.org/)
+author:
+  - name: First Author Name
+    corresponding: true
+    orcid: 0000-0000-0000-0000
+    email: first.author@institution.edu
+    affiliations:
+      - id: aff1
+        name: Institution Name
+        department: Department or School Name
+        address: Street Address
+        city: City
+        region: State/Province
+        postal-code: 12345
+        country: Country
+
+  - name: Second Author Name
+    orcid: 0000-0000-0000-0001
+    email: second.author@institution.edu
+    affiliations:
+      - ref: aff1  # References the affiliation defined above
+      - id: aff2   # Second affiliation for this author
+        name: Second Institution Name
+        city: City
+        country: Country
+
+# ============================================================================
+# ABSTRACT
+# ============================================================================
+# For BMC and most health journals, use a structured abstract with:
+# Background, Methods, Results, Conclusions
+abstract: |
+  **Background:** Provide the context and rationale for the study. State the
+  specific objectives or research questions being addressed. Keep this section
+  concise (2-4 sentences).
+
+  **Methods:** Briefly describe the study design, data sources, study population,
+  main variables, and analytical methods used. Be specific enough that readers
+  understand what was done (4-6 sentences).
+
+  **Results:** Present the main findings with key numerical results. Include
+  specific statistics where relevant. Focus on results that address the main
+  objectives (4-6 sentences).
+
+  **Conclusions:** State the main conclusions drawn from the results and their
+  implications for policy, practice, or research. Avoid over-interpreting the
+  findings (2-3 sentences).
+
+# ============================================================================
+# KEYWORDS
+# ============================================================================
+# Provide 3-10 keywords for indexing
+# Use terms from MeSH (Medical Subject Headings) when applicable
+keywords:
+  - health insurance
+  - universal health coverage
+  - health equity
+  - Kenya
+  - demographic survey
+
+# ============================================================================
+# DECLARATIONS
+# ============================================================================
+# These sections are required by most journals
+
+funding: |
+  This study was funded by [Funding Agency Name] (Grant number: XXX-XXXX).
+  The funders had no role in study design, data collection and analysis,
+  decision to publish, or preparation of the manuscript. [Adapt as needed]
+
+author-note:
+  contributions: |
+    **Author 1** conceptualized the study, performed the analysis, and drafted
+    the manuscript. **Author 2** supervised the study, contributed to
+    interpretation, and reviewed and edited the manuscript. All authors read
+    and approved the final manuscript.
+
+  disclosures:
+    conflict-of-interest: |
+      The authors declare that they have no competing interests.
+
+    ethics: |
+      This study used publicly available de-identified data from the [Data Source].
+      The original survey received ethical approval from [Ethics Committee].
+      No additional ethical approval was required for this secondary analysis.
+
+    data-availability: |
+      The data that support the findings of this study are openly available
+      from [Data Source] at [URL]. Analysis code is available at [Repository URL].
+
+# ============================================================================
+# OUTPUT FORMATS
+# ============================================================================
+# Uncomment the format you need. You can have multiple formats active.
+
+format:
+  # Standard formats (always useful during writing and editing)
+  docx:
+    toc: false
+    number-sections: true
+    reference-doc: custom-reference.docx  # Optional: use custom Word template
+
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    theme: cosmo
+    code-fold: true
+    embed-resources: true
+
+  # PDF format (basic)
+  # pdf:
+  #   toc: false
+  #   number-sections: true
+  #   keep-tex: true
+
+  # SPRINGER NATURE / BMC JOURNALS
+  # Install with: quarto add christopherkenny/nature
+  # nature-pdf:
+  #   journal:
+  #     cite-style: default  # Options: default, sn-nature, sn-basic, sn-mathphys-num, etc.
+  #   keep-tex: true
+  #   classoption:
+  #     - referee  # Double-spaced for review
+  #     # - lineno  # Line numbers for review
+
+  # ELSEVIER JOURNALS (e.g., The Lancet, Cell)
+  # Install with: quarto add quarto-journals/elsevier
+  # elsevier-pdf:
+  #   journal:
+  #     name: "Journal Name"
+  #     formatting: preprint  # Options: preprint, review, doubleblind
+  #     model: 3p  # Options: 1p (always 1 column), 3p (flexible), 5p (always 2 column)
+  #     layout: onecolumn  # Options: onecolumn, twocolumn
+  #     cite-style: number  # Options: number, numbername, authoryear, super
+  #   keep-tex: true
+
+  # PLOS JOURNALS (e.g., PLOS ONE, PLOS Medicine)
+  # Install with: quarto add quarto-journals/plos
+  # plos-pdf:
+  #   keep-tex: true
+
+# ============================================================================
+# BIBLIOGRAPHY AND CITATIONS
+# ============================================================================
+# Specify your bibliography file and citation style
+bibliography: references.bib
+
+# Citation Style Language (CSL) file
+# Common options:
+# - vancouver.csl (common in medical journals, including BMC)
+# - apa.csl (American Psychological Association)
+# - harvard.csl (Harvard referencing)
+# Download more from: https://github.com/citation-style-language/styles
+csl: vancouver.csl  # Change as needed for target journal
+
+# ============================================================================
+# DOCUMENT PROCESSING OPTIONS
+# ============================================================================
+editor: source
+
+execute:
+  echo: false      # Don't show code in output
+  warning: false   # Don't show warnings
+  message: false   # Don't show messages
+  cache: false     # Set to true for long-running analyses
+  freeze: auto     # Freeze computational output
+
+# ============================================================================
+# CUSTOM SETTINGS (optional)
+# ============================================================================
+# fig-width: 7
+# fig-height: 5
+# fig-dpi: 300
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+# Load required packages
+library(tidyverse)
+library(flextable)  # For formatted tables
+library(gtsummary)  # For summary tables
+library(scales)     # For number formatting
+
+# Set options
+options(scipen = 999)  # Avoid scientific notation
+
+# Load analysis results
+# Adjust the path to match your project structure
+analysis_object <- readRDS(file.path("..", "07_derived_data", "analysis_outputs.rds"))
+
+# Extract objects from analysis
+# Adapt these based on your actual analysis output
+# table1 <- analysis_object$table1
+# table2 <- analysis_object$table2
+# overall_stats <- analysis_object$overall_stats
+
+# Helper functions for inline reporting
+fmt_pct <- function(x, ci_low, ci_high) {
+  sprintf("%.1f%% (95%% CI %.1f%% to %.1f%%)",
+          100 * x, 100 * ci_low, 100 * ci_high)
+}
+
+fmt_p_value <- function(p) {
+  if (is.na(p) || p == "") return("")
+  if (p < 0.001) return("< 0.001")
+  sprintf("%.3f", p)
+}
+
+fmt_number <- function(x) {
+  comma(x)
+}
+```
+
+# Background
+
+<!--
+INSTRUCTIONS:
+- Provide context for the study
+- Explain the rationale and importance
+- State specific objectives or research questions
+- Keep focused and concise (typically 3-5 paragraphs)
+-->
+
+[First paragraph: General context and importance of the topic]
+
+[Second paragraph: What is known and gaps in knowledge]
+
+[Third paragraph: What this study adds]
+
+[Final paragraph: Specific objectives]
+
+# Methods
+
+## Study design and data source
+
+<!--
+Describe:
+- Study design (cross-sectional, cohort, etc.)
+- Data source and survey details
+- Time period covered
+- Ethical approval
+-->
+
+[Describe the study design and data source]
+
+## Study population
+
+<!--
+Describe:
+- Inclusion and exclusion criteria
+- Sample size
+- Sampling methods
+- Weighting procedures (if applicable)
+-->
+
+[Describe the study population]
+
+## Variables and measurements
+
+### Outcome variables
+
+[Describe primary and secondary outcomes]
+
+### Exposure variables
+
+[Describe main exposures of interest]
+
+### Covariates
+
+[Describe other variables included in the analysis]
+
+## Statistical analysis
+
+<!--
+Describe:
+- Descriptive statistics methods
+- Inferential statistics (tests, models)
+- Software used
+- How missing data was handled
+- Significance level (typically p < 0.05)
+-->
+
+[Describe statistical methods]
+
+All analyses were performed using R version X.X.X (R Foundation for Statistical Computing, Vienna, Austria) [@r2024]. Survey weighting and complex survey design were accounted for using the survey package [@lumley2024]. Statistical significance was set at p < 0.05.
+
+## Ethical considerations
+
+[State ethical approval details and how ethical principles were addressed]
+
+# Results
+
+<!--
+INSTRUCTIONS:
+- Present results in logical order
+- Use subsections for clarity
+- Reference tables and figures
+- Report key statistics with confidence intervals
+- Don't interpret results here (save for Discussion)
+-->
+
+## Study population characteristics
+
+<!-- Example of referencing a table -->
+The study included [N] participants. @tbl-demographics shows the demographic characteristics of the study population.
+
+```{r}
+#| label: tbl-demographics
+#| tbl-cap: "Demographic characteristics of study participants"
+
+# Display your table here
+# Example:
+# table1_display
+```
+
+<!-- Example of inline statistics -->
+The mean age was [XX] years (SD [XX]), and [XX]% were female.
+
+## Main findings
+
+<!-- Example of referencing a figure -->
+@fig-main-results presents the main findings of the study.
+
+```{r}
+#| label: fig-main-results
+#| fig-cap: "Description of what the figure shows"
+#| fig-width: 7
+#| fig-height: 5
+
+# Create your figure here
+# Example:
+# ggplot(data, aes(x = variable1, y = variable2)) +
+#   geom_point() +
+#   theme_minimal() +
+#   labs(x = "X-axis label", y = "Y-axis label")
+```
+
+[Describe the main findings with specific results]
+
+## Subgroup analyses
+
+<!-- Additional tables and analyses -->
+@tbl-subgroup shows results stratified by [variable].
+
+```{r}
+#| label: tbl-subgroup
+#| tbl-cap: "Subgroup analysis by [variable]"
+
+# Display your subgroup table here
+```
+
+# Discussion
+
+## Main findings
+
+<!--
+INSTRUCTIONS:
+- Summarize key findings
+- Compare with previous studies
+- Discuss strengths and limitations
+- Address implications
+- Suggest future research
+- Don't overstate conclusions
+-->
+
+[Summarize the principal findings in context]
+
+## Comparison with other studies
+
+[Compare your findings with previous research, noting agreements and discrepancies]
+
+## Strengths and limitations
+
+This study has several strengths. [List strengths]
+
+However, limitations should be noted. [List limitations]
+
+## Implications
+
+[Discuss implications for policy, practice, or research]
+
+# Conclusions
+
+[Provide concise concluding statements based on the findings. Typically 1-2 paragraphs.]
+
+# Abbreviations {.unnumbered}
+
+<!--
+List abbreviations alphabetically
+Example:
+- CI: Confidence Interval
+- DHS: Demographic and Health Survey
+- OR: Odds Ratio
+- SD: Standard Deviation
+-->
+
+# Declarations {.unnumbered}
+
+## Ethics approval and consent to participate {.unnumbered}
+
+[Ethics statement - adapt based on your study]
+
+## Consent for publication {.unnumbered}
+
+Not applicable (for studies using publicly available de-identified data).
+
+## Availability of data and materials {.unnumbered}
+
+[Data availability statement]
+
+## Competing interests {.unnumbered}
+
+[Competing interests statement]
+
+## Funding {.unnumbered}
+
+[Funding statement]
+
+## Authors' contributions {.unnumbered}
+
+[Author contributions statement]
+
+## Acknowledgements {.unnumbered}
+
+[Acknowledgements if any]
+
+# References {.unnumbered}
+
+<!-- References will be automatically generated here -->
+
+::: {#refs}
+:::
+
+# Supplementary Materials {.unnumbered}
+
+<!-- Include if you have supplementary tables, figures, or appendices -->
+
+## Supplementary Table 1 {.unnumbered}
+
+[Additional detailed tables]
+
+## Supplementary Figure 1 {.unnumbered}
+
+[Additional figures]

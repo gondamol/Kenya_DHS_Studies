@@ -1,0 +1,62 @@
+# Restricted data
+*.dta
+*.sav
+*.dat
+01_DHS_Data/
+**/data/raw/
+
+# Generated study outputs
+**/04_tables/
+**/05_figures/
+**/07_derived_data/
+**/08_logs/
+**/*.docx
+**/*.pdf
+**/*.html
+!_TEMPLATES/reference_doc.docx
+!_TEMPLATES/manuscript-html-head.html
+
+# Quarto
+.quarto/
+**/.quarto/
+_site/
+*_cache/
+*_files/
+**/*.knit.md
+
+# R
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+renv/library/
+renv/staging/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
+
+# Secrets
+.env
+.env.local
+*.pem
+*.key
+token.txt
+api_keys.txt

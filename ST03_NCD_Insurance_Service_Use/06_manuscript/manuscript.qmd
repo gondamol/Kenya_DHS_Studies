@@ -1,0 +1,519 @@
+﻿---
+title: "Insurance coverage and treatment gaps among adults with diagnosed hypertension or diabetes before Kenya's Social Health Authority transition: a sex-stratified secondary analysis of the 2022 Kenya Demographic and Health Survey"
+shorttitle: "NCD Insurance and Treatment Gaps Before SHA"
+
+author:
+  - name: Nichodemus Werre Amollo
+    corresponding: true
+    email: nwere@ejooust.ac.ke
+    orcid: "0009-0008-1501-601X"
+    affiliations:
+      - id: aff1
+        name: Jaramogi Oginga Odinga University of Science and Technology
+        department: School of Health Sciences
+        address: Main Campus
+        city: Bondo
+        country: Kenya
+
+  - name: Japheth Ogol
+    email: japhth.ogol@ejooust.ac.ke
+    affiliations:
+      - ref: aff1
+      - id: aff2
+        name: University of Antwerp
+        department: Department of Family Medicine & Population Health (FAMPOP)
+        city: Wilrijk
+        country: Belgium
+
+keywords:
+  - health insurance
+  - hypertension
+  - diabetes
+  - treatment gap
+  - Social Health Authority
+  - NHIF
+  - non-communicable diseases
+  - Kenya
+  - demographic and health survey
+  - wealth inequality
+
+funding: |
+  This research received no specific grant from any funding agency in the public, commercial, or not-for-profit sectors.
+
+author-note:
+  contributions: |
+    **NWA** conceptualized the study, performed the statistical analysis, and drafted the manuscript. **JO** supervised the study, contributed to study design and interpretation of findings, and critically reviewed and edited the manuscript. All authors read and approved the final manuscript.
+
+  disclosures:
+    conflict-of-interest: |
+      The authors declare that they have no competing interests.
+
+    ethics: |
+      This study used publicly available de-identified data from the Kenya Demographic and Health Survey 2022. The original survey received ethical approval from the Kenya Medical Research Institute (KEMRI) Scientific and Ethics Review Unit and the ICF Institutional Review Board. No additional ethical approval was required for this secondary analysis.
+
+    data-availability: |
+      The datasets analysed during the current study are available from The DHS Program at https://dhsprogram.com/data/ following registration and approval of a standard data-access request. Study-specific analysis scripts are available from the corresponding author upon reasonable request.
+
+format:
+  docx:
+    toc: false
+    number-sections: true
+    reference-doc: ../../_TEMPLATES/reference_doc.docx
+    filters:
+      - ../../_TEMPLATES/suppress-docx-authors.lua
+
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    theme: cosmo
+    code-fold: true
+    embed-resources: true
+
+bibliography: references.bib
+csl: ../../_TEMPLATES/vancouver.csl
+editor: source
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+source(file.path("..", "03_scripts", "00_setup.R"), local = knitr::knit_global())
+
+if (!file.exists(file.path("..", "07_derived_data", "st03_analysis_outputs.rds"))) {
+  source(file.path("..", "03_scripts", "run_st03_workflow.R"), local = knitr::knit_global())
+}
+
+analysis_object <- readRDS(file.path("..", "07_derived_data", "st03_analysis_outputs.rds"))
+table1 <- analysis_object$table1
+table2 <- analysis_object$table2
+table3 <- analysis_object$table3
+table4 <- analysis_object$table4
+table4_lookup <- analysis_object$table4_lookup %||% analysis_object$table4
+table5 <- analysis_object$table5
+pooled_gap_by_wealth <- analysis_object$pooled_gap_by_wealth
+interaction_tests <- analysis_object$interaction_tests
+key_results <- analysis_object$key_results
+supplementary_table_s1 <- analysis_object$supplementary_table_s1
+software_versions <- analysis_object$software_versions %||% key_results$software_versions
+
+fmt_inline_pct <- function(stat) {
+  sprintf("%.1f%% (95%% CI %.1f%% to %.1f%%)", 100 * stat$est, 100 * stat$ci_low, 100 * stat$ci_high)
+}
+
+fmt_inline_apr <- function(row) {
+  sprintf("%.3f (95%% CI %.3f to %.3f)", row$effect, row$ci_low, row$ci_high)
+}
+
+fmt_inline_apr2 <- function(row) {
+  sprintf("%.2f (95%% CI %.2f to %.2f)", row$effect, row$ci_low, row$ci_high)
+}
+
+lookup_outcome_name <- function(outcome_name) {
+  dplyr::recode(
+    outcome_name,
+    "Any insurance" = "insured_any",
+    "NHIF coverage" = "insured_nhif",
+    "Treatment gap" = "treatment_gap",
+    .default = outcome_name
+  )
+}
+
+fmt_inline_ci <- function(outcome_name, subgroup_name, measure = c("standard", "erreygers")) {
+  measure <- match.arg(measure)
+  outcome_key <- lookup_outcome_name(outcome_name)
+  row <- table5 %>%
+    dplyr::filter(outcome == outcome_key, subgroup == subgroup_name)
+  estimate_col <- if (measure == "standard") "standard_ci" else "erreygers_ci"
+  ci_low_col <- if (measure == "standard") "standard_ci_low" else "erreygers_ci_low"
+  ci_high_col <- if (measure == "standard") "standard_ci_high" else "erreygers_ci_high"
+  stringr::str_replace_all(
+    sprintf(
+      "%.4f (95%% CI %.4f to %.4f)",
+      row[[estimate_col]][[1]],
+      row[[ci_low_col]][[1]],
+      row[[ci_high_col]][[1]]
+    ),
+    "-",
+    "\u2212"
+  )
+}
+
+fmt_pvalue <- function(x) {
+  ifelse(x < 0.001, "<0.001", sprintf("%.3f", x))
+}
+
+lookup_barrier <- function(exposure_name, group_name, barrier_name) {
+  table4_lookup %>%
+    dplyr::filter(exposure == exposure_name, group == group_name, barrier == barrier_name) %>%
+    dplyr::pull(estimate)
+}
+
+fmt_pct_string <- function(est) {
+  vals <- as.numeric(unlist(regmatches(est, gregexpr("[0-9]+\\.?[0-9]*", est))))
+  sprintf("%.1f%% (95%% CI %.1f%% to %.1f%%)", vals[1], vals[2], vals[3])
+}
+
+fmt_barrier_pct <- function(exposure_name, group_name, barrier_name) {
+  fmt_pct_string(lookup_barrier(exposure_name, group_name, barrier_name))
+}
+
+table4_display <- table4 %>%
+  dplyr::mutate(`Prevalence % (95% CI)` = vapply(`Prevalence % (95% CI)`, fmt_pct_string, character(1)))
+
+fmt_ci_string <- function(est, ci_low, ci_high) {
+  stringr::str_replace_all(
+    sprintf("%.4f (%.4f, %.4f)", est, ci_low, ci_high),
+    "-",
+    "\u2212"
+  )
+}
+
+table5_display <- table5 %>%
+  dplyr::transmute(
+    Outcome = dplyr::recode(
+      outcome,
+      insured_any = "Any insurance",
+      insured_nhif = "NHIF coverage",
+      treatment_gap = "Treatment gap"
+    ),
+    Subgroup = subgroup,
+    `Standard CI (95% CI)` = purrr::pmap_chr(
+      list(standard_ci, standard_ci_low, standard_ci_high),
+      fmt_ci_string
+    ),
+    `Erreygers-corrected CI (95% CI)` = purrr::pmap_chr(
+      list(erreygers_ci, erreygers_ci_low, erreygers_ci_high),
+      fmt_ci_string
+    )
+  )
+
+publication_flextable <- function(data,
+                                  footer_lines = c("Source: Kenya DHS 2022. Survey-weighted estimates."),
+                                  header_labels = NULL,
+                                  spanner_values = NULL,
+                                  spanner_widths = NULL) {
+  build_publication_flextable(
+    data = data,
+    footer_lines = footer_lines,
+    header_labels = header_labels,
+    spanner_values = spanner_values,
+    spanner_widths = spanner_widths
+  ) %>%
+    flextable::paginate(init = TRUE, hdr_ftr = TRUE) %>%
+    knitr::knit_print()
+}
+```
+
+Nichodemus Werre Amollo^1,\*^, Japheth Ogol^1,2^
+
+^1^ School of Health Sciences, Jaramogi Oginga Odinga University of Science and Technology, Bondo, Kenya\
+^2^ Department of Family Medicine & Population Health (FAMPOP), University of Antwerp, Wilrijk, Belgium
+
+\*Correspondence: Nichodemus Werre Amollo, nwere@ejooust.ac.ke
+
+# Abstract
+
+**Background:** Kenya replaced the National Health Insurance Fund (NHIF) with the Social Health Authority (SHA) on 1 October 2024. The 2022 Kenya Demographic and Health Survey (KDHS 2022) therefore provides the last nationally representative pre-SHA baseline for insurance coverage and treatment access among adults already diagnosed with hypertension or diabetes.
+
+**Methods:** We conducted a cross-sectional secondary analysis of KDHS 2022. Insurance was recovered from the household member roster and linked to individual interview records using standard DHS merge identifiers. Analyses were sex-stratified, survey-weighted, and used quasi-Poisson regression with log links to estimate adjusted prevalence ratios (APR). Diagnosis, medication use, and insurance were self-reported, and the women's analysis was restricted to ages 18-49 in the full-questionnaire half-sample. Wealth-related inequality was assessed with bootstrapped concentration indices, with Erreygers-corrected sensitivity analyses for the binary outcomes.
+
+**Results:** The final analytic sample included `r key_results$sample_size_pooled` diagnosed adults (`r key_results$sample_size_women` women and `r key_results$sample_size_men` men). Any-insurance coverage was `r fmt_inline_pct(key_results$pooled_any_insurance)`, and NHIF coverage was `r fmt_inline_pct(key_results$pooled_nhif)`. Treatment gaps remained high at `r fmt_inline_pct(key_results$pooled_treatment_gap)` overall, including `r fmt_inline_pct(key_results$women_treatment_gap)` among women and `r fmt_inline_pct(key_results$men_treatment_gap)` among men, and exceeded 60% in every wealth quintile. Insurance showed no strong adjusted association with treatment-gap prevalence among women (APR `r fmt_inline_apr2(key_results$women_apr_insurance)`) or men (APR `r fmt_inline_apr2(key_results$men_apr_insurance)`), and pooled interaction tests found no evidence that the insurance association differed by sex (`r paste0("p = ", fmt_pvalue(interaction_tests$p_value[interaction_tests$test == "Insurance by sex"]))`). Insurance coverage was strongly pro-rich (standard concentration index `r fmt_inline_ci("Any insurance", "Pooled")`), whereas treatment gaps were distributed across the wealth gradient (standard concentration index `r fmt_inline_ci("Treatment gap", "Pooled")`). Sensitivity analyses showed the same pattern. Among women, money for treatment was a big problem for `r fmt_barrier_pct("insured_any", "No", "barrier_money")` of the uninsured versus `r fmt_barrier_pct("insured_any", "Yes", "barrier_money")` of the insured.
+
+**Conclusions:** Before SHA, Kenya faced both incomplete NCD insurance coverage and large treatment gaps among diagnosed adults. Expanding enrolment alone was unlikely to be sufficient to close these gaps without deeper benefit coverage, reliable medicine availability, and stronger frontline readiness for chronic care.
+
+**Keywords:** Kenya DHS; health insurance; hypertension; diabetes; treatment gap; Social Health Authority; non-communicable diseases; health equity; wealth inequality; financial barriers
+
+# Background
+
+Hypertension and diabetes are major contributors to avoidable morbidity, premature mortality, and household financial stress in Kenya [1-3]. Yet the policy problem is not limited to diagnosis or prevalence. For the health system, the more immediate question is whether adults who already know they have these conditions are financially protected and able to remain on treatment. That question became more urgent after Kenya replaced the National Health Insurance Fund (NHIF) with the Social Health Authority (SHA) on 1 October 2024 [4]. Any serious assessment of the SHA transition requires a credible pre-transition baseline.
+
+Kenya's health insurance literature has already established that coverage has historically been low, inequitable, and concentrated among better-off households. Using the 2008-09 Kenya Demographic and Health Survey (KDHS), Kimani et al. found strong socioeconomic gradients in women's insurance ownership, particularly by wealth, education, and employment status [5]. Kazungu and Barasa later showed that insurance coverage in Kenya remained low and highly unequal even as coverage expanded between DHS waves, with a markedly pro-rich distribution [6]. At the wider sub-Saharan African level, Barasa et al. showed that insurance coverage is generally low and strongly wealth-skewed, especially where voluntary contributory mechanisms dominate [7]. Those studies are important, but they leave unresolved a closely related policy question: what was the insurance and treatment situation among adults already living with diagnosed hypertension or diabetes at the end of the NHIF era?
+
+The Kenya NCD literature also leaves an important gap. Oyando et al. showed that NHIF provided some financial protection to households with hypertension and diabetes in a prospective cohort study in two Kenyan counties, but that evidence was not nationally representative and focused on household financial burden rather than national treatment coverage among diagnosed adults [8]. Recent mixed-methods work from rural primary health facilities in Kisumu documented medicine stock-outs, absent NCD budget lines, and structural financing barriers to effective hypertension and diabetes care [9]. Large treatment gaps in diagnosed populations can reflect incomplete access, discontinuation after treatment initiation, or imperfect adherence, so nationally representative evidence is needed on where diagnosed adults stood at the end of the NHIF era.
+
+The 2022 KDHS offers a rare opportunity to examine that pattern nationally. It is the last nationally representative household survey conducted before the SHA transition, and it includes adult interview data on self-reported hypertension and diabetes diagnoses, current medication use, and household-member insurance coverage [10].
+
+This study therefore aimed to estimate, using KDHS 2022, the level and distribution of insurance coverage and treatment gaps among adults with self-reported diagnosed hypertension or diabetes in Kenya. Specifically, we examined three questions: first, what proportion of diagnosed adults had any insurance and what proportion had NHIF coverage; second, what proportion remained in a treatment gap; and third, whether insurance coverage was associated with lower treatment gaps after accounting for sex, age, diagnosis profile, and socioeconomic position. We additionally quantified wealth-related inequality in insurance coverage and treatment gaps and examined women-specific care barriers to clarify whether financial protection and access barriers moved together.
+
+# Methods
+
+## Study design and data source
+This study is reported in accordance with the Strengthening the Reporting of Observational Studies in Epidemiology (STROBE) statement; a completed checklist is provided as Additional file 2.
+
+We conducted a cross-sectional secondary analysis of the 2022 Kenya Demographic and Health Survey (KDHS 2022), a nationally representative household survey implemented by the Kenya National Bureau of Statistics with technical support from The DHS Program [10]. KDHS 2022 used a stratified two-stage cluster design. Women aged 15-49 years were eligible for interview in selected households if they were usual residents or had slept in the household the night before the survey. Men aged 15-54 years were interviewed in a subsample of households [10]. The 2022 survey used both short and full questionnaire versions; the full questionnaire contained the health insurance, health expenditure, food security, and disability modules relevant to this project [10].
+
+## Analytic files and merge strategy
+
+The full questionnaire was assigned to a pre-specified half of sampled households in KDHS 2022 and included the chronic-disease items used in the women's analysis [10].
+
+The analytic base for women's outcomes was the women's individual recode file (`IR`; `KEIR8CFL.DTA`), and the analytic base for men's outcomes was the men's recode file (`MR`; `KEMR8CFL.DTA`). Insurance information was taken from the household member or person roster file (`PR`; `KEPR8CFL.DTA`) because the standard individual-file insurance variables (`v481` in `IR` and `mv481` in `MR`) are empty in KDHS 2022. Person-level merges followed DHS-recommended keys: `hv001 = v001`, `hv002 = v002`, and `hvidx = v003` for women; `hv001 = mv001`, `hv002 = mv002`, and `hvidx = mv003` for men [11,12]. The interview files remained the analytic bases throughout.
+
+## Study population
+
+The target population was adults with self-reported diagnosed hypertension and/or diabetes. For women, we restricted the analysis to respondents aged 18-49 years in the long-questionnaire subsample because the women's chronic disease items are structurally observed only there. For men, we included respondents aged 18-54 years. We then retained respondents who reported a diagnosis of hypertension and/or diabetes and had non-missing information on insurance coverage and medication status for the diagnosed condition set. The final analytic sample comprised `r key_results$sample_size_women` women and `r key_results$sample_size_men` men, for a pooled sample of `r key_results$sample_size_pooled` diagnosed adults. For clarity, the women's restriction reflects the KDHS full-questionnaire design rather than an ad hoc post-survey subsample, but it also means that sex-specific estimates are descriptive rather than strictly age-equivalent comparisons.
+
+## Outcome definition
+
+
+
+The primary outcome was the treatment gap among diagnosed adults. We defined a respondent as having a treatment gap if they reported a diagnosis of hypertension and/or diabetes but were not currently taking medication for at least one diagnosed condition. In the women's file, hypertension diagnosis and medication were identified using `chd02` and `chd05`, and diabetes diagnosis and medication using `chd07` and `chd10`. In the men's file, the corresponding variables were `mchd02`, `mchd05`, `mchd07`, and `mchd10`. We also classified respondents into three diagnosis profiles: hypertension only, diabetes only, and both hypertension and diabetes. As a sensitivity analysis, we also estimated a stricter no-treatment outcome defined as no current medication for any diagnosed condition.
+
+## Insurance exposure and covariates
+
+The primary exposure was any health insurance coverage, derived from `PR sh27`. NHIF coverage was derived from `PR sh28a`. Because the insurance-type items are asked conditional on having insurance, NHIF was recoded as zero for respondents with no insurance and retained as missing only when insurance status itself was missing. We also generated descriptive indicators for private (`sh28b`) and community-based (`sh28c`) coverage, although NHIF was the dominant insurance type in this population. Insurance status came from the household roster rather than the interview files, so some misclassification remains possible if roster responses were inaccurate, although the roster and medication items both reflect current-status reporting in the same survey round.
+
+Covariates were selected a priori from prior Kenya insurance and NCD literature [5-9]. These included age in years, sex, wealth quintile, educational attainment, place of residence, province, employment category, and diagnosis profile. Employment categories were collapsed to reduce sparse cells in regression models. For women, we additionally examined three access-barrier items from the standard DHS care-access module: obtaining permission to seek care (`v467b`), getting money for treatment (`v467c`), and distance to a facility (`v467d`). These variables were coded as a big problem versus not a big problem or no problem.
+
+## Survey weighting and statistical analysis
+
+Analyses respected the DHS complex sample design. Women's models used the women's interview weight (`v005`) with primary sampling units (`v021`) and strata (`v022`). Men's models used the men's interview weight (`mv005`) with design variables `mv021` and `mv022`. All weights were divided by 1,000,000, consistent with DHS guidance and the Guide to DHS Statistics [11,13]. Because men were interviewed in a household subsample, pooled descriptive estimates and pooled secondary regression models used a male-subsample correction derived within strata from the `PR` file, following DHS guidance on pooling male and female files when the men's sample is subsampled [12,13]. Primary inference remained sex-stratified.
+
+Because the women's chronic-disease module was fielded in the pre-specified full-questionnaire half-sample, women in eligible full-questionnaire households retained the standard DHS women's weight after restriction [10,13].
+
+We first described the sample using weighted proportions and means with 95% confidence intervals. We then constructed sex-specific and pooled treatment-cascade tables summarising the prevalence of any insurance, NHIF coverage, and treatment gaps across diagnosis profiles. To quantify wealth-related inequality, we estimated concentration indices for insurance coverage, NHIF coverage, and treatment gaps with bootstrap uncertainty intervals [15,16].
+
+We report the standard concentration index in the main text for comparability with prior Kenya inequality studies and estimated Erreygers-corrected indices as sensitivity analyses because insurance coverage and treatment gaps were binary outcomes [15,16]. All concentration-index uncertainty intervals were based on 1,000 bootstrap replications.
+
+For regression analyses, we estimated survey-weighted generalized linear models with a quasi-Poisson family and log link to obtain adjusted prevalence ratios (APR) for the cross-sectional association between insurance coverage and treatment gaps [14]. We chose prevalence ratios rather than odds ratios for the main analysis because treatment gaps were common in the study population, making odds ratios harder to interpret and more likely to exaggerate effect size. Separate models were estimated for women and men. A pooled model with a sex term was retained as a secondary analysis after correcting men's weights for subsampling. Survey-weighted logistic models were fitted as sensitivity analyses and are reported as odds-ratio sensitivity checks only. We repeated the prevalence and regression analyses using the stricter no-treatment definition and report those results in Additional file 3.
+
+Secondary pooled models also tested insurance-by-sex and sex-by-wealth interaction terms using design-based Wald tests. Because current insurance and current medication use were measured contemporaneously, the models were not intended to establish temporal ordering.
+
+All analyses were performed in R `r software_versions$r` using the survey package (version `r software_versions$survey`) for complex sample estimation [17]. Final concentration indices were estimated with a custom bootstrap-based weighted-rank routine implemented in R [15,16]. Full analysis scripts are available from the corresponding author upon reasonable request.
+
+# Results
+
+## Sample characteristics and insurance profile
+
+The final analytic sample included `r key_results$sample_size_pooled` adults with self-reported diagnosed hypertension and/or diabetes, of whom `r key_results$sample_size_women` were women and `r key_results$sample_size_men` were men. Mean age was 35.5 years among women, 40.5 years among men, and 37.8 years in the pooled sample (Table 1). Weighted any-insurance coverage was `r fmt_inline_pct(key_results$women_any_insurance)` among women, `r fmt_inline_pct(key_results$men_any_insurance)` among men, and `r fmt_inline_pct(key_results$pooled_any_insurance)` overall. NHIF remained the dominant form of coverage: pooled NHIF coverage among all diagnosed adults was `r fmt_inline_pct(key_results$pooled_nhif)`, while NHIF covered `r fmt_inline_pct(key_results$pooled_nhif_among_insured)` of insured diagnosed adults.
+
+**Table 1.** Sample characteristics among diagnosed adults with hypertension and/or diabetes, Kenya DHS 2022.
+
+```{r}
+#| results: asis
+publication_flextable(
+  table1,
+  header_labels = st03_table_display_specs$table1$header_labels,
+  spanner_values = st03_table_display_specs$table1$spanner_values,
+  spanner_widths = st03_table_display_specs$table1$spanner_widths
+)
+```
+
+## Treatment cascade by diagnosis profile
+
+Treatment gaps were large in both sexes. Weighted treatment-gap prevalence was `r fmt_inline_pct(key_results$women_treatment_gap)` among women, `r fmt_inline_pct(key_results$men_treatment_gap)` among men, and `r fmt_inline_pct(key_results$pooled_treatment_gap)` overall. In other words, roughly two in three adults who already knew they had hypertension or diabetes were not on medication for all reported diagnosed conditions.
+
+Diagnosis-specific patterns showed substantial heterogeneity. Among women, the treatment gap was highest for hypertension only (`r fmt_pct_string(table2$treatment_gap[table2$sex == "Women" & table2$diagnosis_profile == "HTN only"])`) and lower for diabetes only (`r fmt_pct_string(table2$treatment_gap[table2$sex == "Women" & table2$diagnosis_profile == "DM only"])`). Among men, the treatment gap was also highest for hypertension only (`r fmt_pct_string(table2$treatment_gap[table2$sex == "Men" & table2$diagnosis_profile == "HTN only"])`), whereas men reporting both hypertension and diabetes had substantially higher insurance coverage (`r fmt_pct_string(table2$any_insurance[table2$sex == "Men" & table2$diagnosis_profile == "Both HTN and DM"])`) and lower treatment gaps (`r fmt_pct_string(table2$treatment_gap[table2$sex == "Men" & table2$diagnosis_profile == "Both HTN and DM"])`). The pooled cascade showed the same pattern: treatment gaps were highest among respondents with hypertension only and lower among those with both conditions. Within the pooled comorbid subgroup, `r key_results$both_dx_gap_one_count` respondents had a treatment gap in one condition and `r key_results$both_dx_gap_both_count` had a gap in both conditions, while `r key_results$both_dx_no_gap_count` reported current medication for both conditions. The diabetes-only and comorbid subgroups were small after sex stratification, so those subgroup-specific estimates should be interpreted cautiously.
+
+**Table 2.** Insurance coverage and treatment gaps by diagnosis profile and sex, Kenya DHS 2022.
+
+```{r}
+#| results: asis
+publication_flextable(
+  table2,
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Survey-weighted estimates.",
+    "Estimates for 'Both HTN and DM' should be interpreted with caution owing to small unweighted sample sizes (women n=41, men n=49). Wide confidence intervals reflect sampling imprecision."
+  ),
+  header_labels = st03_table_display_specs$table2$header_labels
+)
+```
+
+\newpage
+
+```{r}
+#| label: fig-treatment-cascade
+#| fig-cap: "Treatment cascade by sex and diagnosis profile among adults with self-reported diagnosed hypertension or diabetes, Kenya DHS 2022. Bars show survey-weighted prevalence of any health insurance, NHIF coverage, and the treatment gap, defined as not currently taking medication for at least one diagnosed condition. Error bars are 95% confidence intervals. HTN = hypertension; DM = diabetes mellitus."
+#| fig-align: center
+#| out-width: "100%"
+knitr::include_graphics(file.path("..", "05_figures", "Figure1_Treatment_Cascade_by_Sex_Diagnosis.png"))
+```
+
+## Adjusted associations with treatment gaps
+
+In adjusted prevalence-ratio models, any insurance showed no strong association with treatment-gap prevalence in either sex. The APR for insured versus uninsured adults was `r fmt_inline_apr2(key_results$women_apr_insurance)` among women, `r fmt_inline_apr2(key_results$men_apr_insurance)` among men, and `r fmt_inline_apr2(key_results$pooled_apr_insurance)` in the pooled secondary model. Older age was associated with slightly lower treatment-gap prevalence in women, men, and pooled analyses. In the pooled model, adults with hypertension only had higher treatment-gap prevalence than adults with both hypertension and diabetes (APR 1.65, 95% CI 1.12 to 2.44). Treatment gaps were lower among adults working in sales and services than among those in agriculture, and several regional contrasts also persisted after adjustment, including lower pooled treatment gaps in Coast, North Eastern, and Western provinces relative to Central. Secondary interaction tests found no evidence that the association between insurance and treatment gaps differed by sex (`r paste0("p = ", fmt_pvalue(interaction_tests$p_value[interaction_tests$test == "Insurance by sex"]))`) or that wealth gradients differed materially by sex (`r paste0("p = ", fmt_pvalue(interaction_tests$p_value[interaction_tests$test == "Sex by wealth"]))`). Under the stricter sensitivity definition requiring no medication for any diagnosed condition, pooled no-treatment prevalence was `r fmt_inline_pct(key_results$pooled_treatment_gap_none)` and the adjusted pooled insurance association remained similar (APR `r fmt_inline_apr2(key_results$pooled_apr_insurance_none)`; Additional file 3).
+
+Odds-ratio sensitivity analyses are reported in Supplementary Table S1, and the stricter no-treatment sensitivity analysis is reported in Additional file 3; directional conclusions were unchanged.
+
+**Table 3.** Adjusted prevalence ratios for the treatment gap among diagnosed adults, Kenya DHS 2022.
+
+```{r}
+#| results: asis
+publication_flextable(
+  table3,
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Survey-weighted estimates.",
+    "APR from survey-weighted quasi-Poisson GLM with log link. Reference categories are shown in parentheses. The pooled model includes a sex term with male-subsample correction.",
+    "NE = North Eastern province."
+  ),
+  header_labels = st03_table_display_specs$table3$header_labels
+)
+```
+
+## Wealth-related inequality and women-specific access barriers
+
+Insurance coverage among diagnosed adults was strongly pro-rich. The pooled standard concentration index was `r fmt_inline_ci("Any insurance", "Pooled")` for any insurance and `r fmt_inline_ci("NHIF coverage", "Pooled")` for NHIF coverage. By contrast, the standard concentration index for treatment gaps was `r fmt_inline_ci("Treatment gap", "Pooled")`, suggesting that treatment gaps were widespread across the socioeconomic distribution rather than concentrated only among the poorest. Erreygers-corrected sensitivity analyses showed the same directional pattern (`r fmt_inline_ci("Any insurance", "Pooled", measure = "erreygers")` for any insurance and `r fmt_inline_ci("Treatment gap", "Pooled", measure = "erreygers")` for treatment gaps). In the pooled sample, treatment-gap prevalence remained above 60% in every wealth quintile, ranging from `r fmt_pct_string(pooled_gap_by_wealth$formatted[pooled_gap_by_wealth$wealth == "Richest"])` in the richest quintile to `r fmt_pct_string(pooled_gap_by_wealth$formatted[pooled_gap_by_wealth$wealth == "Poorer"])` in the poorer quintile.
+
+**Table 5.** Standard and Erreygers-corrected concentration indices for insurance coverage and treatment gaps among diagnosed adults, Kenya DHS 2022.
+
+```{r}
+#| results: asis
+publication_flextable(
+  table5_display,
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Survey-weighted estimates.",
+    "Standard concentration indices are shown for comparability with prior Kenya inequality studies. Erreygers-corrected indices are included as sensitivity analyses for binary outcomes."
+  ),
+  header_labels = st03_table_display_specs$table5$header_labels
+)
+```
+
+```{r}
+#| label: fig-wealth-gradients
+#| fig-cap: "Wealth gradients in insurance coverage and treatment gaps by sex among adults with diagnosed hypertension or diabetes, Kenya DHS 2022. Points and lines show survey-weighted proportions across wealth quintiles, stratified by sex. Error bars are 95% confidence intervals."
+#| fig-align: center
+#| out-width: "100%"
+knitr::include_graphics(file.path("..", "05_figures", "Figure2_Insurance_by_Wealth_Sex.png"))
+```
+
+Among women with diagnosed hypertension and/or diabetes, financial and geographic barriers were much more common among the uninsured than the insured. A big problem getting money for treatment was reported by `r fmt_barrier_pct("insured_any", "No", "barrier_money")` of uninsured women versus `r fmt_barrier_pct("insured_any", "Yes", "barrier_money")` of insured women. Distance to a health facility was a big problem for `r fmt_barrier_pct("insured_any", "No", "barrier_distance")` of uninsured women compared with `r fmt_barrier_pct("insured_any", "Yes", "barrier_distance")` of insured women. Permission to seek care was less common overall but remained more frequent among uninsured women (`r fmt_barrier_pct("insured_any", "No", "barrier_permission")` versus `r fmt_barrier_pct("insured_any", "Yes", "barrier_permission")`). These barrier contrasts are descriptive and women-specific; they indicate perceived access constraints but are not equivalent to adjusted estimates of current medication use.
+
+**Table 4.** Women-specific access barriers by insurance status among diagnosed adults, Kenya DHS 2022.
+
+```{r}
+#| results: asis
+publication_flextable(
+  table4_display,
+  header_labels = st03_table_display_specs$table4$header_labels
+)
+```
+
+## Overall diagnosis-to-treatment coverage cascade
+
+Figure 3 reframes the same problem as an overall diagnosis-to-treatment cascade. Among adults who had already received a diagnosis, coverage fell sharply from diagnosis to insurance and again from insurance to being on medication for all diagnosed conditions. This drop was larger among women than men, consistent with the higher treatment-gap prevalence observed in the sex-stratified analyses.
+
+```{r}
+#| label: fig-overall-cascade
+#| fig-cap: "Diagnosis-to-treatment coverage cascade by sex among adults with self-reported diagnosed hypertension or diabetes, Kenya DHS 2022. Bars show the diagnosed population baseline (100%), any insurance coverage, NHIF coverage, and current medication use for all diagnosed conditions. Error bars are 95% confidence intervals."
+#| fig-align: center
+#| out-width: "100%"
+knitr::include_graphics(file.path("..", "05_figures", "Figure3_Effective_Coverage_Cascade_by_Sex.png"))
+```
+
+# Discussion
+
+This study provides a national pre-SHA baseline for insurance coverage and treatment access among adults in Kenya who had already been diagnosed with hypertension or diabetes. Three findings stand out. First, treatment gaps were very large: `r fmt_inline_pct(key_results$pooled_treatment_gap)` overall, including `r fmt_inline_pct(key_results$women_treatment_gap)` among women and `r fmt_inline_pct(key_results$men_treatment_gap)` among men. Second, insurance enrolment remained incomplete, with only `r fmt_inline_pct(key_results$pooled_any_insurance)` of diagnosed adults covered by any insurance. Third, even among an insured population dominated by NHIF, insurance showed no strong adjusted association with treatment-gap prevalence. Taken together, these findings suggest that by the end of the NHIF era Kenya faced two linked problems in chronic care: incomplete enrolment and incomplete effective coverage.
+
+The magnitude of the treatment gap is policy-significant. This is not a marginal access problem affecting a small residual group. It indicates that nearly two in three adults who reported having already been told they had hypertension or diabetes were not taking medication for all reported diagnosed conditions. Despite growing evidence of widespread hypertension in sub-Saharan Africa, including a large burden of undiagnosed cases [18], awareness of a diagnosis does not reliably translate into sustained treatment uptake [19]. Comparable multi-country cascade analyses have documented similarly large losses between diagnosis and treatment for hypertension and diabetes across low- and middle-income countries [39,40]. Because all respondents in our analytic sample reported a prior diagnosis, the observed gaps are unlikely to reflect screening failure alone. They more plausibly reflect some combination of interrupted access, discontinuation after treatment initiation, inconsistent adherence, or prescribing gaps. The stricter no-treatment sensitivity analysis changed the pooled prevalence estimate only modestly, from `r fmt_inline_pct(key_results$pooled_treatment_gap)` to `r fmt_inline_pct(key_results$pooled_treatment_gap_none)`, which suggests that the headline finding is not driven solely by partial treatment among respondents with multiple diagnoses.
+
+The weak adjusted association between insurance and treatment gaps is equally important. Insurance still mattered descriptively, particularly for women-specific affordability barriers, but current enrolment status alone was not accompanied by a strong difference in current medication use after adjustment. The concept of effective coverage, formalised by Shengelia et al., emphasises that service contact and financial coverage matter only when care of sufficient quality is actually received [20]. Our findings are consistent with this framework: adults may hold insurance cards yet still face medicine stock-outs, transport costs, user charges outside reimbursed services, or benefit-package arrangements that do not reliably translate into medicine access at the point of care. That interpretation is consistent with Kenya evidence on effective coverage [21], NHIF purchasing reforms [22,23], global evidence on catastrophic household expenditure [24], and persistent catastrophic health expenditure among Kenyan households [25-27]. Recent synthesis work on hypertension and diabetes care cascades, together with the broader adherence literature, likewise suggests that treatment-stage losses reflect both health-system failures and long-term medication-taking behaviour rather than insurance status alone [41,42]. At the same time, the data cannot distinguish whether untreated respondents lacked prescriptions, could not obtain medicines, discontinued treatment, or chose not to take it, so access failure and non-adherence should both remain plausible explanations. The contrast between the large women-specific barrier differences and the weak adjusted insurance association is therefore not internally inconsistent: the barrier items capture self-reported affordability and travel constraints among women only, whereas the regression models estimate the net cross-sectional association between insurance status and current medication use across both sexes after adjustment for diagnosis profile and socioeconomic position.
+
+This interpretation also fits prior Kenya evidence. Oyando et al. reported that NHIF offered some financial protection for households affected by hypertension and diabetes, but their evidence came from a prospective cohort study in two Kenyan counties rather than a national household sample and focused on financial risk protection rather than ongoing treatment use [8]. Our cross-sectional national estimate complements that work by showing that the weak adjusted insurance association with current medication use is not unique to selected counties. A recent household fixed-effects study from India likewise found no significant improvement across hypertension-care cascade steps with insurance coverage alone [43]. It also differs in focus from the 2015 Kenya STEPs analysis by Oyando et al., which examined pro-rich inequity in hypertension screening and treatment and used decomposition methods rather than a diagnosed-adult insurance and treatment-cascade framework [30]. The findings also complement the earlier Kenya DHS literature by Kimani et al. and Kazungu and Barasa, which documented low and unequal insurance coverage in the general population [5,6].
+
+The inequality results are especially revealing. Insurance coverage was strongly pro-rich, with a pooled standard concentration index of `r fmt_inline_ci("Any insurance", "Pooled")`, broadly consistent with the wealth-skewed patterns described in Kenya and across sub-Saharan Africa [6,7]. Yet the treatment-gap concentration index was near zero at `r fmt_inline_ci("Treatment gap", "Pooled")`, and the Erreygers-corrected sensitivity analysis led to the same substantive interpretation (`r fmt_inline_ci("Treatment gap", "Pooled", measure = "erreygers")`) [15,16]. Interpreted against concentration-index methodology for bounded outcomes [15,16], that contrast suggests that untreated chronic disease was not confined to the poorest households alone. Wealth still shaped the probability of being insured, but once respondents had a diagnosed condition, gaps in ongoing treatment extended across the socioeconomic distribution. In practical terms, Kenya's chronic-care problem before SHA appears to have been simultaneously inequitable in insurance access and system-wide in treatment continuity.
+
+Sex differences add another layer. Men had higher insurance coverage than women, but women had larger treatment gaps and reported substantially greater money and distance barriers when uninsured. The DHS access-barrier items used here map closely to the three-delays framework described by Thaddeus and Maine [28] and to broader evidence on barriers to healthcare access among women in sub-Saharan Africa [29]. Our findings add a chronic-disease dimension to that literature: the uninsured faced a heavier burden of practical barriers even within a diagnosed NCD population. This is relevant for SHA implementation because enrolment drives that do not account for gendered barriers to cash access and service navigation may leave a substantial treatment deficit intact.
+
+The SHA transition makes these findings timely rather than historical. KDHS 2022 is the last nationally representative survey before the 1 October 2024 financing reform, so it provides a baseline against which SHA should be judged [4]. If SHA succeeds only in expanding enrolment while leaving medicine availability, benefit-package design, reimbursement reliability, and frontline chronic-care delivery unchanged, then treatment gaps of the magnitude documented here may persist. Facility, household, and benefits-package evidence alike show persistent weaknesses in NCD readiness, medicine access, and chronic-care priority setting [31-35]. Patient-cost evidence points in the same direction: treatment can remain financially burdensome even within public-sector care [36]. Evidence from Kenya's purchasing and UHC reform literature suggests that enrolment expansion must be matched by credible financing and benefit-design reforms [22,23,37,38]. As Kenya institutionalises SHA-era benefits-package priority setting, outpatient NCD medicines and reliable reimbursement for chronic care should remain central implementation tests [34].
+
+This study has limitations. The design was cross-sectional, so associations should not be interpreted causally and temporal ordering between current insurance and current medication use cannot be established. Diagnoses, medication use, and roster-based insurance coverage were self-reported, which may introduce recall or reporting error and some merge-related misclassification. The women's analysis was restricted to the long-questionnaire subsample and to ages 18-49 years, while men were observed to age 54 years, so the sex-stratified samples are not perfectly equivalent. Because hypertension, diabetes, and care-seeking all vary with age, excluding women aged 50-54 years likely makes the female analytic sample younger than the corresponding male sample and may shift women's coverage and treatment estimates relative to the full adult female diagnosed population; the direction for treatment gaps is uncertain, so sex contrasts should be interpreted descriptively rather than as direct population-equivalent comparisons. Residual confounding is also likely because insurance enrolment may be correlated with unmeasured health-seeking behaviour, disease severity, or provider contact. Finally, the treatment gap was defined as not currently taking medication for at least one diagnosed condition, meaning partially treated individuals with multiple diagnoses are classified as having a gap. While clinically appropriate for complete chronic-care coverage, this produces higher estimates than a stricter no-medication-for-any-diagnosed-condition definition. Reassuringly, the stricter sensitivity analysis yielded similar prevalence estimates and insurance APRs (Additional file 3). Because male interviews were conducted in a household subsample, pooled estimates required a male-subsample correction and should be interpreted as secondary to the sex-stratified analyses.
+
+Within the pooled comorbid subgroup, `r key_results$both_dx_gap_one_count` respondents had a gap in one condition and `r key_results$both_dx_gap_both_count` had gaps in both, underscoring why the inclusive treatment-gap definition matters for interpretation.
+
+# Conclusions
+
+Among Kenyan adults who reported diagnosed hypertension or diabetes in KDHS 2022, insurance coverage remained incomplete and treatment gaps remained large at the end of the NHIF era. Insurance coverage was strongly pro-rich, but treatment gaps were widespread across wealth groups, indicating a chronic-care problem that extended beyond enrolment inequity alone. Women faced larger treatment gaps and greater money and distance barriers than men, although sex differences should be interpreted cautiously because the analytic samples were not fully age-equivalent. As Kenya implements SHA, these findings suggest that universal enrolment targets should be paired with deeper financial protection, reliable access to essential NCD medicines, and stronger primary-care readiness for long-term chronic disease management.
+
+# List of abbreviations
+
+- APR: adjusted prevalence ratio
+- CI: confidence interval
+- DM: diabetes mellitus
+- DHS: Demographic and Health Survey
+- HTN: hypertension
+- KDHS: Kenya Demographic and Health Survey
+- NHIF: National Health Insurance Fund
+- NCD: non-communicable disease
+- OR: odds ratio
+- SHA: Social Health Authority
+
+# Declarations
+
+## Ethics approval and consent to participate
+
+This study used de-identified secondary data from the 2022 Kenya Demographic and Health Survey, obtained from The DHS Program under authorisation letter reference 220623 for the registered project titled "Impact of NHIF Enrollment on Financial Catastrophic Health Expenditure" (DHS reference 220623), authorised on 20 October 2025. The original survey received ethical approval from the Kenya Medical Research Institute Scientific and Ethics Review Unit (KEMRI SERU) and the ICF Institutional Review Board. No new participant contact occurred in this secondary analysis.
+
+## Consent for publication
+
+Not applicable.
+
+## Availability of data and materials
+
+The datasets analysed during the current study are available from The DHS Program (www.dhsprogram.com) following registration and approval of the standard data access application. Study-specific analysis scripts are available from the corresponding author upon reasonable request.
+
+## Competing interests
+
+The authors declare that they have no competing interests.
+
+## Funding
+
+Not applicable.
+
+## Authors' contributions
+
+NWA conceptualised the study, conducted data analysis, and drafted the manuscript. JO contributed to study design, interpretation of findings, and critical revision of the manuscript. All authors reviewed and approved the final version.
+
+## Acknowledgements
+
+The authors thank The DHS Program for access to KDHS 2022 microdata.
+
+# References
+
+1. Mohamed SF, Mutua MK, Wamai R, Kibachio J, Ngaruiya C, Kareemi H, et al. Prevalence and factors associated with hypertension in Kenya: a national population-based survey. BMC Public Health. 2018;18(Suppl 3):1218. doi:10.1186/s12889-018-6052-y.
+2. Mohamed SF, Mwangi M, Mutua MK, Kibachio J, Njuguna B, Oluwasanu M, et al. Prevalence and factors associated with pre-diabetes and diabetes mellitus in Kenya: results from a national survey. BMC Public Health. 2018;18(Suppl 3):1215. doi:10.1186/s12889-018-6053-x.
+3. Ong KL, Stafford LK, McLaughlin SA, Boyko EJ, Vollset SE, Smith AE, et al. Global, regional, and national burden of diabetes from 1990 to 2021, with projections of prevalence to 2050: a systematic analysis for the Global Burden of Disease Study 2021. Lancet. 2023;402(10397):203-234. doi:10.1016/S0140-6736(23)01301-6.
+4. Nungo S, Filippon J, Russo G. Social health insurance for universal health coverage in low- and middle-income countries: a retrospective policy analysis of attainments, setbacks and equity implications of Kenya's social health insurance model. BMJ Open. 2024;14(12):e085903. doi:10.1136/bmjopen-2024-085903.
+5. Kimani JK, Ettarh R, Warren C, Bellows B. Determinants of health insurance ownership among women in Kenya: evidence from the 2008-09 Kenya demographic and health survey. Int J Equity Health. 2014;13:27. doi:10.1186/1475-9276-13-27.
+6. Kazungu JS, Barasa EW. Examining levels, distribution and correlates of health insurance coverage in Kenya. Trop Med Int Health. 2017;22(9):1175-1185. doi:10.1111/tmi.12912.
+7. Barasa E, Kazungu J, Nguhiu P, Ravishankar N. Examining the level and inequality in health insurance coverage in 36 sub-Saharan African countries. BMJ Glob Health. 2021;6(4):e004712. doi:10.1136/bmjgh-2020-004712.
+8. Oyando R, Were V, Koros H, Mugo R, Kamano J, Ngunjiri A, et al. Evaluating the effectiveness of the National Health Insurance Fund in providing financial protection to households with hypertension and diabetes patients in Kenya. Int J Equity Health. 2023;22:107. doi:10.1186/s12939-023-01923-5.
+9. Amollo NW, Ogol J, Museve E, Owenga J, Aduda DO, et al. Financial determinants of effective hypertension and diabetes care in rural primary health facilities in Kisumu, Kenya: a mixed-methods study. BMC Public Health. 2026. doi:10.1186/s12889-026-26963-8.
+10. Kenya National Bureau of Statistics, Ministry of Health, National AIDS Control Council, Kenya Medical Research Institute, National Council for Population and Development, ICF. Kenya Demographic and Health Survey 2022: Volume 1. Nairobi, Kenya and Rockville, Maryland, USA: KNBS and ICF; 2023. Available from: https://www.dhsprogram.com/pubs/pdf/FR380/FR380.pdf. Accessed 29 Mar 2026.
+11. The DHS Program. Using datasets for analysis. Available from: https://dhsprogram.com/data/using-datasets-for-analysis.cfm. Accessed 29 Mar 2026.
+12. The DHS Program. Merging datasets. Available from: https://dhsprogram.com/data/Merging-Datasets.cfm. Accessed 29 Mar 2026.
+13. Croft TN, Allen CK, Zachary BW, et al. Guide to DHS Statistics DHS-8. Rockville, Maryland, USA: ICF; 2023. Available from: https://www.dhsprogram.com/pubs/pdf/DHSG1/Guide_to_DHS_Statistics_DHS-8.pdf. Accessed 30 Mar 2026.
+14. Zou G. A modified poisson regression approach to prospective studies with binary data. Am J Epidemiol. 2004;159(7):702-706. doi:10.1093/aje/kwh090.
+15. Wagstaff A, Paci P, van Doorslaer E. On the measurement of inequalities in health. Soc Sci Med. 1991;33(5):545-557. doi:10.1016/0277-9536(91)90212-U.
+16. Erreygers G. Correcting the concentration index. J Health Econ. 2009;28(2):504-515. doi:10.1016/j.jhealeco.2008.02.003.
+17. Lumley T. Complex Surveys: A Guide to Analysis Using R. Hoboken, NJ: Wiley; 2010.
+18. Ataklte F, Erqou S, Kaptoge S, Taye B, Echouffo-Tcheugui JB, Kengne AP. Burden of undiagnosed hypertension in sub-Saharan Africa: a systematic review and meta-analysis. Hypertension. 2015;65(2):291-298. doi:10.1161/HYPERTENSIONAHA.114.04394.
+19. Zhou B, Carrillo-Larco RM, Danaei G, Riley LM, Paciorek CJ, Stevens GA, et al. Worldwide trends in hypertension prevalence and progress in treatment and control from 1990 to 2019: a pooled analysis of 1201 population-representative studies with 104 million participants. Lancet. 2021;398(10304):957-980. doi:10.1016/S0140-6736(21)01330-1.
+20. Shengelia B, Tandon A, Adams OB, Murray CJL. Access, utilization, quality, and effective coverage: an integrated conceptual framework and measurement strategy. Soc Sci Med. 2005;61(1):97-109. doi:10.1016/j.socscimed.2004.11.055.
+21. Nguhiu PK, Barasa EW, Chuma J. Measuring and comparing effective coverage for maternal and child health interventions in Kenya. Trop Med Int Health. 2017;22(4):414-426. doi:10.1111/tmi.12841.
+22. Mbau R, Kebriaei A, Dodd MG, Barasa E. Examining purchasing reforms towards universal health coverage by the National Hospital Insurance Fund in Kenya. Int J Equity Health. 2020;19:19. doi:10.1186/s12939-019-1116-x.
+23. Barasa E, Rogo K, Mwaura N, Chuma J. Kenya national hospital insurance fund reforms: implications and lessons for universal health coverage. Health Syst Reform. 2018;4(4):346-361. doi:10.1080/23288604.2018.1513267.
+24. Xu K, Evans DB, Kawabata K, Zeramdini R, Klavus J, Murray CJL. Household catastrophic health expenditure: a multicountry analysis. Lancet. 2003;362(9378):111-117. doi:10.1016/S0140-6736(03)13861-5.
+25. Chuma J, Maina T. Catastrophic health care spending and impoverishment in Kenya. BMC Health Serv Res. 2012;12:413. doi:10.1186/1472-6963-12-413.
+26. Njagi P, Arsenijevic J, Groot W. Changes in socioeconomic inequalities in catastrophic health expenditure in Kenya. PLoS One. 2021;16(1):e0244428. doi:10.1371/journal.pone.0244428.
+27. Buigut S, Ettarh R, Amendah DD. Catastrophic health expenditure and its determinants in Kenya slum communities. Int J Equity Health. 2015;14:46. doi:10.1186/s12939-015-0168-9.
+28. Thaddeus S, Maine D. Too far to walk: maternal mortality in context. Soc Sci Med. 1994;38(8):1091-1110. doi:10.1016/0277-9536(94)90226-7.
+29. Seidu AA, Agbaglo E, Dadzie LK, Ahinkorah BO, Ameyaw EK, Tetteh JK, et al. Barriers to accessing healthcare among women in sub-Saharan Africa: a multilevel modelling of demographic and health survey data. PLoS One. 2020;15(12):e0241409. doi:10.1371/journal.pone.0241409.
+30. Oyando R, Barasa E, Ataguba JE. Socioeconomic inequity in the screening and treatment of hypertension in Kenya: evidence from a national survey. Front Health Serv. 2022;2:786098. doi:10.3389/frhs.2022.786098.
+31. Otieno CF, Vaghela V, Kiptoo P, Ngunjiri A, Andall-Brereton G, Koduah A, et al. Readiness to provide integrated management of cardiovascular diseases and type 2 diabetes in Kenya: results from a mixed-methods analysis of 44 lower-level health facilities in western Kenya. Glob Heart. 2023;18(1):79. doi:10.5334/gh.1213.
+32. Kiragu JK, Manji I, Nyatichi E, Kisia L, Mallowa S, Ohuya B, et al. Household access to non-communicable disease medicines during universal health care roll-out in Kenya: a controlled interrupted time series study. PLoS One. 2022;17(4):e0266715. doi:10.1371/journal.pone.0266715.
+33. Onyango MA, Vian T, Hirschhorn LR, Ogollah R, Blat C, Bukhman G, et al. Perceptions of Kenyan adults on access to medicines for non-communicable diseases: a qualitative study. PLoS One. 2018;13(8):e0201917. doi:10.1371/journal.pone.0201917.
+34. Mbau R, Hatt L, Barasa E. The Kenyan health benefits package advisory panel: a model for health technology assessment institutionalisation? Health Policy Plan. 2022;37(9):1140-1152. doi:10.1093/heapol/czac099.
+35. Syed SB, Leatherman S, Mgbere O, Kinoti S, Mbindyo P, Irimu G, et al. Improving access to quality medicines for non-communicable diseases in Kenya: household survey evidence on antihypertensive medicines. Glob Heart. 2018;13(4):315-323. doi:10.1016/j.gheart.2018.08.001.
+36. Oyando R, Njoroge M, Nguhiu P, Kirui F, Mbui J, Sigilai A, et al. Patient costs of hypertension care in public health care facilities in Kenya. Int J Health Plann Manage. 2019;34(4):e1579-e1591. doi:10.1002/hpm.2752.
+37. Barasa E, Nguhiu P, McIntyre D. Measuring progress towards Sustainable Development Goal 3.8 on universal health coverage in Kenya. BMJ Glob Health. 2018;3(3):e000904. doi:10.1136/bmjgh-2018-000904.
+38. Nyawira L, Machira Y, Munge K, Chuma J, Barasa E. Examining the implementation experience of the universal health coverage pilot in Kenya. Health Syst Reform. 2024;10(3):2418808. doi:10.1080/23288604.2024.2418808.
+39. Geldsetzer P, Manne-Goehler J, Marcus ME, Ebert C, Zhumadilov Z, Wesseh CS, et al. The state of hypertension care in 44 low-income and middle-income countries: a cross-sectional study of nationally representative individual-level data from 1.1 million adults. Lancet. 2019;394(10199):652-662. doi:10.1016/S0140-6736(19)30955-9.
+40. Manne-Goehler J, Geldsetzer P, Agoudavi K, Andall-Brereton G, Aryal KK, Bicaba BW, et al. Health system performance for people with diabetes in 28 low- and middle-income countries: a cross-sectional study of nationally representative surveys. PLoS Med. 2019;16(3):e1002751. doi:10.1371/journal.pmed.1002751.
+41. Wang J, Tan F, Wang Z, Yu Y, Yang J, Wang Y, et al. Understanding gaps in the hypertension and diabetes care cascade: systematic scoping review. JMIR Public Health Surveill. 2024;10:e51802. doi:10.2196/51802.
+42. Burnier M, Egan BM. Adherence in hypertension. Circ Res. 2019;124(7):1124-1140. doi:10.1161/CIRCRESAHA.118.313220.
+43. Feng Z, Chen Q, Jiao L, Ma X, Atun R, Geldsetzer P, et al. The impact of health insurance on hypertension care: a household fixed effects study in India. BMC Public Health. 2024;24(1):2287. doi:10.1186/s12889-024-19759-1.
+
