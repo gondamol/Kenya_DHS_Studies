@@ -23,6 +23,7 @@ _site/
 *_cache/
 *_files/
 **/*.knit.md
+**/*.docx.md
 
 # R
 .Rproj.user/
