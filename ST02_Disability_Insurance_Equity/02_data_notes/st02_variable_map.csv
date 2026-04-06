@@ -1,0 +1,15 @@
+constructed_variable,source_variable,definition
+wg_seeing,hdis2,WG seeing difficulty item
+wg_hearing,hdis4,WG hearing difficulty item
+wg_communication,hdis5,WG communication difficulty item
+wg_memory,hdis6,WG remembering/concentrating difficulty item
+wg_walking,hdis7,WG walking/climbing difficulty item
+wg_selfcare,hdis8,WG washing/dressing difficulty item
+wg_summary,hdis9,Highest difficulty across the six functional-difficulty items
+wg_disability,hdis2/hdis4/hdis5/hdis6/hdis7/hdis8,WG threshold met in at least one domain: a lot of difficulty or cannot do at all
+any_functional_difficulty,hdis2/hdis4/hdis5/hdis6/hdis7/hdis8,"Any difficulty in at least one domain: some, a lot, or cannot do at all"
+insured_any,sh27,Any health insurance coverage
+insured_nhif,sh28a,NHIF coverage among those with any insurance
+outpatient_last4w,sh31,Outpatient medical care in the previous 4 weeks
+inpatient_last12m,sh29,Overnight stay in a medical facility in the previous 12 months
+paid_outpatient_recent,sh32,"Paid money for last outpatient care, among recent outpatient users"

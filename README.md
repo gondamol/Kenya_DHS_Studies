@@ -1,14 +1,17 @@
 # Kenya DHS Studies
 
-This repository contains reproducible source materials for DHS-based analyses of health insurance, financial protection, and service-use equity in Kenya.
+This repository contains reproducible source materials for DHS-based analyses of health insurance, financial protection, service use, and disability-related equity in Kenya.
 
-The current public study package is:
+The current public study packages are:
 
+- `ST02_Disability_Insurance_Equity/`
+  - Insurance coverage, service use, and payment at outpatient contact among adults with disability before Kenya's Social Health Authority transition
 - `ST03_NCD_Insurance_Service_Use/`
   - Insurance coverage and treatment gaps among adults with diagnosed hypertension or diabetes before Kenya's Social Health Authority transition
 
 ## Repository contents
 
+- `ST02_Disability_Insurance_Equity/`: study-specific notes, analysis scripts, and manuscript source
 - `ST03_NCD_Insurance_Service_Use/`: study-specific protocol notes, analysis scripts, and manuscript source
 - `_TEMPLATES/`: shared Quarto and manuscript-formatting assets used by the study workflow
 
@@ -18,6 +21,11 @@ Only source materials are versioned. Rendered Word files, exported tables and fi
 
 ```text
 Kenya_DHS_Studies/
+|-- ST02_Disability_Insurance_Equity/
+|   |-- README.md
+|   |-- 02_data_notes/
+|   |-- 03_scripts/
+|   `-- 06_manuscript/
 |-- ST03_NCD_Insurance_Service_Use/
 |   |-- README.md
 |   |-- 01_protocol/
@@ -31,7 +39,7 @@ Kenya_DHS_Studies/
 `-- .gitignore
 ```
 
-## Reproducing ST03
+## Reproducing ST02 or ST03
 
 Prerequisites:
 
@@ -39,15 +47,15 @@ Prerequisites:
 - Quarto
 - Approved local access to KDHS 2022 recode files from the DHS Program
 
-From the `ST03_NCD_Insurance_Service_Use` folder:
+From a study folder such as `ST02_Disability_Insurance_Equity` or `ST03_NCD_Insurance_Service_Use`:
 
 ```bash
-Rscript 03_scripts/run_st03_workflow.R
+Rscript 03_scripts/run_<study>_workflow.R
 cd 06_manuscript
 quarto render manuscript.qmd --to docx
 ```
 
-Study-specific details are in [ST03_NCD_Insurance_Service_Use/README.md](ST03_NCD_Insurance_Service_Use/README.md).
+Study-specific details are in [ST02_Disability_Insurance_Equity/README.md](ST02_Disability_Insurance_Equity/README.md) and [ST03_NCD_Insurance_Service_Use/README.md](ST03_NCD_Insurance_Service_Use/README.md).
 
 ## Data access
 
