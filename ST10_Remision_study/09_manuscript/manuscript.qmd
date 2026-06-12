@@ -1,0 +1,437 @@
+---
+title: "Lifestyle modification for type 2 diabetes remission in low- and middle-income countries, with drug-free hypertension normalisation as a secondary objective: a systematic review and meta-analysis protocol"
+shorttitle: "Lifestyle modification for T2DM remission in LMICs: protocol"
+
+author:
+  - name: Nichodemus Werre Amollo
+    corresponding: true
+    email: nwere@ejooust.ac.ke
+    orcid: "0009-0008-1501-601X"
+    affiliations:
+      - id: aff1
+        name: Jaramogi Oginga Odinga University of Science and Technology (JOOUST)
+        department: School of Health Sciences
+        address: P.O. Box 210-40601
+        city: Bondo, Siaya County
+        country: Kenya
+  - name: Leah Herman
+    affiliations:
+      - id: aff2
+        name: Ratta Health Centre
+        department: Seme Sub-County
+        city: Kisumu County
+        country: Kenya
+  - name: Nellicent Achieng Opondo
+    affiliations:
+      - ref: aff1
+  - name: Japheth Ogola
+    affiliations:
+      - ref: aff1
+
+abstract: |
+  **Background:** Type 2 diabetes mellitus (T2DM) and hypertension are the principal
+  drivers of non-communicable disease mortality in low- and middle-income countries
+  (LMICs). Evidence from high-income countries suggests that structured lifestyle
+  modification may achieve T2DM remission without pharmacotherapy; evidence for drug-free
+  blood pressure normalisation is more limited and conceptually less established. No
+  systematic review has applied these endpoints to LMIC populations, which are
+  characterised by younger age at diagnosis, lower average body mass index, shorter
+  disease duration, and constrained access to continuous pharmacotherapy. Existing LMIC
+  reviews focus on glycaemic control and blood pressure reduction as outcomes requiring
+  ongoing medication, not on drug-free remission.
+
+  **Methods:** We will conduct a systematic review and meta-analysis of randomised
+  controlled trials (RCTs) enrolling adults aged 18 years or older with established
+  T2DM, hypertension, or both, conducted in countries classified as low- or
+  middle-income by the World Bank Atlas method. Eligible interventions are structured
+  lifestyle modification programmes involving dietary change, physical activity, or a
+  combination, with a minimum duration of 12 weeks. The primary outcome is T2DM remission
+  (HbA1c below 48 mmol/mol at least three months after cessation of all glucose-lowering
+  pharmacotherapy); sustained drug-free blood pressure normalisation (below 130/80 mmHg
+  at least six months after cessation of antihypertensive pharmacotherapy) is an
+  exploratory secondary objective. We will search 13 databases from inception. Two
+  independent reviewers will screen records, extract data, and assess risk of bias using
+  the Cochrane Risk of Bias 2.0 tool. Where studies are sufficiently homogeneous, we will
+  pool data using random-effects meta-analyses. A patient characteristics module will
+  descriptively compare baseline participant profiles between LMIC and high-income country
+  trial populations. Certainty of evidence will be assessed using GRADE.
+
+  **Discussion:** This review will produce the first synthesis of lifestyle-based T2DM
+  remission and hypertension normalisation evidence specific to LMIC populations. The
+  comparative patient characteristics analysis will explore whether the LMIC patient
+  profile may differ systematically from populations enrolled in high-income country
+  trials, generating hypotheses regarding the generalisability of existing remission
+  evidence to LMIC settings. Findings will provide a systematic evidence base to guide the
+  design of contextually adapted primary trials in sub-Saharan Africa and to inform
+  clinical and policy decisions on NCD management in settings where sustained access to
+  pharmacotherapy cannot be assumed.
+
+  **Systematic review registration:** PROSPERO CRD420261409919.
+
+keywords:
+  - type 2 diabetes
+  - remission
+  - hypertension
+  - normalisation
+  - lifestyle modification
+  - low- and middle-income countries
+  - sub-Saharan Africa
+  - glycaemic remission
+  - medication discontinuation
+  - meta-analysis
+  - GRADE
+  - PICOS
+
+funding: |
+  This research received no specific grant from any funding agency in the public,
+  commercial, or not-for-profit sectors. [TO CONFIRM with co-authors before submission.]
+
+author-note:
+  contributions: |
+    **NWA** conceptualised the study, developed the methodology, will perform the planned
+    formal analysis, administered the project, and drafted the manuscript; NWA is the
+    guarantor of the review. **JO** contributed to conceptualisation and methodology,
+    provided supervision, and reviewed and edited the manuscript. **LH** contributed to
+    conceptualisation (the clinical observation motivating the review question) and
+    reviewed and edited the manuscript. **NAO** contributed to data curation and the
+    planned formal analysis and reviewed and edited the manuscript. All authors read and
+    approved the final manuscript.
+
+  disclosures:
+    conflict-of-interest: |
+      The authors declare no competing interests.
+
+    ethics: |
+      No ethical approval is required as this systematic review will synthesise only
+      previously published, anonymised data.
+
+    data-availability: |
+      All analysis code (R scripts for meta-analysis, forest plots, funnel plots, and
+      risk-of-bias visualisations) will be deposited on the Open Science Framework (OSF)
+      prior to publication. No primary data are generated by this review. Study materials
+      are available at https://github.com/gondamol/Kenya_DHS_Studies.
+
+format:
+  docx:
+    toc: false
+    number-sections: true
+    reference-doc: ../../_TEMPLATES/reference_doc.docx
+    filters:
+      - ../../_TEMPLATES/suppress-docx-authors.lua
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    theme: cosmo
+    embed-resources: true
+
+bibliography: references.bib
+csl: ../../_TEMPLATES/vancouver.csl
+editor: source
+
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+# Background
+
+Non-communicable diseases have overtaken communicable disease as the primary driver of premature mortality across most low- and middle-income countries. The International Diabetes Federation's 2025 Atlas estimates that 589 million adults worldwide are living with diabetes, of whom 81% reside in LMICs [@idf2025]. Data from the AWI-Gen cohort, the first prospective longitudinal study of cardiometabolic disease in sub-Saharan Africa, documented an incidence of type 2 diabetes of 14.6 cases per 1000 person-years (95% CI 13.4–16.0) in a cohort of 6553 middle-aged adults followed over five to six years across South Africa, Kenya, Ghana, and Burkina Faso [@chikwati2025]. Sub-Saharan Africa is experiencing the most rapid growth in diabetes prevalence of any world region, with the number of adults living with the condition projected to rise substantially by 2045. In Kenya, national surveillance data indicate that approximately 5.6% of adults have raised fasting blood glucose, while hypertension affects approximately 26% of the adult population. The combined burden of these two conditions generates substantial demand for long-term pharmacotherapy in health systems that are structurally ill-equipped to supply it reliably.
+
+Structural constraints on drug supply represent a central, not peripheral, challenge for NCD care in many LMIC primary care settings. A published mixed-methods study of seven primary care facilities in Seme Sub-County, Kisumu County, Kenya found that 86% of facilities experienced frequent stockouts of essential NCD medicines and that no facility held a dedicated NCD budget line [@amollo2026financial]. A complementary capacity assessment of primary healthcare facilities in Seme Sub-County found that 90% lacked essential antihypertensive medicines and no facility possessed HbA1c testing equipment, while fewer than half of healthcare workers demonstrated clinical proficiency in managing diabetes or hypertension [@ogol2025]. Kenya's replacement of the National Health Insurance Fund with the Social Health Authority in 2024 further illustrates the systemic instability of NCD financing, with reported transitional reimbursement delays and access gaps for NCD patients. A 2020 systematic review by Flood and colleagues found that few studies were available from rural areas or from low- or lower-middle-income countries, and emphasised systemic failures in drug supply chains as a cross-cutting barrier to NCD care [@flood2021]. Against this backdrop, interventions that can achieve sustained disease remission, eliminating or substantially reducing medication dependence through lifestyle change, take on a significance that extends well beyond their clinical interest in high-income settings.
+
+The evidence that type 2 diabetes can be reversed through intensive lifestyle modification has accumulated substantially over the past decade. The DiRECT trial, conducted in UK primary care, demonstrated remission rates of 46% at 12 months among participants randomised to a structured total diet replacement and intensive behavioural support programme [@lean2018]. The 2021 international consensus definition (published jointly in *Diabetes Care*, *Diabetologia*, *Diabetic Medicine*, and the *Journal of Clinical Endocrinology and Metabolism* by Riddle and colleagues) established remission as HbA1c below 48 mmol/mol (6.5%) measured at least three months after cessation of all glucose-lowering pharmacotherapy [@riddle2021]. Where HbA1c measurement is unreliable, fasting plasma glucose below 7.0 mmol/L off medication serves as an alternative criterion. The most comprehensive recent synthesis is the systematic review and meta-analysis by Sherifali and colleagues, published in *Diabetes Care* in November 2025, which identified 18 eligible RCTs from 11 countries involving 7,921 participants; both multimodal pharmacological and nonpharmacological interventions were significantly more effective than comparator conditions in achieving remission [@sherifali2025].
+
+Critically, the Sherifali 2025 review is global in scope, does not restrict to LMIC settings, does not perform sub-analyses by country income level, and does not compare participant characteristics across income settings. Of the 18 included RCTs, the majority were conducted in the United Kingdom, the United States, China, and other upper- or high-income settings. No trial included in that review was conducted in sub-Saharan Africa. The review notes as a limitation the absence of evidence on long-term sustainability and patient satisfaction outcomes, but does not address the LMIC evidence gap as a conceptual or methodological concern [@unnikrishnan2025]. A 2023 scoping review by Duhuze Karera and colleagues specifically examined lifestyle-intervention-alone remission trials with implications for sub-Saharan Africa, identifying 16 trials conducted in 10 countries (none in Africa) published between 1984 and 2021 [@duhuzekarera2023]. That review applied broad inclusion criteria, did not require the 2021 consensus definition, included non-randomised designs, and, as a scoping review, did not pool data, assess certainty with GRADE, address hypertension, or compare participant characteristics across income settings. The present review advances this work by restricting eligibility to randomised controlled trials, applying the 2021 consensus definition as the primary outcome filter, conducting meta-analysis with GRADE assessment, adding a hypertension strand, and formally comparing low- and middle-income and high-income country participant profiles.
+
+The concept of remission is less established for hypertension than for T2DM, yet its biological plausibility is supported by several lines of evidence. A 2024 cohort study by Liao and colleagues, drawing on data from two large longitudinal cohorts, found that a meaningful proportion of older adults with newly diagnosed hypertension achieved normal blood pressure without drug treatment over the first several years after diagnosis [@liao2024]. Lifestyle interventions have been shown to reduce systolic blood pressure substantially in LMIC populations: a 2014 systematic review and meta-analysis by Baena and colleagues found mean systolic blood pressure reductions of 11.4 mmHg for physical activity interventions and 6.0 mmHg for multicomponent interventions in LMIC populations [@baena2014]. However, no systematic review has applied the remission framework (sustained, drug-free blood pressure normalisation) to hypertension outcomes in LMIC settings. Unlike T2DM remission, which has an internationally established consensus definition [@riddle2021], drug-free blood pressure normalisation lacks an equivalent consensus framework. The hypertension component of this review is therefore operationally defined for review purposes and treated as an exploratory secondary objective rather than a co-primary analytical strand.
+
+## Evidence gaps and rationale for this review
+
+Four substantive gaps in the current literature motivate this review. First, no systematic review has used T2DM remission per the 2021 international consensus definition as its primary outcome in LMIC settings. Every existing LMIC review, including O'Donoghue and colleagues (2021) and Sagastume and colleagues (2022), uses HbA1c reduction or glycaemic control as its primary measure [@odonoghue2021; @sagastume2022]. These outcomes reflect disease management under pharmacotherapy, not disease reversal.
+
+Second, no review has systematically compared the baseline participant characteristics of LMIC trial populations with those enrolled in HIC trials. This distinction matters because the predictor profile for remission in HIC trials (short disease duration, low baseline HbA1c, capacity for substantial weight loss) may differ systematically from LMIC populations, which tend to present at younger ages, with lower body mass index, and after shorter intervals between symptom onset and formal diagnosis. Whether these characteristics are more or less favourable for remission than the typical HIC trial profile has not been examined.
+
+Third, hypertension remission as a defined endpoint has not been reviewed in the context of LMIC lifestyle trials. The concept has received attention only in high-income settings and only as a secondary or observational finding. Fourth, T2DM and hypertension frequently coexist in LMIC primary care populations and are often managed through the same clinical encounter. A lifestyle intervention achieving remission in both conditions simultaneously reduces polypharmacy burden, lowers treatment costs, and simplifies the care pathway, outcomes with particular salience in settings where drug supply is unreliable. No review has evaluated this joint endpoint.
+
+The clinical relevance of this gap is directly grounded in the co-investigators' ongoing research programme on NCD service delivery at primary healthcare facilities in Seme Sub-County, Kisumu County, Kenya. Published work from this programme has documented both the financial barriers to sustained NCD care at primary care level [@amollo2026financial] and critical shortfalls in facility capacity, diagnostic equipment, and clinical workforce readiness for managing diabetes and hypertension, with 90% of facilities lacking essential antihypertensive medicines and none possessing HbA1c testing capability [@ogol2025]. In the course of clinical follow-up within NCD clinics constituting this programme's study sites, four patients with established T2DM were identified who had discontinued all glucose-lowering pharmacotherapy and were sustaining normal glycaemia through lifestyle modification alone over several months of documented follow-up. These uncontrolled clinical observations do not themselves constitute evidence of intervention effectiveness; they are noted only as the clinical observation that generated the review question, and together with the four evidence gaps documented above they motivate the present systematic review.
+
+## Objectives
+
+This systematic review and meta-analysis will address the following four pre-specified objectives:
+
+1. To estimate the pooled proportion of adults with established T2DM who achieve remission (HbA1c below 48 mmol/mol at least three months after cessation of all glucose-lowering pharmacotherapy) following structured lifestyle modification interventions in LMIC settings; and, as an exploratory secondary strand, to examine the extent to which eligible LMIC trials report sustained drug-free blood pressure normalisation (systolic below 130 mmHg and diastolic below 80 mmHg at least six months after complete cessation of antihypertensive pharmacotherapy), conducting quantitative synthesis where sufficient homogeneous evidence exists and reporting narratively where it does not.
+2. To identify intervention components associated with remission or normalisation, including dietary modality, physical activity type and intensity, behavioural support components, programme duration, and delivery platform.
+3. To compare baseline participant characteristics (age, BMI, disease duration, baseline HbA1c or blood pressure, ethnicity, and urban/rural setting) between LMIC and high-income country trial populations, and to characterise the geographic distribution of eligible LMIC remission trials, quantifying the evidence base by World Bank income tier and documenting the magnitude of the evidence gap specific to sub-Saharan Africa.
+4. To assess the certainty of evidence for all primary and secondary outcomes using the GRADE framework; to identify the principal methodological weaknesses of the existing LMIC remission trial literature (including inconsistency in outcome definitions, follow-up duration, and reporting quality); and to formulate specific design recommendations for a contextually adapted primary cluster-randomised trial in sub-Saharan Africa.
+
+# Methods
+
+## Study design and registration
+
+This is a protocol for a systematic review and meta-analysis following the Preferred Reporting Items for Systematic Reviews and Meta-Analyses for Protocols (PRISMA-P) 2015 guidelines [@moher2015]. The completed review will be reported according to the PRISMA 2020 statement [@page2021]. The protocol is registered with PROSPERO (International Prospective Register of Systematic Reviews, University of York; registration number CRD420261409919). No ethical approval is required as this review will synthesise only previously published data.
+
+## Eligibility criteria
+
+### Population
+
+Adults aged 18 years and older with an established clinical diagnosis of type 2 diabetes mellitus, hypertension, or both, residing in or receiving care in a country classified as low-income, lower-middle-income, or upper-middle-income by the World Bank Atlas method at the time of study conduct. For the current FY2026 classification, this encompasses low-income economies (gross national income per capita ≤ USD 1,135), lower-middle-income economies (USD 1,136–4,495), and upper-middle-income economies (USD 4,496–13,935) [@worldbank2025]. We will use the World Bank classification applicable to the year in which each primary study recruited participants. Both urban and rural populations are eligible. There is no restriction on sex, ethnicity, BMI, or disease duration at enrolment.
+
+T2DM diagnosis must be established prior to intervention by any of the following: a clinical diagnosis documented by a healthcare provider; fasting plasma glucose ≥ 7.0 mmol/L on two separate occasions; random plasma glucose ≥ 11.1 mmol/L with symptoms; or HbA1c ≥ 48 mmol/mol. Hypertension diagnosis must be established by documented systolic blood pressure ≥ 140 mmHg or diastolic blood pressure ≥ 90 mmHg on at least two separate measurements, consistent with WHO/ISH 2023 guidelines.
+
+Studies enrolling participants with type 1 diabetes, gestational diabetes, secondary or resistant hypertension, or participants in the pre-diabetes or pre-hypertension category will be excluded. Studies conducted exclusively in paediatric populations (under 18 years) or in high-income countries will be excluded. Multi-country trials spanning both LMIC and high-income sites will be eligible only if LMIC participants constitute at least 80% of the total enrolled sample; this threshold will be applied at the study level and documented in the data extraction form. The 80% threshold was specified a priori to ensure that pooled estimates predominantly reflect LMIC populations while retaining large multinational trials with limited high-income representation; multi-country trials falling below this threshold, or for which the LMIC proportion cannot be determined, will be excluded from primary analyses but examined in a sensitivity analysis applying a less restrictive 50% threshold.
+
+### Intervention
+
+Any structured lifestyle modification intervention that includes one or more of the following components: (a) dietary modification, including but not limited to caloric restriction, very low-calorie diet, low-carbohydrate diet, DASH diet, Mediterranean-pattern diet, or plant-based dietary advice; (b) structured physical activity, including any aerobic, resistance, or combined exercise programme, with or without a defined intensity prescription; (c) multicomponent behavioural support, including health education, self-management support, motivational interviewing, health coaching, or peer support. Interventions must have a minimum total duration of 12 weeks and may be delivered at health facilities, in community settings, through community health workers or lay health workers, or via digital platforms combined with supervised in-person components. The 12-week minimum was selected on grounds of biological plausibility, since the reversal of ectopic hepatic and pancreatic fat and the partial restoration of beta-cell function associated with remission in reported trials typically require a sustained intervention of at least this duration, and to favour behaviourally sustainable interventions; a sensitivity analysis will additionally include any identified trials of 8 to 12 weeks' duration.
+
+Combined pharmacological and lifestyle interventions will be included provided that the lifestyle component is explicitly described and the trial includes a comparator arm without the lifestyle component. Purely pharmacological interventions without a lifestyle component will be excluded, as will bariatric and metabolic surgery. Prevention interventions targeting populations without established disease (including trials such as Da Qing, IDPP-1, and the Diabetes Prevention Program, which enrolled participants with impaired glucose tolerance rather than confirmed T2DM) will be excluded, as disease prevention and disease reversal constitute distinct clinical questions. Digital-only interventions without a structured in-person or supervised component will be excluded, as will single dietary advice sessions or single-contact physical activity counselling without structured follow-up. For the purposes of data synthesis, interventions will be categorised into three primary groups: (1) dietary modification alone, (2) physical activity alone, and (3) multicomponent programmes combining two or more components with or without behavioural support. Where pooling within categories is not possible owing to heterogeneity or small study numbers, findings will be reported narratively.
+
+### Comparator
+
+Any of the following: (a) usual care, defined as routine clinical management of T2DM or hypertension according to local guidelines; (b) active control receiving a less intensive lifestyle intervention; (c) waitlist control; (d) pharmacotherapy alone without a lifestyle component. Studies with no comparator arm will be excluded from primary analyses.
+
+### Outcomes
+
+**Primary outcomes.**
+
+- *For the T2DM strand:* T2DM remission, defined as HbA1c below 48 mmol/mol (6.5%) measured at least three months after cessation of all glucose-lowering pharmacotherapy, consistent with the 2021 international consensus definition by Riddle and colleagues [@riddle2021]. Where HbA1c is documented as unreliable (for example, in settings with high haemoglobinopathy prevalence), fasting plasma glucose below 7.0 mmol/L off medication will be accepted as an alternative criterion, with sensitivity analyses excluding FPG-based definitions. Cessation of glucose-lowering pharmacotherapy must be reported by the trial investigators (by any source, including investigator records, pharmacy or prescription records, or structured participant report, with the source recorded in the data extraction form) and must denote complete withdrawal of all agents, both oral glucose-lowering drugs and insulin, sustained throughout the assessment window rather than documented at a single timepoint. Trials in which only some agents are withdrawn will not meet the remission definition but will contribute to the secondary medication-discontinuation outcome. The provision for HbA1c unreliability applies principally to regions with a high prevalence of haemoglobinopathy or anaemia, notably sub-Saharan Africa and parts of South and Southeast Asia; trials relying on FPG-based definitions will be examined in a sensitivity analysis and considered for downgrading for indirectness under GRADE.
+- *For the hypertension strand (exploratory secondary objective):* In the absence of an internationally established consensus definition for hypertension remission, we operationally define sustained drug-free blood pressure normalisation as systolic blood pressure below 130 mmHg and diastolic below 80 mmHg at a minimum of six months following complete cessation of antihypertensive pharmacotherapy. Studies reporting sustained medication discontinuation without a specific blood pressure threshold will be eligible but analysed separately. Given the exploratory nature of this objective, quantitative synthesis will be conducted only where eligible studies are sufficient in number and homogeneity; otherwise, findings will be reported narratively following SWiM guidelines [@campbell2020]. Should no eligible LMIC trial report the drug-free normalisation endpoint, the hypertension strand will be reported entirely as a narrative synthesis of antihypertensive medication reduction and discontinuation rates with accompanying blood pressure control, and the absence of normalisation data will be documented as an explicit evidence gap and research priority.
+
+**Secondary outcomes.**
+
+- Partial T2DM remission (HbA1c 39–47 mmol/mol off pharmacotherapy)
+- Relapse rate (return to HbA1c ≥ 48 mmol/mol or antihypertensive reinitiation) at 12, 24, and 36 months
+- Change in body weight and BMI
+- Medication discontinuation rates
+- Cardiovascular event rates (fatal and non-fatal myocardial infarction, stroke, heart failure)
+- Health-related quality of life (any validated patient-reported outcome measure)
+- Adverse events (severe hypoglycaemia, hypertensive crisis, and any serious adverse event)
+- Baseline participant characteristics associated with remission or normalisation (Objective 3)
+
+### Study design
+
+Randomised controlled trials, including parallel-group, cluster-randomised, and cross-over designs. Cluster-randomised trials will be included with appropriate variance correction. Cross-over trials will be included for outcomes measured prior to the cross-over only. Quasi-randomised studies and non-randomised designs will be excluded from primary analyses but may contribute to sensitivity analyses if the RCT evidence base is insufficient. There is no minimum sample size restriction; however, sample size will be recorded and its contribution to heterogeneity will be explored.
+
+### Setting and language
+
+Studies must be conducted in countries classified as low- or middle-income by the World Bank at the time of recruitment. Both urban and rural settings and all healthcare tiers (primary, secondary, and community-based) are eligible. There is no restriction on language of publication; studies published in languages other than English will be translated using professional translation services or, where unavailable, machine translation with back-translation verification. Studies published as conference abstracts only will be excluded owing to insufficient methodological detail; full publications of the same findings will be included if available.
+
+## Search strategy
+
+### Information sources
+
+The following 13 databases will be searched from inception to the date of the final search, which will be conducted within 30 days of PROSPERO registration: MEDLINE (via PubMed); Embase (via Elsevier); Cochrane Central Register of Controlled Trials (CENTRAL); Web of Science Core Collection; CINAHL (via EBSCOhost); Global Health (via CABI); African Journals Online (AJOL); LILACS (Latin American and Caribbean Health Sciences Literature); IndMED (Indian Medlars Centre); WHO Global Index Medicus; International Clinical Trials Registry Platform (ICTRP); ClinicalTrials.gov; and grey literature sources (ProQuest Dissertations and Theses Global, the Grey Literature Report, and institutional repositories).
+
+In addition to database searching, we will conduct forward and backward citation searches on all included full-text articles and on the five most methodologically relevant recent systematic reviews in related areas, including Sherifali and colleagues (2025), O'Donoghue and colleagues (2021), and Sagastume and colleagues (2022). A medical librarian will peer-review the search strategy using the PRESS (Peer Review of Electronic Search Strategies) framework prior to execution [@mcgowan2016].
+
+### Search terms
+
+The following strategy will be used for MEDLINE and adapted for all other databases. Full adapted strategies for each database will be provided as a supplementary file to the published protocol. To reduce the risk of missing eligible studies where remission is reported under non-standard terminology, the strategy will include synonyms and related terms such as "diabetes reversal", "medication withdrawal", "treatment discontinuation", "normoglycaemia", "drug-free", and "metabolic recovery", in addition to "remission". Studies in LMIC settings not indexed with explicit geographic terms will be captured through the LMIC-specific databases listed above and through the Cochrane EPOC geographic search filter for low- and middle-income countries. We note that the EPOC LMIC filter is developed for MEDLINE and Embase and may not transfer cleanly to region-specific databases such as African Journals Online and IndMED; for these sources, comprehensive retrieval will rely on their inherent regional indexing supplemented by country-name and free-text terms rather than the EPOC filter, and the medical librarian will adapt and document each database-specific strategy accordingly.
+
+| Set | Concept | Search terms (MEDLINE/PubMed) |
+|-----|---------|-------------------------------|
+| #1 | T2DM | "Diabetes Mellitus, Type 2"[MeSH] OR "type 2 diabetes"[tiab] OR "type II diabetes"[tiab] OR "non-insulin dependent diabetes"[tiab] OR "NIDDM"[tiab] OR "T2DM"[tiab] |
+| #2 | Hypertension | "Hypertension"[MeSH] OR "hypertension"[tiab] OR "high blood pressure"[tiab] OR "elevated blood pressure"[tiab] OR "arterial hypertension"[tiab] |
+| #3 | Intervention | "Life Style"[MeSH] OR "Diet"[MeSH] OR "Exercise"[MeSH] OR "lifestyle modification"[tiab] OR "lifestyle intervention"[tiab] OR "dietary intervention"[tiab] OR "physical activity"[tiab] OR "caloric restriction"[tiab] OR "weight loss"[tiab] OR "low-calorie diet"[tiab] OR "low carbohydrate"[tiab] OR "DASH diet"[tiab] OR "Mediterranean diet"[tiab] OR "health coaching"[tiab] OR "behaviour change"[tiab] OR "self-management"[tiab] |
+| #4 | T2DM remission | "remission"[tiab] OR "reversal"[tiab] OR "resolution"[tiab] OR "drug-free"[tiab] OR "medication discontinuation"[tiab] OR "off medication"[tiab] OR "normalisation"[tiab] OR "normalization"[tiab] |
+| #5 | HTN normalisation | "blood pressure normalisation"[tiab] OR "blood pressure normalization"[tiab] OR "hypertension remission"[tiab] OR "antihypertensive discontinuation"[tiab] OR "medication withdrawal"[tiab] |
+| #6 | LMIC setting | "developing countries"[MeSH] OR "low-income countries"[tiab] OR "middle-income countries"[tiab] OR "LMIC"[tiab] OR "sub-Saharan Africa"[tiab] OR "South Asia"[tiab] OR "Southeast Asia"[tiab] OR "Latin America"[tiab] OR "Africa"[MeSH] OR "Asia"[MeSH] OR country names (full World Bank LMIC list) |
+| #7 | Study design | "Randomized Controlled Trial"[pt] OR "randomised controlled trial"[tiab] OR "randomized controlled trial"[tiab] OR "RCT"[tiab] OR "cluster-randomised"[tiab] OR "cluster-randomized"[tiab] |
+| Final | Combination | (#1 OR #2) AND #3 AND (#4 OR #5) AND #6 AND #7 |
+
+## Study selection
+
+### Process
+
+All records identified through database searching and other sources will be imported into Rayyan (Qatar Computing Research Institute) for deduplication and screening. Duplicate records will be removed automatically and verified manually. Two reviewers (NWA and JO) will independently screen titles and abstracts of all retrieved records against the eligibility criteria using a standardised screening form pilot-tested on a random sample of 50 records. Full texts of records passing title and abstract screening will be retrieved and assessed for eligibility independently by the same two reviewers. Disagreements will be resolved through discussion; where consensus cannot be reached, a third reviewer will adjudicate. A PRISMA 2020 flow diagram will document the number of records identified, screened, assessed for eligibility, and included, with reasons for exclusion at each stage.
+
+### Inter-rater reliability
+
+Cohen's kappa will be calculated at title and abstract screening and at full-text screening stages. A kappa of ≥ 0.75, indicating substantial agreement, will be considered acceptable prior to proceeding to data extraction. If the initial kappa falls below this threshold, reviewers will revisit and clarify the eligibility criteria and rescreen a new sample before proceeding. All excluded full-text articles will be listed with reasons for exclusion in a supplementary file.
+
+## Data extraction
+
+A structured data extraction form will be developed in Microsoft Excel and pilot-tested on five randomly selected eligible studies before full extraction proceeds. Data will be extracted independently by two reviewers, with discrepancies resolved through discussion or third-reviewer adjudication. The form will capture the following domains:
+
+| Domain | Variables |
+|--------|-----------|
+| Administrative | First author, year, journal, country, language, World Bank income tier at year of conduct, PROSPERO or trial registration number |
+| Study design | Trial design (parallel, cluster, cross-over), allocation concealment, blinding, sample size, follow-up duration, setting (facility/community/digital), rural or urban, single or multi-site |
+| Population | Mean age (SD or IQR), sex distribution (% female), ethnicity, mean BMI (SD), disease duration (years), baseline HbA1c or blood pressure, comorbidities, socioeconomic status proxies |
+| Intervention | Dietary modality, physical activity type and intensity, behavioural support components, contact frequency and duration, delivery agent (clinician, CHW, peer), delivery platform, caloric or weight-loss target |
+| Comparator | Nature of comparator (usual care, active control, pharmacotherapy only) |
+| Primary outcomes | Remission rate (proportion with HbA1c < 48 mmol/mol off medication at ≥ 3 months); BP normalisation rate off medication at ≥ 6 months; definition used by study authors; consistency with 2021 consensus definition |
+| Secondary outcomes | Partial remission rate; relapse at 12, 24, 36 months; change in BMI; medication discontinuation rate; cardiovascular events; quality-of-life scores; adverse events |
+| Statistical reporting | Sample sizes per arm, event counts, risk ratio or odds ratio with 95% CI, follow-up completion rate, any imputation method used |
+
+### Handling of missing data
+
+Where data required for meta-analysis are not reported, we will contact corresponding authors by email with a minimum of two attempts over 30 days. Where no response is received, standard deviations will be imputed from related studies using methods recommended in the Cochrane Handbook for Systematic Reviews of Interventions [@higgins2023]. All imputed values will be documented and sensitivity analyses excluding imputed studies will be conducted.
+
+## Risk of bias assessment
+
+Risk of bias for all included RCTs will be assessed using the Cochrane Risk of Bias 2.0 (RoB 2) tool [@sterne2019], which evaluates five domains: bias arising from the randomisation process; bias due to deviations from intended interventions; bias due to missing outcome data; bias in measurement of the outcome; and bias in selection of the reported result. For cluster-randomised trials, the cluster extension of RoB 2 will be applied. Two reviewers will independently assess risk of bias for each study-outcome combination and rate overall risk as low, some concerns, or high. Disagreements will be resolved through discussion or third-reviewer adjudication. Results will be presented as a traffic-light plot and weighted bar chart using the robvis package in R.
+
+## Data synthesis
+
+### Primary meta-analyses
+
+Where two or more studies report a common outcome using compatible definitions within comparable populations, data will be pooled using random-effects meta-analysis with the restricted maximum likelihood (REML) estimator for the between-study variance as the primary approach. Confidence intervals for pooled estimates will be derived using the Hartung-Knapp-Sidik-Jonkman (HKSJ) method, which produces more conservative intervals and is particularly important when few studies contribute to a pooled estimate. For binary outcomes (remission rate, blood pressure normalisation rate), we will calculate pooled risk ratios (RR) with 95% confidence intervals. For continuous outcomes (change in HbA1c, change in systolic and diastolic blood pressure), we will calculate weighted mean differences (WMD) where outcome measures are identical, or standardised mean differences (SMD) where different scales are used. T2DM and hypertension meta-analyses will be conducted separately. For binary outcomes the risk ratio will be the primary effect measure; where a study reports zero events in one arm, a 0.5 continuity correction will be applied, and as a sensitivity analysis we will additionally estimate a Peto odds ratio (for sparse, approximately balanced data) and, where feasible, fit a generalised linear mixed model that does not require continuity corrections. For the pooled single-group remission proportion, data will be combined on the logit or Freeman-Tukey double-arcsine scale using a random-effects model, which retains zero-event studies rather than excluding them.
+
+### Assessment of heterogeneity
+
+Statistical heterogeneity will be assessed using the Cochran Q test (p < 0.10 as the threshold for significance) and the I² statistic, with thresholds of less than 25%, 25–50%, 50–75%, and greater than 75% representing low, moderate, substantial, and considerable heterogeneity, respectively. Where substantial heterogeneity (I² > 50%) is identified, we will not report a single pooled estimate as the primary finding; instead, we will explore sources of heterogeneity through the pre-specified subgroup analyses described below and provide a narrative synthesis alongside any pooled estimates. Prediction intervals will be calculated for all primary meta-analyses to convey the expected range of true effects across settings. Where fewer than five studies contribute to a pooled estimate, prediction intervals will be reported with explicit caution regarding their wide and unstable bounds, and will be omitted where they cannot be meaningfully estimated.
+
+### Subgroup analyses
+
+The following subgroup analyses are pre-specified for both the T2DM and hypertension strands and will be conducted only where a minimum of three studies contribute to each subgroup: World Bank income tier of study country (low-income; lower-middle-income; upper-middle-income); setting (urban versus rural); delivery platform (facility-based versus community-based versus digital-combined); intervention type (dietary modification alone versus physical activity alone versus multicomponent); presence of trained community health worker or lay health worker in intervention delivery; follow-up duration (less than 12 months versus 12 months or longer); baseline disease duration (less than 5 years versus 5 years or longer); and baseline BMI (below 25 kg/m² versus 25–29.9 versus 30 kg/m² or above).
+
+Results of subgroup analyses will be interpreted cautiously given the risk of spurious findings from multiple testing. Given the anticipated scarcity of eligible LMIC trials, three subgroup analyses are designated a priori as primary, namely World Bank income tier, intervention type, and baseline disease duration; the remaining subgroup analyses will be conducted only where the minimum of three studies per subgroup is met, and all under-powered comparisons will be reported narratively rather than as pooled estimates.
+
+### Sensitivity analyses
+
+The following sensitivity analyses are pre-specified: excluding studies rated at high risk of bias; excluding studies that used FPG-based rather than HbA1c-based remission criteria; excluding studies that reported remission as a secondary rather than primary endpoint; excluding cluster-randomised trials; restricting to studies with follow-up of 12 months or longer; excluding studies that combined lifestyle modification with a pharmacological component; including any identified trials of 8 to 12 weeks' duration; and applying a less restrictive 50% LMIC-participant threshold for multi-country trials.
+
+### Patient characteristics comparative analysis
+
+This analysis addresses Objective 3. For all eligible RCTs, we will extract the following baseline participant characteristics: mean age (years), mean BMI (kg/m²), proportion of female participants, mean disease duration (years), mean baseline HbA1c (mmol/mol), presence of comorbid hypertension, proportion recruited from rural settings, and ethnic composition. We will then conduct a structured meta-epidemiological comparison between LMIC and high-income country trial populations, using data from the HIC trials identified in Sherifali and colleagues (2025) as the reference set. In parallel, we will produce a geographic distribution summary documenting the number of eligible trials, enrolled participants, and countries represented across LMIC income tiers, with explicit documentation of the sub-Saharan Africa evidence gap.
+
+Differences in baseline participant characteristics between LMIC and high-income country trial populations will be summarised descriptively, as weighted means with standard deviations or medians with ranges and accompanying displays of each characteristic by income setting, rather than tested through meta-regression, because aggregate baseline descriptors are not effect sizes and formal meta-regression of participant characteristics themselves would be methodologically inappropriate and prone to ecological fallacy. Separately, and only where the number of trials reporting remission is sufficient (a minimum of ten studies overall, with at least ten observations per covariate modelled), we will conduct a random-effects meta-regression in which the trial-level remission rate is the outcome and World Bank income group is the primary moderator, to explore whether income setting is associated with between-study differences in remission. Selected baseline characteristics (mean age, BMI, disease duration, baseline HbA1c) may be entered as covariates in this remission-rate model where degrees of freedom permit. All such analyses are exploratory and hypothesis-generating: in the absence of individual participant data they cannot establish that differences in aggregate baseline profile cause differences in remission, and findings will be interpreted with corresponding caution.
+
+### Assessment of meta-bias
+
+Where ten or more studies contribute to a pooled analysis, publication bias will be assessed using contour-enhanced funnel plots inspected for asymmetry, and Egger's regression-based test for small study effects (significance threshold p < 0.10). Where asymmetry is detected, the trim-and-fill method will be used only as an exploratory sensitivity analysis to gauge the potential influence of unpublished studies, rather than as a correction to the pooled effect estimate.
+
+### Narrative synthesis
+
+Where quantitative synthesis is not possible owing to heterogeneity in outcome definitions, intervention design, or reporting, a narrative synthesis will be conducted following the Synthesis Without Meta-Analysis (SWiM) reporting guidelines [@campbell2020]. Narrative synthesis will describe the direction, magnitude, and consistency of effects across studies and identify contextual factors that may explain patterns in the evidence.
+
+## Certainty of evidence
+
+The certainty of evidence for all primary and key secondary outcomes will be assessed using the GRADE (Grading of Recommendations Assessment, Development and Evaluation) framework [@guyatt2011; @atkins2004]. For each outcome, the body of evidence will begin at high certainty and may be rated down for risk of bias, inconsistency, indirectness (including LMIC-specific considerations on outcome applicability), imprecision, and publication bias. Evidence will be rated as high, moderate, low, or very low certainty. GRADE summary of findings tables will be produced for all primary outcomes using GRADEpro GDT software. GRADE assessments will be performed independently by two reviewers and discussed to reach consensus. Under indirectness specifically, we will consider downgrading where remission is ascertained by fasting plasma glucose rather than HbA1c or where HbA1c testing is not standardised or quality-assured; where dietary or behavioural interventions are not culturally adapted to the target population; or where the intervention's contact intensity or delivery model exceeds what is feasible within typical LMIC primary-care capacity, thereby limiting applicability to real-world LMIC settings.
+
+## Reporting and software
+
+This protocol is reported according to the PRISMA-P 2015 checklist (Appendix A) [@moher2015]. The completed review will be reported according to the PRISMA 2020 statement [@page2021]. All analysis code (R scripts for meta-analysis, forest plots, funnel plots, and risk-of-bias visualisations) will be deposited on the Open Science Framework (OSF) prior to publication. Statistical analyses will be conducted in R (version 4.4.0 or later) using the meta, metafor, and metasens packages for meta-analysis; the robvis package for risk-of-bias visualisation; and ggplot2 for figure production. Forest plots will be produced for all primary and key secondary outcomes.
+
+# Discussion
+
+This systematic review and meta-analysis addresses a previously unexamined gap at the intersection of two literatures: the emerging science of T2DM remission through lifestyle modification, and the longstanding challenge of NCD management in LMIC health systems. Randomised trial evidence has established that structured lifestyle modification can achieve T2DM remission in carefully selected patients without pharmacotherapy, yet this evidence has been generated almost exclusively in high-income settings, synthesised without disaggregation by income level, and never translated into a systematic evidence base for LMIC guidance. The shift in primary outcome from glycaemic control on medication to sustained drug-free remission represents a fundamentally different clinical question for populations where reliable long-term pharmacotherapy cannot be assumed. Existing LMIC reviews [@odonoghue2021; @sagastume2022; @sherifali2025] address either the wrong outcome or the wrong population; this review is the first to address both simultaneously.
+
+The biological rationale for a remission-focused trial in LMIC settings rests on documented differences between LMIC and HIC diabetic populations. Patients with T2DM in sub-Saharan Africa and South Asia present at younger ages, with lower average BMI, and earlier in the disease course than populations enrolled in the landmark HIC remission trials, characteristics associated with the highest remission rates in existing evidence. In DIADEM-I, conducted in Qatar with a cohort whose mean disease duration was under three years, remission reached 61% at 12 months, higher than the 46% achieved in DiRECT among UK patients [@lean2018]. The proposed mechanism, reversal of ectopic hepatic and pancreatic fat and restoration of beta-cell function, appears more achievable with shorter disease duration. LMIC populations may therefore differ in pathophysiology and remission potential compared with populations with longer disease trajectories. Whether this translates into higher or comparable remission rates cannot be answered from existing evidence and is the central exploratory question of this review's patient characteristics analysis.
+
+The hypertension strand is, to our knowledge, novel in the LMIC context: sustained drug-free blood pressure normalisation has received limited attention even in high-income settings and has never been systematically reviewed as a primary outcome in LMICs. Its biological plausibility is supported by the finding of Liao and colleagues that a meaningful proportion of newly diagnosed older adults achieved normal blood pressure without pharmacotherapy [@liao2024], and by consistent evidence that multicomponent lifestyle interventions produce clinically significant blood pressure reductions in LMIC populations [@baena2014]. Whether these reductions are sustained, reach the threshold of normalisation, and permit safe medication discontinuation has not been systematically addressed. Including hypertension alongside T2DM reflects the clinical reality of LMIC primary care, where both conditions frequently co-occur and are managed in the same encounter and where reducing medication dependence lowers polypharmacy burden and cost. Given the absence of a consensus framework for hypertension remission and the likely scarcity of eligible trials, this strand is positioned as an exploratory secondary objective; if eligible evidence is insufficient for quantitative synthesis, findings will be reported narratively and the evidence gap documented as a priority area for future primary research.
+
+The patient characteristics comparison is a deliberately descriptive element of this review. No prior systematic review has compared participant-level baseline characteristics across LMIC trial populations and their HIC counterparts or, where the number of trials permits, used meta-regression with the trial-level remission rate as the outcome and income setting as the moderator. This analysis confronts the generalisation problem in global NCD guideline development: the assumption that evidence from high-income, predominantly European or North American populations applies directly to LMIC contexts. The characteristics associated with remission in DiRECT and DIADEM-I may or may not be present to a comparable degree in LMIC populations; the review will examine this through descriptive comparison and, where feasible, meta-regression, with findings interpreted as hypothesis-generating given the limitations of aggregate-level ecological comparison.
+
+The decision to require a minimum 12-week intervention duration as an eligibility criterion, and to apply the 2021 international consensus definition of remission as the primary outcome standard, reflects methodological choices that improve comparability across studies and align the review with current clinical scientific standards. Studies published before the 2021 consensus will be accepted where they use operationally equivalent definitions, with sensitivity analyses assessing the impact of this heterogeneity on pooled estimates.
+
+Several limitations of this review are anticipated and have been addressed in the protocol design. First, the volume of eligible LMIC trials specifically reporting remission as a defined endpoint may be small. This is anticipated and is itself a finding of policy relevance. Where the evidence base does not support meta-analysis, a structured narrative synthesis following SWiM guidelines will be conducted alongside quantitative pooling. The geographic distribution analysis will document the absence of sub-Saharan African trials explicitly and quantitatively, providing the systematic evidence needed to justify a primary trial application. Second, heterogeneity in outcome definitions across eligible trials is expected, particularly for studies published before 2021; this is addressed through pre-specified sensitivity analyses. Third, the feasibility of the hypertension normalisation strand depends on whether any eligible LMIC RCTs report sustained drug-free blood pressure normalisation as an endpoint. Fourth, language and publication bias represent a structural challenge for any LMIC-focused review given the uneven distribution of indexed research across global regions; the inclusion of regional databases, citation searching, and direct author contact represents a systematic attempt to mitigate this bias. Fifth, we acknowledge that the analytical categories used in the patient characteristics comparison are imperfect proxies for the metabolic and contextual heterogeneity that actually distinguishes LMIC from HIC populations; narrative synthesis will supplement quantitative comparisons.
+
+The primary translational purpose of this review is to inform the design and funding of a contextually adapted primary cluster-randomised trial of lifestyle modification for T2DM remission in sub-Saharan Africa. Its findings will inform the likely eligibility criteria, the intervention components most likely to produce remission in the LMIC context, the appropriate outcome definition and follow-up duration, and the expected effect size for power calculations, providing the scientific rationale for funding applications to bodies such as the Wellcome Trust Africa Programmes, the African Academy of Sciences, and EDCTP3. Beyond trial design, the findings have policy relevance for NCD guideline development across sub-Saharan Africa. The 2021 international consensus defining T2DM remission as a formal clinical target has not, to our knowledge, been incorporated into any sub-Saharan African national diabetes guideline. This review will generate the regional evidence base needed to support its provisional incorporation as a pilot and research objective, and an accompanying policy brief for the Kenya Ministry of Health NCD Directorate and WHO AFRO will translate findings into guidance for clinicians and programme officers working without reliable pharmaceutical supply.
+
+# Conclusion
+
+This protocol describes a systematic review that is timely, methodologically rigorous, and grounded in a documented clinical research programme in LMIC primary care. Clinical observations consistent with the predictor characteristics for remission identified in high-income country trials provide the direct impetus for the systematic evidence synthesis this review will conduct. Whether lifestyle modification can achieve sustained T2DM remission and drug-free blood pressure normalisation in LMIC populations has not previously been systematically addressed; this review will provide the first regional synthesis of available evidence, and will support the design of contextually adapted primary trials in sub-Saharan Africa where this question carries substantial clinical and policy relevance.
+
+# Protocol amendments {.unnumbered}
+
+Any amendments to this protocol following registration will be documented with the date, version number, and rationale. All amendments will be updated on the PROSPERO registration record and, where applicable, on the medRxiv preprint record as a revised version.
+
+# Abbreviations {.unnumbered}
+
+| Abbreviation | Full term |
+|--------------|-----------|
+| AJOL | African Journals Online |
+| BMI | Body mass index |
+| BP | Blood pressure |
+| CENTRAL | Cochrane Central Register of Controlled Trials |
+| CHW | Community health worker |
+| CI | Confidence interval |
+| GRADE | Grading of Recommendations Assessment, Development and Evaluation |
+| HbA1c | Glycated haemoglobin |
+| HIC | High-income country |
+| HKSJ | Hartung-Knapp-Sidik-Jonkman |
+| LMIC | Low- and middle-income country |
+| NCD | Non-communicable disease |
+| OSF | Open Science Framework |
+| PICOS | Population, Intervention, Comparator, Outcome, Study design |
+| PRESS | Peer Review of Electronic Search Strategies |
+| PRISMA | Preferred Reporting Items for Systematic Reviews and Meta-Analyses |
+| PRISMA-P | PRISMA for Protocols |
+| PROSPERO | International Prospective Register of Systematic Reviews |
+| RCT | Randomised controlled trial |
+| RoB 2 | Cochrane Risk of Bias 2.0 |
+| RR | Risk ratio |
+| SMD | Standardised mean difference |
+| SWiM | Synthesis Without Meta-Analysis |
+| T2DM | Type 2 diabetes mellitus |
+| WMD | Weighted mean difference |
+
+# Declarations {.unnumbered}
+
+## Ethics approval and consent to participate {.unnumbered}
+
+No ethical approval is required as this systematic review will synthesise only previously published, anonymised data.
+
+## Consent for publication {.unnumbered}
+
+Not applicable.
+
+## Availability of data and materials {.unnumbered}
+
+All analysis code will be deposited on the Open Science Framework (OSF) prior to publication. No primary data are generated by this review. Study materials are available at https://github.com/gondamol/Kenya_DHS_Studies.
+
+## Competing interests {.unnumbered}
+
+The authors declare no competing interests.
+
+## Funding {.unnumbered}
+
+This research received no specific grant from any funding agency in the public, commercial, or not-for-profit sectors. [TO CONFIRM with co-authors before submission.]
+
+## Authors' contributions {.unnumbered}
+
+NWA: Conceptualisation, Methodology, Formal analysis (planned), Project administration, Writing (original draft), Writing (review and editing); guarantor of the review. JO: Conceptualisation, Methodology, Supervision, Writing (review and editing). LH: Conceptualisation (clinical observation motivating the review question), Writing (review and editing). NAO: Data curation, Formal analysis (planned), Writing (review and editing). All authors read and approved the final manuscript.
+
+## Acknowledgements {.unnumbered}
+
+The authors thank the patients and clinical teams at NCD clinics in Seme Sub-County, Kisumu County, Kenya, whose experiences motivated this research.
+
+# References {.unnumbered}
+
+::: {#refs}
+:::
+
+# Appendix A: PRISMA-P 2015 checklist {.unnumbered}
+
+The following table documents compliance with the 17 items of the PRISMA-P 2015 checklist for this protocol [@moher2015].
+
+| No. | Item | Where addressed |
+|-----|------|-----------------|
+| 1a | Title — identifies report as a protocol for a systematic review | Title |
+| 1b | Update | Not an update (N/A) |
+| 2 | Registration — PROSPERO CRD420261409919 | Methods: Study design and registration |
+| 3a | Contact details | Title page |
+| 3b | Contributions — authors and guarantor identified | Authors' contributions |
+| 4 | Amendments | Protocol amendments |
+| 5a–c | Funding sources, sponsor, role of funder | Funding |
+| 6 | Rationale | Background |
+| 7 | Objectives with PICO components | Objectives; Eligibility criteria |
+| 8 | Eligibility criteria (PICOS) | Eligibility criteria |
+| 9 | Information sources | Search strategy: Information sources |
+| 10 | Search strategy (full MEDLINE; PRESS planned) | Search strategy: Search terms |
+| 11a | Data management (Rayyan; deduplication) | Study selection |
+| 11b | Selection process (two-stage; kappa; adjudication) | Study selection |
+| 11c | Data collection (form; pilot; duplicate extraction) | Data extraction |
+| 12 | Data items | Data extraction |
+| 13 | Outcomes and prioritisation | Outcomes |
+| 14 | Risk of bias (RoB 2; cluster extension; outcome-level) | Risk of bias assessment |
+| 15a | Data synthesis — criteria; random-effects REML + HKSJ | Data synthesis: Primary meta-analyses |
+| 15b | Heterogeneity — Cochran Q; I²; prediction intervals | Data synthesis: Heterogeneity |
+| 15c | Additional analyses — subgroup and sensitivity | Data synthesis: Subgroup; Sensitivity |
+| 15d | Narrative synthesis (SWiM) | Data synthesis: Narrative synthesis |
+| 16 | Meta-bias — funnel plots; Egger's test; trim-and-fill | Data synthesis: Assessment of meta-bias |
+| 17 | Confidence in evidence — GRADE; SoF tables | Certainty of evidence |
