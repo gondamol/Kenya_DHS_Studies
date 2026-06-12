@@ -1,0 +1,10 @@
+# GlobalHealth — executed search string
+# Review: PROSPERO CRD420261409919
+# Date run: __________   Run by: __________   Hits: __________
+#
+# Adaptation note: Global Health (CABI) — CABI descriptors; strong LMIC indexing, keep country terms.
+# Adapt the 7 concept sets from ../search_strategy_master.md to this interface's
+# syntax and controlled vocabulary, then paste the EXACT executed string below and
+# record date + hits in ../database_search_log.csv.
+# ---------------------------------------------------------------------------
+# [ string pending finalisation ]

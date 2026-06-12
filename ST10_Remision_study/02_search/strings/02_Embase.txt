@@ -1,0 +1,22 @@
+# Embase via Elsevier — executed search string
+# Review: PROSPERO CRD420261409919
+# Date run: __________   Run by: __________   Hits: __________
+# Emtree explosion with /exp; free text with :ti,ab. Apply Cochrane EPOC Embase LMIC filter.
+# ---------------------------------------------------------------------------
+
+#1  'non insulin dependent diabetes mellitus'/exp OR 'type 2 diabetes':ti,ab OR 'type II diabetes':ti,ab OR 'NIDDM':ti,ab OR 'T2DM':ti,ab
+
+#2  'hypertension'/exp OR 'hypertension':ti,ab OR 'high blood pressure':ti,ab OR 'arterial hypertension':ti,ab
+
+#3  'lifestyle modification'/exp OR 'diet'/exp OR 'exercise'/exp OR 'caloric restriction'/exp OR 'lifestyle intervention':ti,ab OR 'dietary intervention':ti,ab OR 'physical activity':ti,ab OR 'weight reduction':ti,ab OR 'low calorie diet':ti,ab OR 'total diet replacement':ti,ab OR 'DASH diet':ti,ab OR 'Mediterranean diet':ti,ab OR 'health coaching':ti,ab OR 'self management':ti,ab OR 'motivational interviewing':ti,ab
+
+#4  'remission':ti,ab OR 'reversal':ti,ab OR 'resolution':ti,ab OR 'drug free':ti,ab OR 'medication discontinuation':ti,ab OR 'off medication':ti,ab OR 'normoglycemia':ti,ab OR 'normalisation':ti,ab OR 'normalization':ti,ab OR 'metabolic recovery':ti,ab
+
+#5  'blood pressure normalisation':ti,ab OR 'blood pressure normalization':ti,ab OR 'antihypertensive discontinuation':ti,ab OR 'medication withdrawal':ti,ab OR 'deprescribing':ti,ab
+
+#6  'developing country'/exp OR 'lowest income group'/exp OR 'low income country':ti,ab OR 'middle income country':ti,ab OR 'LMIC':ti,ab OR 'sub-Saharan Africa':ti,ab OR [enumerate full World Bank LMIC country list] OR <apply EPOC Embase LMIC filter>
+
+#7  'randomized controlled trial'/exp OR 'controlled clinical trial'/exp OR 'randomization'/exp OR 'randomised controlled trial':ti,ab OR 'randomized controlled trial':ti,ab OR 'RCT':ti,ab OR 'cluster randomised':ti,ab OR 'cluster randomized':ti,ab
+
+# FINAL
+(#1 OR #2) AND #3 AND (#4 OR #5) AND #6 AND #7

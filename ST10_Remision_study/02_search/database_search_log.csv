@@ -1,0 +1,14 @@
+db_id,database,interface,coverage_from,coverage_to,date_searched,searched_by,string_file,limits_applied,hits_returned,export_filename,export_format,notes
+1,MEDLINE,PubMed,inception,,,,strings/01_MEDLINE_PubMed.txt,none,,,RIS,
+2,Embase,Elsevier,inception,,,,strings/02_Embase.txt,none,,,RIS,EPOC Embase LMIC filter applied
+3,CENTRAL,Cochrane Library,inception,,,,strings/03_CENTRAL.txt,trials only,,,RIS,RCT filter dropped (CENTRAL is trials-only)
+4,Web of Science Core Collection,Clarivate,inception,,,,strings/04_WoS.txt,none,,,RIS,Topic (TS=) search
+5,CINAHL,EBSCOhost,inception,,,,strings/05_CINAHL.txt,none,,,RIS,
+6,Global Health,CABI,inception,,,,strings/06_GlobalHealth.txt,none,,,RIS,
+7,African Journals Online,AJOL,inception,,,,strings/07_AJOL.txt,none,,,CSV,Native regional indexing; no EPOC filter
+8,LILACS,VHL/BVS,inception,,,,strings/08_LILACS.txt,none,,,RIS,DeCS + Spanish/Portuguese synonyms
+9,IndMED,Indian Medlars Centre,inception,,,,strings/09_IndMED.txt,none,,,CSV,Native indexing; no EPOC filter
+10,WHO Global Index Medicus,WHO,inception,,,,strings/10_GIM.txt,none,,,RIS,
+11,ICTRP,WHO,inception,,,,strings/11_ICTRP.txt,interventional,,,CSV,Registry: condition+intervention only
+12,ClinicalTrials.gov,NIH/NLM,inception,,,,strings/12_ClinicalTrials.txt,interventional,,,CSV,LMIC by country facet
+13,Grey literature,ProQuest D&T / Grey Lit Report / repositories,inception,,,,strings/13_GreyLit.txt,none,,,mixed,Document each grey source on its own row if needed

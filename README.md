@@ -1,6 +1,6 @@
 # Kenya DHS Studies
 
-This repository contains reproducible source materials for DHS-based analyses of health insurance, financial protection, service use, and disability-related equity in Kenya.
+This repository is a compendium of reproducible source materials for health research in Kenya and comparable low- and middle-income settings: DHS-based analyses of health insurance, financial protection, service use, and disability-related equity, alongside evidence-synthesis studies on non-communicable disease care.
 
 The current public study packages are:
 
@@ -8,11 +8,14 @@ The current public study packages are:
   - Insurance coverage, service use, and payment at outpatient contact among adults with disability before Kenya's Social Health Authority transition
 - `ST03_NCD_Insurance_Service_Use/`
   - Insurance coverage and treatment gaps among adults with diagnosed hypertension or diabetes before Kenya's Social Health Authority transition
+- `ST10_Remision_study/`
+  - Systematic review and meta-analysis: lifestyle modification for type 2 diabetes remission and drug-free hypertension normalisation in low- and middle-income countries (PROSPERO CRD420261409919). Uses no DHS microdata.
 
 ## Repository contents
 
 - `ST02_Disability_Insurance_Equity/`: study-specific notes, analysis scripts, and manuscript source
 - `ST03_NCD_Insurance_Service_Use/`: study-specific protocol notes, analysis scripts, and manuscript source
+- `ST10_Remision_study/`: registered systematic-review protocol, search strategies, screening/extraction/risk-of-bias templates, and an R meta-analysis pipeline (see its `README.md`)
 - `_TEMPLATES/`: shared Quarto and manuscript-formatting assets used by the study workflow
 
 Only source materials are versioned. Rendered Word files, exported tables and figures, logs, and derived data are generated locally and are not committed.

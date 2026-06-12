@@ -1,0 +1,24 @@
+# MEDLINE via PubMed — executed search string (MASTER)
+# Review: PROSPERO CRD420261409919
+# Date run: __________   Run by: __________   Hits: __________
+# Paste the exact query below into PubMed; record date + hit count in database_search_log.csv.
+# ---------------------------------------------------------------------------
+
+#1  "Diabetes Mellitus, Type 2"[MeSH] OR "type 2 diabetes"[tiab] OR "type II diabetes"[tiab] OR "non-insulin dependent diabetes"[tiab] OR "NIDDM"[tiab] OR "T2DM"[tiab]
+
+#2  "Hypertension"[MeSH] OR "hypertension"[tiab] OR "high blood pressure"[tiab] OR "elevated blood pressure"[tiab] OR "arterial hypertension"[tiab]
+
+#3  "Life Style"[MeSH] OR "Diet"[MeSH] OR "Exercise"[MeSH] OR "Diet, Reducing"[MeSH] OR "Caloric Restriction"[MeSH] OR "Risk Reduction Behavior"[MeSH] OR "lifestyle modification"[tiab] OR "lifestyle intervention"[tiab] OR "dietary intervention"[tiab] OR "physical activity"[tiab] OR "caloric restriction"[tiab] OR "weight loss"[tiab] OR "low-calorie diet"[tiab] OR "very low calorie diet"[tiab] OR "total diet replacement"[tiab] OR "low carbohydrate"[tiab] OR "DASH diet"[tiab] OR "Mediterranean diet"[tiab] OR "plant-based diet"[tiab] OR "health coaching"[tiab] OR "behaviour change"[tiab] OR "behavior change"[tiab] OR "self-management"[tiab] OR "motivational interviewing"[tiab] OR "peer support"[tiab]
+
+#4  "remission"[tiab] OR "reversal"[tiab] OR "resolution"[tiab] OR "drug-free"[tiab] OR "drug free"[tiab] OR "medication discontinuation"[tiab] OR "treatment discontinuation"[tiab] OR "off medication"[tiab] OR "normoglycaemia"[tiab] OR "normoglycemia"[tiab] OR "normalisation"[tiab] OR "normalization"[tiab] OR "metabolic recovery"[tiab] OR "diabetes reversal"[tiab]
+
+#5  "blood pressure normalisation"[tiab] OR "blood pressure normalization"[tiab] OR "hypertension remission"[tiab] OR "antihypertensive discontinuation"[tiab] OR "medication withdrawal"[tiab] OR "deprescribing"[tiab]
+
+#6  "Developing Countries"[MeSH] OR "low-income countries"[tiab] OR "lower-middle-income"[tiab] OR "middle-income countries"[tiab] OR "low and middle income"[tiab] OR "low- and middle-income"[tiab] OR "LMIC"[tiab] OR "LMICs"[tiab] OR "resource-limited"[tiab] OR "resource-poor"[tiab] OR "sub-Saharan Africa"[tiab] OR "South Asia"[tiab] OR "Southeast Asia"[tiab] OR "Latin America"[tiab] OR "Africa"[MeSH] OR "Asia"[MeSH] OR "Latin America"[MeSH] OR "Afghanistan"[tiab] OR "Bangladesh"[tiab] OR "Benin"[tiab] OR "Bolivia"[tiab] OR "Brazil"[tiab] OR "Burkina Faso"[tiab] OR "Cambodia"[tiab] OR "Cameroon"[tiab] OR "China"[tiab] OR "Colombia"[tiab] OR "Cote d'Ivoire"[tiab] OR "Egypt"[tiab] OR "Ethiopia"[tiab] OR "Ghana"[tiab] OR "India"[tiab] OR "Indonesia"[tiab] OR "Iran"[tiab] OR "Iraq"[tiab] OR "Kenya"[tiab] OR "Malawi"[tiab] OR "Mexico"[tiab] OR "Mozambique"[tiab] OR "Myanmar"[tiab] OR "Nepal"[tiab] OR "Nigeria"[tiab] OR "Pakistan"[tiab] OR "Peru"[tiab] OR "Philippines"[tiab] OR "Rwanda"[tiab] OR "Senegal"[tiab] OR "South Africa"[tiab] OR "Sri Lanka"[tiab] OR "Sudan"[tiab] OR "Tanzania"[tiab] OR "Thailand"[tiab] OR "Uganda"[tiab] OR "Vietnam"[tiab] OR "Zambia"[tiab] OR "Zimbabwe"[tiab]
+# NB: enumerate the FULL current World Bank LMIC list before running. The above is a working subset.
+# Optionally combine with the Cochrane EPOC LMIC filter for MEDLINE (recommended).
+
+#7  "Randomized Controlled Trial"[pt] OR "Controlled Clinical Trial"[pt] OR "Random Allocation"[MeSH] OR "randomised controlled trial"[tiab] OR "randomized controlled trial"[tiab] OR "randomly"[tiab] OR "RCT"[tiab] OR "cluster-randomised"[tiab] OR "cluster-randomized"[tiab] OR "randomised trial"[tiab] OR "randomized trial"[tiab]
+
+# FINAL
+(#1 OR #2) AND #3 AND (#4 OR #5) AND #6 AND #7

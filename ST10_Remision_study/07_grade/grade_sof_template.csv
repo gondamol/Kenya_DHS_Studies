@@ -1,0 +1,8 @@
+outcome,n_studies,n_participants,pooled_effect,effect_95ci,risk_of_bias,inconsistency,indirectness,imprecision,publication_bias,other_considerations,certainty,plain_language_summary
+T2DM remission (HbA1c <48 mmol/mol, >=3mo off all glucose-lowering drugs),,,,,not serious / serious / very serious,,,,,,high / moderate / low / very low,
+Drug-free BP normalisation (<130/80, >=6mo off antihypertensives) [exploratory],,,,,,,,,,,,
+Partial T2DM remission (HbA1c 39-47 off drugs),,,,,,,,,,,,
+Relapse at 12 months,,,,,,,,,,,,
+Change in body weight (kg),,,,,,,,,,,,
+Medication discontinuation,,,,,,,,,,,,
+Serious adverse events,,,,,,,,,,,,

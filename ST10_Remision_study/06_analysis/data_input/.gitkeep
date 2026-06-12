@@ -1,0 +1,3 @@
+# Place the cleaned, analysis-ready meta_input.csv here (derived from
+# ../../04_extraction/data_extraction_form.csv). The pipeline falls back to
+# example_meta_input.csv (synthetic) until meta_input.csv exists.

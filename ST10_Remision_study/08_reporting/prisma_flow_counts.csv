@@ -1,0 +1,14 @@
+stage,count,notes
+records_identified_databases,,sum of database hits (from 02_search/database_search_log.csv)
+records_identified_registers,,ICTRP + ClinicalTrials.gov
+records_identified_other,,citation chasing + grey literature + author contact
+duplicates_removed,,from 02_search/deduplication_log.md
+records_screened,,unique records to title/abstract
+records_excluded_tiab,,excluded at title/abstract
+reports_sought_for_retrieval,,full texts sought
+reports_not_retrieved,,full text/translation unobtainable
+reports_assessed_eligibility,,full texts assessed
+reports_excluded_total,,with reasons in 03_screening/excluded_fulltext_reasons.csv
+studies_included,,studies meeting all criteria
+reports_of_included_studies,,reports (a study may have several)
+studies_in_meta_analysis,,subset contributing to quantitative synthesis

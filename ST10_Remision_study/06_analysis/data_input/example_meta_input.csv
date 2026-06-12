@@ -1,0 +1,6 @@
+study_id,year,country,income_tier,intervention_category,followup_months,rob_overall,rem_events_int,rem_n_int,rem_events_comp,rem_n_comp,hba1c_change_mean_int,hba1c_change_sd_int,hba1c_change_mean_comp,hba1c_change_sd_comp,sbp_change_mean_int,sbp_change_sd_int,sbp_change_mean_comp,sbp_change_sd_comp,mean_age,mean_bmi,disease_duration_years,baseline_hba1c
+SYNTH_A2019,2019,India,lower-middle,multicomponent,12,low,18,60,6,58,-9.2,8.1,-2.1,7.6,-8.0,11.0,-2.0,10.5,52,28.4,3.1,62
+SYNTH_B2020,2020,China,upper-middle,diet_only,12,some_concerns,25,80,9,79,-11.0,9.0,-3.0,8.5,-6.5,12.0,-1.5,11.0,49,27.1,2.4,60
+SYNTH_C2021,2021,Kenya,low,multicomponent,18,high,7,40,2,41,-7.5,7.0,-1.0,6.8,-9.5,10.0,-3.0,9.8,55,26.0,4.0,64
+SYNTH_D2022,2022,Brazil,upper-middle,physical_activity_only,12,some_concerns,5,55,4,54,-4.0,6.5,-1.5,6.2,-7.0,11.5,-2.5,10.9,58,29.2,5.2,58
+SYNTH_E2023,2023,Iran,lower-middle,multicomponent,24,low,12,50,3,49,-8.8,7.8,-2.2,7.1,-10.0,9.5,-3.5,9.0,51,28.0,2.9,61
