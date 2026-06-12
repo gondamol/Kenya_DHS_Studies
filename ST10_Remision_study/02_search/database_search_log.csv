@@ -1,5 +1,5 @@
 db_id,database,interface,coverage_from,coverage_to,date_searched,searched_by,string_file,limits_applied,hits_returned,export_filename,export_format,notes
-1,MEDLINE,PubMed,inception,,,,strings/01_MEDLINE_PubMed.txt,none,,,RIS,
+1,MEDLINE,PubMed,inception,2026-06-12,2026-06-12,NWA,strings/01_MEDLINE_PubMed.txt,"operator-reduced query (interface cap 20 ops); LMIC applied at screening",340,pubmed_all_pmids.txt,PMID-list,"Interim single-reviewer execution; see 09_manuscript/results_report.md. 2 supplementary geographic queries run (0 extra LMIC RCTs from Pakistan/Egypt/Mexico/Iran/Nigeria/etc.)"
 2,Embase,Elsevier,inception,,,,strings/02_Embase.txt,none,,,RIS,EPOC Embase LMIC filter applied
 3,CENTRAL,Cochrane Library,inception,,,,strings/03_CENTRAL.txt,trials only,,,RIS,RCT filter dropped (CENTRAL is trials-only)
 4,Web of Science Core Collection,Clarivate,inception,,,,strings/04_WoS.txt,none,,,RIS,Topic (TS=) search

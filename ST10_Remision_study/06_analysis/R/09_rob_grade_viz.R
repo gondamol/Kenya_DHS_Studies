@@ -25,10 +25,14 @@ if (!requireNamespace("robvis", quietly = TRUE)) {
       mutate(across(everything(), ~ recode(as.character(.),
               low = "Low", some_concerns = "Some concerns", high = "High",
               .default = as.character(.))))
-    save_plot(print(robvis::rob_traffic_light(data = rob_in, tool = "ROB2")),
-              "fig_rob2_traffic_light.png", height = max(4, 0.4 * nrow(rob_in)))
-    save_plot(print(robvis::rob_summary(data = rob_in, tool = "ROB2")),
-              "fig_rob2_summary_bar.png", height = 3)
+    tryCatch(
+      save_plot(print(robvis::rob_traffic_light(data = rob_in, tool = "ROB2")),
+                "fig_rob2_traffic_light.png", height = max(4, 0.4 * nrow(rob_in))),
+      error = function(e) message("traffic-light plot skipped: ", conditionMessage(e)))
+    tryCatch(
+      save_plot(print(robvis::rob_summary(data = rob_in, tool = "ROB2", weighted = FALSE)),
+                "fig_rob2_summary_bar.png", height = 3),
+      error = function(e) message("summary-bar plot skipped: ", conditionMessage(e)))
   }
 }
 

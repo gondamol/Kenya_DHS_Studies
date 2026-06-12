@@ -37,8 +37,9 @@ subgroup_if_enough <- function(m, byvar, min_studies = 3, file = NULL) {
 # Attach moderators onto the meta object's data for subgrouping
 m_rr$data$income_tier           <- dat$income_tier[match(m_rr$studlab, dat$study_id)]
 m_rr$data$intervention_category <- dat$intervention_category[match(m_rr$studlab, dat$study_id)]
-m_rr$data$duration_cat <- cut(dat$disease_duration_years[match(m_rr$studlab, dat$study_id)],
-                              breaks = c(-Inf, 5, Inf), labels = c("<5y", ">=5y"))
+.dur <- suppressWarnings(as.numeric(dat$disease_duration_years[match(m_rr$studlab, dat$study_id)]))
+m_rr$data$duration_cat <- if (all(is.na(.dur))) factor(rep(NA, length(.dur))) else
+  cut(.dur, breaks = c(-Inf, 5, Inf), labels = c("<5y", ">=5y"))
 
 sg_income   <- subgroup_if_enough(m_rr, "income_tier",           file = "fig_subgroup_income.png")
 sg_inttype  <- subgroup_if_enough(m_rr, "intervention_category", file = "fig_subgroup_intervention.png")

@@ -1,1 +1,16 @@
 record_id,first_author,year,title,exclusion_code,exclusion_reason_detail,reviewer,date
+32445735,Taheri (DIADEM-I),2020,Effect of intensive lifestyle intervention on bodyweight and glycaemia in early T2D (DIADEM-I),E5_setting,Conducted in Qatar — World Bank high-income economy,NWA,2026-06-12
+33293319,DIADEM-I cohort,2020,Clinical and metabolic characteristics of the DIADEM-I cohort,E5_setting,Qatar (high-income); also baseline-characteristics report of an excluded trial,NWA,2026-06-12
+39935104,NZ DiRECT pilot,2025,A DiRECT approach to weight loss in a culturally diverse low-income population,E5_setting,Conducted in New Zealand — high-income economy,NWA,2026-06-12
+18502299,Weng,2008,Effect of intensive insulin therapy on beta-cell function and glycaemic control (China),E3_intervention,Pharmacological (insulin) intervention; no structured lifestyle component,NWA,2026-06-12
+40416453,DiaRem-1,2025,Realisation of Remission of Diabetes Using Pharmacotherapy (India),E3_intervention,Pharmacotherapy-driven remission; lifestyle not the randomised intervention,NWA,2026-06-12
+27196454,bariatric China,2016,Cost-Effectiveness of Bariatric Surgery for T2DM: RCT in China,E3_intervention,Bariatric/metabolic surgery,NWA,2026-06-12
+26198306,bariatric China,2015,Laparoscopic sleeve gastrectomy vs Roux-en-Y for Chinese T2DM,E3_intervention,Bariatric/metabolic surgery,NWA,2026-06-12
+41058988,retrospective ICR,2025,Real-world effect of intermittent calorie-restricted diet (dual-cohort retrospective),E1_design,Retrospective cohort, not an RCT,NWA,2026-06-12
+27534941,naturopathy India,2016,Adjunctive naturopathy and glycaemic control: prospective cohort from India,E1_design,Prospective cohort, not an RCT,NWA,2026-06-12
+41847235,N-of-1 India,2026,Ten-year medication-free remission in a South Asian male (N-of-1),E1_design,N-of-1 longitudinal study, not an RCT,NWA,2026-06-12
+41539443,Kerala iIFG,2026,Lifestyle modification in prediabetes remission among women with i-IFG (India),E2_population,Prediabetes (isolated impaired fasting glucose), not established T2DM,NWA,2026-06-12
+38684277,CMNT-NAFLD protocol,2024,Liver fat as a dietary target by CMNT diet: study protocol (China),E8_publication_type,Study protocol; no outcome data reported,NWA,2026-06-12
+42027922,Lebanon protocol,2026,RCT protocol comparing low-calorie Mediterranean vs low-carb diets (Lebanon),E8_publication_type,Study protocol; no outcome data reported,NWA,2026-06-12
+41584060,HEAL-USA protocol,2026,HEAL Diabetes-USA pilot study protocol,E5_setting,USA (high-income); also a protocol with no results,NWA,2026-06-12
+34970224,Qingdao LCD,2021,A Low-Carbohydrate Diet Realizes Medication Withdrawal (China),E7_outcome,No drug-free remission endpoint (HbA1c<48 off all meds); reports medication-effect-score reduction only. Retained for secondary medication-discontinuation narrative.,NWA,2026-06-12

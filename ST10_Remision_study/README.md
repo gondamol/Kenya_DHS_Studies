@@ -3,7 +3,9 @@
 A systematic review and meta-analysis of randomised controlled trials.
 
 **PROSPERO:** [CRD420261409919](https://www.crd.york.ac.uk/PROSPERO/view/CRD420261409919) (registered 29 May 2026)
-**Status:** Protocol registered; infrastructure set up; awaiting team onboarding before search execution.
+**Status:** Protocol registered; infrastructure set up; **interim MEDLINE/PubMed execution complete** (single-reviewer feasibility run — see [`09_manuscript/results_report.md`](09_manuscript/results_report.md)). Full 13-database, dual-reviewer review pending team onboarding.
+
+**Interim headline (not definitive):** Of 340 PubMed records, only **2 RCTs** met the drug-free-remission definition with a comparator — **both from China** (CMNT and CR-LCD). Pooled remission ~54% (very wide CI; Peto OR 5.4, p=0.008; I²=79%). **No eligible RCT from Africa, South Asia, Latin America, or MENA**, and **no LMIC RCT reported drug-free BP normalisation** — empirically confirming the evidence gap that motivates a primary trial.
 **Lead / guarantor:** Nichodemus Werre Amollo (NWA), JOOUST — nwere@ejooust.ac.ke
 
 ---

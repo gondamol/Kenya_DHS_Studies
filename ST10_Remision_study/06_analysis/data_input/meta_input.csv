@@ -1,0 +1,3 @@
+study_id,year,country,income_tier,intervention_category,followup_months,rob_overall,rem_events_int,rem_n_int,rem_events_comp,rem_n_comp,hba1c_change_mean_int,hba1c_change_sd_int,hba1c_change_mean_comp,hba1c_change_sd_comp,sbp_change_mean_int,sbp_change_sd_int,sbp_change_mean_comp,sbp_change_sd_comp,mean_age,mean_bmi,disease_duration_years,baseline_hba1c,pmid,doi
+CMNT_Yan_2023,2023,China,upper-middle,diet_only,6,some_concerns,17,36,1,36,,,,,,,,,,,,,36515429,10.1210/clinem/dgac661
+CR-LCD_2026,2026,China,upper-middle,diet_only,6,some_concerns,20,32,12,34,,,,,,,,,,,,,42210610,10.1155/jdr/7230214

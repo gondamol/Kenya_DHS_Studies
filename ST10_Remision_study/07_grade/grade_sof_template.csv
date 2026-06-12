@@ -1,8 +1,4 @@
 outcome,n_studies,n_participants,pooled_effect,effect_95ci,risk_of_bias,inconsistency,indirectness,imprecision,publication_bias,other_considerations,certainty,plain_language_summary
-T2DM remission (HbA1c <48 mmol/mol, >=3mo off all glucose-lowering drugs),,,,,not serious / serious / very serious,,,,,,high / moderate / low / very low,
-Drug-free BP normalisation (<130/80, >=6mo off antihypertensives) [exploratory],,,,,,,,,,,,
-Partial T2DM remission (HbA1c 39-47 off drugs),,,,,,,,,,,,
-Relapse at 12 months,,,,,,,,,,,,
-Change in body weight (kg),,,,,,,,,,,,
-Medication discontinuation,,,,,,,,,,,,
-Serious adverse events,,,,,,,,,,,,
+T2DM remission (HbA1c <48 mmol/mol off all glucose-lowering drugs >=3 mo),2 RCTs,138,Peto OR 5.39 (pooled remission proportion 54.5%),OR 1.56 to 18.59 (proportion 95% CI 2.3% to 98.4%),serious (both open-label; some concerns RoB 2),serious (I2=79%; control-arm rates 2.8% vs 35%),serious (both trials China only; no Africa/South-Asia/LATAM/MENA data),very serious (k=2; very wide CIs; few events),undetected (not assessable with <10 studies),"both trials upper-middle-income China; no dose-response/large-effect upgrade applied given imprecision",very low,"Structured dietary lifestyle modification probably increases drug-free T2DM remission versus control, but the LMIC evidence is limited to two small Chinese RCTs; the true effect is very uncertain and not generalisable to African or other LMIC settings."
+Drug-free BP normalisation (<130/80 off antihypertensives >=6 mo) [exploratory],0 RCTs (LMIC),0,not estimable,not estimable,NA,NA,NA,NA,NA,"No eligible LMIC RCT reported the drug-free BP-normalisation endpoint; the India Digital-Twin trial reported HTN remission (50% vs 0%) as a secondary analysis but is a single, digitally-delivered trial",very low / no evidence,"No LMIC RCT meeting the protocol definition reported sustained drug-free blood-pressure normalisation; this is an explicit evidence gap."
+Medication discontinuation (secondary),1 RCT (narrative),~121,not pooled,narrative,serious,NA,serious,serious,undetected,"Qingdao LCD vs LFD RCT reported reduced medication-effect scores but not drug-free remission",very low,"One Chinese RCT reported greater reduction in glucose-lowering medication with a low-carbohydrate diet, but did not report complete drug-free remission."

@@ -1,14 +1,14 @@
 stage,count,notes
-records_identified_databases,,sum of database hits (from 02_search/database_search_log.csv)
-records_identified_registers,,ICTRP + ClinicalTrials.gov
-records_identified_other,,citation chasing + grey literature + author contact
-duplicates_removed,,from 02_search/deduplication_log.md
-records_screened,,unique records to title/abstract
-records_excluded_tiab,,excluded at title/abstract
-reports_sought_for_retrieval,,full texts sought
-reports_not_retrieved,,full text/translation unobtainable
-reports_assessed_eligibility,,full texts assessed
-reports_excluded_total,,with reasons in 03_screening/excluded_fulltext_reasons.csv
-studies_included,,studies meeting all criteria
-reports_of_included_studies,,reports (a study may have several)
-studies_in_meta_analysis,,subset contributing to quantitative synthesis
+records_identified_databases,340,"MEDLINE/PubMed only (this execution). The full protocol specifies 13 databases; the other 12 remain to be run by the team/librarian."
+records_identified_registers,0,ICTRP + ClinicalTrials.gov not yet searched
+records_identified_other,1,"Digital-Twin primary RCT (PMID 37778441) located via related-article/citation search"
+duplicates_removed,1,Single-database run; one duplicate within paginated retrieval
+records_screened,340,Title/abstract level (single reviewer in this execution; protocol requires dual independent screening)
+records_excluded_tiab,321,"Excluded at title/abstract as clearly high-income, non-RCT, non-remission, or off-topic (LMIC-flagged subset carried to full text)"
+reports_sought_for_retrieval,20,"19 LMIC-geography-flagged candidates + Digital-Twin primary paper"
+reports_not_retrieved,1,"CMNT primary (PMID 36515429) full text paywalled; data extracted from structured abstract"
+reports_assessed_eligibility,20,Full-text/abstract assessment of the LMIC candidate set
+reports_excluded_total,15,With reasons in 03_screening/excluded_fulltext_reasons.csv
+studies_included,3,"CMNT (2 reports: 36515429 + follow-up 41684452), CR-LCD (42210610), Digital-Twin (37778441)"
+reports_of_included_studies,4,CMNT contributes 2 reports (primary + 3-year follow-up)
+studies_in_meta_analysis,2,"CMNT and CR-LCD contribute drug-free remission counts; DT narrative/sensitivity (control-arm remission not reported)"
