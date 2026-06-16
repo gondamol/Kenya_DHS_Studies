@@ -363,6 +363,10 @@ These findings provide a concrete pre-SHA baseline for monitoring whether disabi
 - SHA: Social Health Authority
 - WG-SS: Washington Group Short Set
 
+# Additional files {.unnumbered}
+
+Additional file 1: STROBE checklist.
+
 # Declarations {.unnumbered}
 
 ## Ethics approval and consent to participate {.unnumbered}

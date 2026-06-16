@@ -1,0 +1,36 @@
+---
+title: ""
+output-file: Additional_file_1_STROBE_Checklist.docx
+format:
+  docx: default
+editor: source
+---
+
+# STROBE checklist
+
+Study type: Cross-sectional secondary analysis of KDHS 2022 person recode data.
+
+| Item | Reporting element | Location in manuscript |
+|---|---|---|
+| 1 | Study design identified in title and abstract | Title; Abstract |
+| 2 | Background and rationale | Background |
+| 3 | Objectives and prespecified questions | End of Background |
+| 4 | Key elements of study design | Methods: Study design and data source |
+| 5 | Setting, survey context, and dates | Methods: Study design and data source |
+| 6 | Eligibility criteria and participant selection | Methods: Study population |
+| 7 | Definitions of outcomes, exposures, predictors, and effect modifiers | Methods: Variables and measurements |
+| 8 | Data sources and measurement | Methods: Study design and data source; Variables and measurements |
+| 9 | Potential sources of bias | Discussion: Strengths and limitations |
+| 10 | Study size | Methods: Study population; Results: Study population characteristics |
+| 11 | Handling of quantitative variables | Methods: Variables and measurements; Statistical analysis |
+| 12 | Statistical methods, confounding control, subgroup analyses, and sensitivity analyses | Methods: Statistical analysis |
+| 13 | Participant flow and analytic sample | Methods: Study population; Results: Study population characteristics; Table 1 |
+| 14 | Descriptive characteristics of participants | Results: Study population characteristics; Table 1 |
+| 15 | Outcome data | Results: Insurance coverage by disability severity and functional domain; Service utilisation patterns; Tables 2-3; Figures 1-2 |
+| 16 | Main results with adjusted and unadjusted estimates | Results: Multivariable predictors of insurance exclusion among persons with disability; Table 4 |
+| 17 | Other analyses, including subgroup and sensitivity analyses | Results: Insurance coverage by functional domain; Service utilisation by insurance status; Tables 2-3; Figures 1-2 |
+| 18 | Key findings in relation to study objectives | Discussion: opening paragraph |
+| 19 | Study limitations | Discussion: Strengths and limitations |
+| 20 | Interpretation considering objectives, limitations, and comparable evidence | Discussion |
+| 21 | Generalisability | Discussion: Strengths and limitations; Conclusions |
+| 22 | Funding and role of funders | Front matter; Declarations: Funding |

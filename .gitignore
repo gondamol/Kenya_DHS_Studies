@@ -4,12 +4,16 @@
 *.dat
 01_DHS_Data/
 **/data/raw/
+# Derived person-level analytic extracts (DHS microdata terms; do not redistribute)
+**/*_analytic_dataset.csv
+**/*analytic_pr_adults*.csv
 
 # Generated study outputs
 **/04_tables/
 **/05_figures/
 **/07_derived_data/
 **/08_logs/
+**/results/
 **/*.docx
 **/*.pdf
 **/*.html

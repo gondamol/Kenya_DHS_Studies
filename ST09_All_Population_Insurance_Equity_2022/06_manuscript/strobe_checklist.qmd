@@ -1,0 +1,36 @@
+---
+title: ""
+output-file: Additional_file_1_STROBE_Checklist.docx
+format:
+  docx: default
+editor: source
+---
+
+# STROBE checklist
+
+Study type: Cross-sectional secondary analysis of KDHS 2022 person recode data.
+
+| Item | Reporting element | Location in manuscript |
+|---|---|---|
+| 1 | Study design identified in title and abstract | Title; Abstract |
+| 2 | Background and rationale | Background |
+| 3 | Objectives and prespecified questions | End of Background |
+| 4 | Key elements of study design | Methods: Study design and reporting |
+| 5 | Setting, survey context, and dates | Methods: Data source and analytic sample |
+| 6 | Eligibility criteria and participant selection | Methods: Data source and analytic sample |
+| 7 | Definitions of outcomes, exposures, predictors, and effect modifiers | Methods: Measures |
+| 8 | Data sources and measurement | Methods: Data source and analytic sample; Measures |
+| 9 | Potential sources of bias | Discussion: Strengths and limitations |
+| 10 | Study size | Methods: Data source and analytic sample; Results |
+| 11 | Handling of quantitative variables | Methods: Measures; Statistical analysis |
+| 12 | Statistical methods, confounding control, subgroup analyses, and sensitivity analyses | Methods: Statistical analysis |
+| 13 | Participant flow and analytic sample | Methods: Data source and analytic sample; Results; Table 1 |
+| 14 | Descriptive characteristics of participants | Results: Sample and national baseline; Tables 1-2; Additional file 2 Tables S1-S2; Figures 1-5 |
+| 15 | Outcome data | Results; Tables 1-3; Additional file 2 Tables S1-S5; Figures 1-6 |
+| 16 | Main results with adjusted and unadjusted estimates | Results: Adjusted correlates and wealth-related inequality; Table 3; Additional file 2 Tables S3-S4 |
+| 17 | Other analyses, including subgroup and sensitivity analyses | Results: Life-course coverage patterns; Policy-priority groups; Additional file 2 Tables S1-S5; Figures 1-6 |
+| 18 | Key findings in relation to study objectives | Discussion: opening paragraph |
+| 19 | Study limitations | Discussion: Strengths and limitations |
+| 20 | Interpretation considering objectives, limitations, and comparable evidence | Discussion |
+| 21 | Generalisability | Discussion: Strengths and limitations; Conclusions |
+| 22 | Funding and role of funders | Front matter; Declarations: Funding |
