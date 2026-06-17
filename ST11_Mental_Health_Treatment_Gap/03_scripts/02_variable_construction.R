@@ -44,7 +44,7 @@ build_block <- function(df, sex_label) {
 ir_std <- ir %>%
   dplyr::rename(cluster = v001, household = v002, line = v003, weight = v005, age = v012,
                 psu = v021, strata = v022, region = v024, residence = v025,
-                education = v149, wealth = v190,
+                education = v106, wealth = v190,
                 chd02 = chd02, chd07 = chd07, chd11 = chd11, chd13 = chd13, chd20 = chd20,
                 chd17 = chd17, chd18 = chd18, chd19 = chd19) %>%
   build_block("Women")
@@ -52,7 +52,7 @@ ir_std <- ir %>%
 mr_std <- mr %>%
   dplyr::rename(cluster = mv001, household = mv002, line = mv003, weight = mv005, age = mv012,
                 psu = mv021, strata = mv022, region = mv024, residence = mv025,
-                education = mv149, wealth = mv190,
+                education = mv106, wealth = mv190,
                 chd02 = mchd02, chd07 = mchd07, chd11 = mchd11, chd13 = mchd13, chd20 = mchd20,
                 chd17 = mchd17, chd18 = mchd18, chd19 = mchd19) %>%
   build_block("Men")

@@ -1,5 +1,5 @@
 ---
-title: "Diagnosed but untreated: the national depression and anxiety treatment gap and its socioeconomic and insurance patterning in Kenya (KDHS 2022)"
+title: "Diagnosed but untreated: the national depression and anxiety treatment gap and its socioeconomic and insurance patterning in Kenya — a secondary analysis of KDHS 2022"
 shorttitle: "Kenya's depression and anxiety treatment gap"
 
 author:
@@ -27,11 +27,27 @@ keywords:
   - depression
   - anxiety
   - treatment gap
-  - mental health
+  - mental health services
   - health equity
+  - concentration index
   - non-communicable diseases
   - Kenya
   - demographic and health survey
+  - universal health coverage
+
+funding: |
+  This research received no specific grant from any funding agency in the public, commercial, or not-for-profit sectors.
+
+author-note:
+  contributions: |
+    **NWA** conceptualised the study, performed the statistical analysis, and drafted the manuscript. **JO** contributed to study design, interpretation, and critical revision. Both authors approved the final manuscript.
+  disclosures:
+    conflict-of-interest: |
+      The authors declare that they have no competing interests.
+    ethics: |
+      This study used publicly available de-identified data from the Kenya Demographic and Health Survey 2022. The original survey was approved by the KEMRI Scientific and Ethics Review Unit and the ICF Institutional Review Board. No additional ethical approval was required for this secondary analysis.
+    data-availability: |
+      KDHS 2022 microdata are available from The DHS Program at https://dhsprogram.com/data/. Study-specific analysis code is available in the project repository.
 
 format:
   docx:
@@ -42,8 +58,10 @@ format:
       - ../../_TEMPLATES/suppress-docx-authors.lua
   html:
     toc: true
+    toc-depth: 3
     number-sections: true
     theme: cosmo
+    code-fold: true
     embed-resources: true
 
 bibliography: references.bib
@@ -63,93 +81,228 @@ if (!file.exists(file.path("..", "07_derived_data", "st11_analysis_outputs.rds")
   source(file.path("..", "03_scripts", "run_st11_workflow.R"), local = knitr::knit_global())
 }
 ao <- readRDS(file.path("..", "07_derived_data", "st11_analysis_outputs.rds"))
-k <- ao$key_results
-pc <- function(row) fmt_pct_ci(row$est[[1]], row$ci_low[[1]], row$ci_high[[1]])
-ci <- k$ci_untreated
+k  <- ao$key_results
+
+# inline formatters
+pcc <- function(r) sprintf("%.1f%% (95%% CI %.1f%% to %.1f%%)", 100 * r$est[[1]], 100 * r$ci_low[[1]], 100 * r$ci_high[[1]])
+pp  <- function(r) sprintf("%.1f%%", 100 * r$est[[1]])
+cif <- function(r) sprintf("%.3f (95%% CI %.3f to %.3f)", r$CI[[1]], r$CI_low[[1]], r$CI_high[[1]])
+ef  <- function(r) sprintf("%.3f (95%% CI %.3f to %.3f)", r$Erreygers[[1]], r$E_low[[1]], r$E_high[[1]])
+ncomma <- function(x) format(x, big.mark = ",")
+
+publication_flextable <- function(data, footer_lines = c("Source: Kenya DHS 2022. Survey-weighted estimates."), header_labels = NULL) {
+  build_publication_flextable(data = data, footer_lines = footer_lines, header_labels = header_labels) %>%
+    flextable::paginate(init = TRUE, hdr_ftr = TRUE) %>%
+    knitr::knit_print()
+}
+```
+
+```{r}
+#| label: docx-author-block
+#| results: asis
+#| echo: false
+if (knitr::pandoc_to() == "docx") {
+  cat(paste(
+    "Nichodemus Werre Amollo^1,*^, Japheth Ogol^1,2^", "",
+    "^1^ School of Health Sciences, Jaramogi Oginga Odinga University of Science and Technology, Bondo, Kenya\\",
+    "^2^ Department of Family Medicine & Population Health (FAMPOP), University of Antwerp, Wilrijk, Belgium", "",
+    "*Correspondence: Nichodemus Werre Amollo, nwere@ejooust.ac.ke", sep = "\n"))
+}
 ```
 
 # Abstract
 
-**Background:** KDHS 2022 is the first nationally representative Kenyan survey to carry a mental-health
-module. Existing analyses describe the prevalence and correlates of diagnosed depression and anxiety, but
-none has examined the treatment gap — among adults who report a diagnosis, who is not receiving care, and how
-that shortfall is distributed by wealth, insurance, and comorbidity.
+**Background:** Common mental disorders are leading contributors to disability in Kenya and cluster with non-communicable diseases (NCDs). KDHS 2022 is the first nationally representative Kenyan survey to carry a mental-health module. Existing analyses describe the prevalence and correlates of diagnosed depression and anxiety, but none has examined the *treatment gap* — among adults reporting a diagnosis, who is not receiving care, and how that shortfall is distributed across socioeconomic and insurance groups.
 
-**Methods:** Cross-sectional secondary analysis of the KDHS 2022 women's (15–49) and men's (15–54) recodes
-(N = `r format(k$n_adults, big.mark=",")` pooled adults). Among adults reporting a diagnosis of depression or
-anxiety, we estimated the survey-weighted prevalence of being untreated and modelled it against wealth,
-insurance (merged from the household file), education, residence, sex, age, and physical-NCD comorbidity using
-quasi-Poisson regression and a wealth-ranked concentration index.
+**Methods:** We conducted a cross-sectional secondary analysis of the KDHS 2022 women's (15–49) and men's (15–54) recodes (`r ncomma(k$n_module)` adults asked the mental-health module). The primary outcome was being *diagnosed but untreated*: reporting a professional diagnosis of depression or anxiety and not currently receiving treatment. Health insurance was merged from the household member file. We estimated survey-weighted prevalence with 95% confidence intervals (CIs), fitted survey-weighted quasi-Poisson (log-link) models for being diagnosed and, among the diagnosed, for being untreated, and quantified wealth-related inequality with standard and Erreygers concentration indices.
 
-**Results:** Diagnosed depression affected `r pc(k$prev_depression)`% and anxiety `r pc(k$prev_anxiety)`% of
-adults; `r pc(k$prev_dep_or_anx)`% reported either. Among the `r format(k$n_diagnosed, big.mark=",")` adults
-with a diagnosis, `r pc(k$gap_overall)`% were not receiving treatment. The gap was large across every
-subgroup, including the insured and the wealthiest, and the wealth-ranked concentration index was
-`r sprintf("%.3f (95%% CI %.3f to %.3f)", ci$CI[[1]], ci$CI_low[[1]], ci$CI_high[[1]])`, indicating an
-approximately uniform — rather than strongly pro-rich or pro-poor — treatment gap.
+**Results:** Diagnosed depression affected `r pcc(k$prev_depression)` of adults and anxiety `r pcc(k$prev_anxiety)`; `r pcc(k$prev_either)` reported either. Diagnosis was modestly concentrated among wealthier and better-educated adults (concentration index `r cif(k$ci_diag)`). Among the `r ncomma(k$n_diagnosed)` adults reporting a diagnosis, `r pcc(k$gap_overall)` were not receiving treatment. This treatment gap was large across every subgroup, including the insured (`r pp(k$gap_insured)`) and the richest quintile (`r pp(k$gap_richest)`), and was distribution-neutral across wealth (concentration index `r cif(k$ci_gap)`). No covariate strongly predicted being untreated after adjustment.
 
-**Conclusions:** Most Kenyan adults who know they have depression or anxiety are not in treatment, and this
-shortfall is near-universal across socioeconomic and insurance groups. Closing it requires system-wide
-expansion of mental-health treatment access, not only equity-targeted measures.
+**Conclusions:** Most Kenyan adults who know they have depression or anxiety are not in treatment, and unlike diagnosis itself, this shortfall is near-universal across wealth and insurance groups. Closing it requires system-wide expansion of accessible mental-health treatment, not only equity-targeted enrolment measures.
+
+**Keywords:** depression; anxiety; treatment gap; mental health services; health equity; concentration index; non-communicable diseases; Kenya; demographic and health survey
 
 # Background
 
-<!-- Frame: rising NCD-mental-health comorbidity in Kenya; KDHS 2022 first MH module; what Omondi 2025,
-Melkam 2025 and the concentration-index paper established (prevalence, correlates, wealth inequality of
-*diagnosis*); the unexamined question = the *treatment* item and the diagnosed-but-untreated gap. -->
-Common mental disorders are leading contributors to disability in Kenya and cluster with non-communicable
-diseases (NCDs) [@omondi2025; @melkam2025]. KDHS 2022 added a self-reported mental-health module, enabling
-national estimates of diagnosed depression and anxiety and their association with chronic disease
-[@omondi2025]. What remains unexamined is the *treatment gap*: among adults who report a professional
-diagnosis, how many are not receiving care, and how that shortfall is socially distributed.
+Depression and anxiety are among the largest contributors to years lived with disability worldwide, and the great majority of this burden falls on low- and middle-income countries (LMICs) [@gbd2022; @patel2018]. The *treatment gap* — the proportion of people with a mental disorder who do not receive care — is the defining feature of mental-health systems in these settings, frequently exceeding 75% [@patel2018; @who2022mhr]. The World Health Organization's mental health Gap Action Programme (mhGAP) was designed expressly to close this gap by integrating mental-health care into general and primary health services [@mhgap2008; @who2022mhr]. Kenya has signalled political commitment through the Mental Health (Amendment) Act 2022 and successive policy frameworks, yet specialist services remain concentrated in a few urban facilities and community-based treatment remains limited [@kenyamhact2022; @jenkins2012].
+
+Two features of the Kenyan epidemiological landscape make the treatment gap especially consequential. First, common mental disorders are prevalent: community studies in rural Kenya have documented substantial burdens of depression and anxiety that are largely unmet by formal services [@jenkins2012]. Second, mental disorders cluster with non-communicable diseases (NCDs). Clinic-based Kenyan studies report depression in roughly a third of adults with type 2 diabetes, and comorbidity is associated with worse metabolic control and outcomes [@otieno2017; @ndetei2024; @lloyd2018]. As Kenya's NCD burden rises, the population in whom depression and anxiety co-occur with chronic physical illness — and in whom untreated distress undermines self-management — is growing.
+
+Until recently, nationally representative evidence on mental health in Kenya was scarce. The 2022 Kenya Demographic and Health Survey (KDHS 2022) changed this by including, for the first time in a Kenyan DHS, a self-reported chronic-disease module that asks women and men whether a health worker has ever told them they have depression or anxiety, and whether they are currently receiving treatment [@kdhs2022]. Several analyses have already used the module to describe the national prevalence of diagnosed depression and anxiety and their sociodemographic and chronic-disease correlates, and to show that diagnosis is concentrated among wealthier Kenyans [@omondi2025; @melkam2025; @actapsy2025; @okyere2024].
+
+What this literature has not examined is the survey's *treatment* item, and therefore the treatment gap itself. Knowing how many Kenyans carry a diagnosis is epidemiologically useful but only weakly actionable; knowing how many of the diagnosed are left without care — and whether that shortfall is patterned by wealth, insurance, place, or physical comorbidity — speaks directly to where the health system is failing and what would close the gap. This distinction matters because a self-reported *diagnosis* in a survey is access-dependent: it reflects contact with a health worker who recognised and named the condition. The treatment gap among the diagnosed therefore measures a downstream failure that is conceptually separable from the upstream inequalities that govern who is diagnosed at all.
+
+This study addressed four questions using KDHS 2022. First, what is the national prevalence of diagnosed depression and anxiety, and how is it socially patterned? Second, among adults reporting a diagnosis, what proportion are not receiving treatment? Third, how does this treatment gap vary by sex, age, wealth, education, residence, health insurance, and physical-NCD comorbidity? Fourth, how unequal across the wealth distribution is diagnosis compared with the treatment gap? We hypothesised that, whereas diagnosis would be pro-rich (reflecting unequal access to the health workers who make diagnoses), the treatment gap among the diagnosed would be large and comparatively uniform, indicating a systemic rather than purely distributional failure of mental-health care.
 
 # Methods
 
-We conducted a cross-sectional secondary analysis of the KDHS 2022 individual (women) and men's recodes,
-reported per STROBE. The outcome was being *diagnosed but untreated*: reporting a diagnosis of depression
-(`chd17`/`mchd17`) or anxiety (`chd18`/`mchd18`) and not currently receiving treatment (`chd19`/`mchd19`).
-Health-insurance status was merged from the household member file (`sh27`). Physical-NCD comorbidity was a
-count of diagnosed hypertension, diabetes, heart disease, lung disease, and arthritis. All analyses used the
-complex survey design (weights, PSU, strata). We estimated survey-weighted prevalence with 95% CIs, fitted a
-quasi-Poisson (log-link) model for being untreated, and summarised the wealth gradient with a concentration
-index (cluster-bootstrap CI). Analyses used R and the `survey` package.
+## Study design and reporting
+
+This was a cross-sectional secondary analysis of KDHS 2022, reported in accordance with the Strengthening the Reporting of Observational Studies in Epidemiology (STROBE) statement [@vonelm2007].
+
+## Data source and study population
+
+KDHS 2022 was implemented by the Kenya National Bureau of Statistics using a stratified two-stage cluster sample and is nationally representative of households and their members [@kdhs2022]. The self-reported chronic-disease module, which contains the mental-health items used here, was administered to interviewed women aged 15–49 (individual recode) and men aged 15–54 (men's recode). We pooled the two recodes into a single adult analytic file. The analytic population for prevalence analyses comprised the `r ncomma(k$n_module)` adults with a non-missing mental-health classification; the treatment-gap analyses were restricted to the `r ncomma(k$n_diagnosed)` adults who reported a diagnosis of depression or anxiety and had a non-missing treatment response.
+
+## Measures
+
+**Mental-health diagnosis.** Respondents were asked whether a doctor or other health worker had ever told them they have depression, and separately, anxiety. We defined diagnosed depression, diagnosed anxiety, and diagnosed *depression or anxiety* (either) as binary indicators.
+
+**Treatment gap (primary outcome).** Among adults reporting a diagnosis of depression or anxiety, the survey asked whether they were currently receiving any treatment for depression or anxiety. The primary outcome, *untreated*, was defined as reporting a diagnosis but not currently receiving treatment.
+
+**Physical-NCD comorbidity.** We counted diagnosed hypertension, diabetes, heart disease, lung disease, and arthritis (each "ever told by a health worker"), the five conditions asked of both sexes, and grouped the count as 0, 1, or 2+.
+
+**Covariates.** Wealth quintile, educational attainment, place of residence (urban/rural), region, sex, and age group (15–24, 25–34, 35–49, 50+) were taken from the recodes. Health-insurance coverage was not carried in the individual or men's recodes; we therefore merged any-insurance status from the household member (person recode) file on cluster, household, and line number.
+
+## Statistical analysis
+
+All analyses incorporated the complex survey design using primary sampling units, sampling strata, and individual sample weights [@lumley2010]. We estimated survey-weighted prevalence with 95% CIs for diagnosis (overall and by subgroup) and for the treatment gap (overall and by subgroup). To identify independent correlates, we fitted survey-weighted generalised linear models with a quasi-Poisson family and log link, yielding adjusted prevalence ratios (APRs); a log-link Poisson specification is preferred to logistic regression when the outcome is common, because odds ratios overstate prevalence ratios [@zou2004]. One model estimated APRs for being diagnosed with depression or anxiety (whole module sample); a second estimated APRs for being untreated among the diagnosed. Both adjusted for sex, age group, wealth, residence, education, physical-NCD count, and insurance.
+
+To quantify wealth-related inequality we computed the standard (Wagstaff) concentration index and the Erreygers-corrected index for the bounded binary outcomes, ranking individuals by household wealth quintile [@wagstaff1991; @erreygers2009]. Confidence intervals were obtained by a cluster (primary-sampling-unit) bootstrap with 200 replications. A positive index indicates an outcome concentrated among wealthier individuals. We computed concentration indices separately for diagnosis and for the treatment gap, overall and by sex. Analyses were conducted in R using the `survey` package [@lumley2010].
+
+## Ethical considerations
+
+The analysis used de-identified, publicly available secondary data. KDHS 2022 was approved by the KEMRI Scientific and Ethics Review Unit and the ICF Institutional Review Board; no additional approval was required.
 
 # Results
 
-Diagnosed depression affected `r pc(k$prev_depression)`% of adults and anxiety `r pc(k$prev_anxiety)`%
-(Table 1). Among the `r format(k$n_diagnosed, big.mark=",")` adults reporting a diagnosis, `r pc(k$gap_overall)`%
-were untreated, with little variation across wealth, insurance, residence, age, or comorbidity (Table 2;
-Figure 1). The concentration index was approximately zero, indicating a near-uniform gap. Adjusted predictors
-are shown in Table 3.
+## Sample characteristics
 
-<!-- Tables/figures are generated by 04_tables_figures.R into 04_tables/ and 05_figures/. -->
+The pooled module sample comprised `r ncomma(k$n_module)` adults (Table 1). The sample was predominantly of reproductive and working age, broadly balanced across wealth quintiles, and largely uninsured, consistent with the national population asked the module. Diagnosed depression or anxiety was reported by a small minority of adults overall.
+
+```{r}
+#| label: tbl-1
+#| tbl-cap: "Table 1. Weighted characteristics of adults asked the KDHS 2022 mental-health module, by sex."
+publication_flextable(ao$table1,
+  footer_lines = c("Source: Kenya DHS 2022. Survey-weighted estimates with 95% CIs.",
+                   "Module sample = adults with a non-missing depression/anxiety classification."))
+```
+
+## Prevalence and social patterning of diagnosis
+
+Diagnosed depression affected `r pcc(k$prev_depression)` of adults and diagnosed anxiety `r pcc(k$prev_anxiety)`; `r pcc(k$prev_either)` reported either condition (Table 2). Reported diagnosis was somewhat higher among the wealthiest quintile, the most educated, and urban residents, although the wealth gradient was modest and concentrated at the top of the distribution rather than monotonic, and was driven more by anxiety than by depression. The standard concentration index for diagnosis was `r cif(k$ci_diag)` (Erreygers `r ef(k$ci_diag)`), indicating a modest concentration of reported diagnosis among wealthier adults — the expected signature of access-dependent, professionally-reported diagnosis (Table 5; Figure 1A).
+
+```{r}
+#| label: tbl-2
+#| tbl-cap: "Table 2. Weighted prevalence of self-reported diagnosed depression and anxiety by subgroup, KDHS 2022."
+publication_flextable(ao$table2,
+  footer_lines = c("Source: Kenya DHS 2022. Survey-weighted estimates with 95% CIs.",
+                   "Diagnosis = ever told by a health worker. n is the subgroup denominator for the 'either' column."))
+```
+
+## The treatment gap among the diagnosed
+
+Among the `r ncomma(k$n_diagnosed)` adults reporting a diagnosis of depression or anxiety, `r pcc(k$gap_overall)` were not currently receiving treatment (Table 3). The gap was strikingly consistent across subgroups: it was `r pp(k$gap_richest)` in the richest quintile and `r pp(k$gap_poorest)` in the poorest, and `r pp(k$gap_insured)` among the insured versus `r pp(k$gap_uninsured)` among the uninsured. Sex, age, residence, and physical-NCD comorbidity were likewise associated with little variation in the gap. The pattern was the same for depression considered alone (`r pcc(k$untreated_dep)` untreated) and anxiety alone (`r pcc(k$untreated_anx)` untreated). The contrast between the steep wealth gradient in diagnosis and the flat wealth gradient in the treatment gap is shown in Figure 1.
+
+```{r}
+#| label: tbl-3
+#| tbl-cap: "Table 3. Weighted depression/anxiety treatment gap (diagnosed but untreated) by subgroup, KDHS 2022."
+publication_flextable(ao$table3,
+  footer_lines = c("Source: Kenya DHS 2022. Survey-weighted estimates with 95% CIs.",
+                   "Restricted to adults reporting a diagnosis of depression or anxiety with a non-missing treatment response."))
+```
+
+```{r}
+#| label: fig-1
+#| fig-cap: "Figure 1. Wealth gradient in (A) diagnosed depression or anxiety among all adults and (B) being untreated among the diagnosed, KDHS 2022. Bars are survey-weighted prevalence with 95% confidence intervals. Diagnosis shows a modest gradient concentrated in the wealthiest quintile, whereas the treatment gap is approximately flat across the wealth distribution."
+#| fig-width: 9
+#| fig-height: 4.6
+knitr::include_graphics(file.path("..", "05_figures", "Figure1_Diagnosis_vs_Gap_By_Wealth.png"))
+```
+
+## Adjusted correlates of diagnosis and of being untreated
+
+In adjusted models (Table 4), the correlates of *diagnosis* mirrored the descriptive pattern: women, older adults, and those with physical-NCD comorbidity were more likely to report a diagnosis, and a wealth and education gradient persisted after adjustment. In sharp contrast, *no covariate strongly or consistently predicted being untreated* among the diagnosed. Point estimates for wealth, insurance, residence, education, sex, and comorbidity were close to the null with confidence intervals spanning unity (Table 4; Figure 2). The diagnosis model included `r ncomma(k$n_diag_model)` adults and the treatment-gap model `r ncomma(k$n_untreated_model)` diagnosed adults.
+
+```{r}
+#| label: tbl-4
+#| tbl-cap: "Table 4. Survey-weighted adjusted prevalence ratios (APR) for being diagnosed with depression or anxiety, and — among the diagnosed — for being untreated, KDHS 2022."
+publication_flextable(ao$table4,
+  footer_lines = c("Source: Kenya DHS 2022. Quasi-Poisson (log-link) APRs with 95% CIs. * p < 0.05.",
+                   "Diagnosis model: all module adults. Untreated model: adults reporting a diagnosis."))
+```
+
+```{r}
+#| label: fig-2
+#| fig-cap: "Figure 2. Adjusted prevalence ratios (log scale) for being untreated among adults with diagnosed depression or anxiety, KDHS 2022. Points are survey-weighted quasi-Poisson estimates with 95% confidence intervals; the dashed line marks no association. No covariate is a strong predictor of being untreated."
+#| fig-width: 8
+#| fig-height: 5.2
+knitr::include_graphics(file.path("..", "05_figures", "Figure2_Untreated_Forest.png"))
+```
+
+## Wealth-related inequality: diagnosis versus the treatment gap
+
+The two concentration indices tell opposite stories (Table 5). Diagnosis was clearly pro-rich (standard index `r cif(k$ci_diag)`), whereas the treatment gap was effectively distribution-neutral (standard index `r cif(k$ci_gap)`, with a confidence interval straddling zero). In other words, wealth strongly shapes *who is recognised and diagnosed*, but does little to shape *who, once diagnosed, actually receives treatment* — almost everyone diagnosed goes untreated regardless of wealth.
+
+```{r}
+#| label: tbl-5
+#| tbl-cap: "Table 5. Wealth-related concentration indices for diagnosis and for the treatment gap, overall and by sex, KDHS 2022."
+publication_flextable(ao$table5,
+  footer_lines = c("Source: Kenya DHS 2022. Standard (Wagstaff) and Erreygers-corrected concentration indices.",
+                   "Positive values indicate concentration among wealthier adults; 95% CIs from a 200-replication PSU bootstrap."))
+```
 
 # Discussion
 
-<!-- Key message: the treatment gap is large and universal, so this is a systemic access failure rather than
-only an equity gradient. Compare to clinic-based diabetes-depression treatment-gap evidence; mhGAP scale-up;
-self-report caveat (diagnosis is access-dependent, so true unmet need is larger). Limitations: cross-sectional;
-self-reported diagnosis and treatment; small diagnosed subsample for some cells. Policy: integrate mental-health
-treatment into NCD and primary care; this national baseline supports a larger implementation study. -->
+## Principal findings
+
+Using the first nationally representative Kenyan survey to carry a mental-health module, we provide the country's first national estimate of the depression and anxiety *treatment gap*. Three findings stand out. First, a diagnosis of depression or anxiety is reported by only a small minority of adults and is modestly concentrated among wealthier, more educated, and urban adults. Second, among the adults who do report a diagnosis, roughly three quarters are not receiving treatment. Third — and most importantly — this treatment gap is large and approximately uniform across wealth, insurance, residence, age, sex, and physical comorbidity, even though diagnosis itself retains a social gradient. The juxtaposition of a socially graded diagnosis and a socially flat, near-total treatment gap is the central contribution of this paper.
+
+## Interpretation
+
+The contrast between the two gradients is informative about *where* the mental-health system fails. The tendency for reported diagnosis to be concentrated among wealthier and better-educated Kenyans is consistent with prior KDHS-2022 analyses [@omondi2025; @melkam2025; @actapsy2025]. Because a survey diagnosis requires prior contact with a health worker able to recognise and name the condition, this gradient largely reflects unequal *access to recognition* rather than a true wealth gradient in underlying disorder; community studies using symptom scales rather than diagnostic history find high burdens of common mental disorders among the rural poor [@jenkins2012]. The flat treatment gap then shows that *even where the system succeeds in producing a diagnosis, it overwhelmingly fails to deliver treatment*, and it fails the rich and insured almost as completely as the poor and uninsured. This is the signature of a supply-side, system-level deficit — too few trained providers, medicines, and integrated services — rather than a problem that demand-side measures such as insurance enrolment alone would solve.
+
+The magnitude we observe is consistent with global estimates that the mental-health treatment gap in LMICs commonly exceeds 75% [@patel2018; @who2022mhr], and with clinic-based Kenyan evidence that comorbid depression in chronic-disease patients is frequently neither recognised nor treated [@otieno2017; @lloyd2018; @ndetei2024]. Our national estimate extends that clinic evidence to the general adult population and shows that the shortfall is not confined to particular subgroups. The near-absence of adjusted predictors of being untreated (Figure 2) reinforces this reading: when a failure is universal, it is structural.
+
+## Policy implications
+
+The results argue for a supply-side, integration-first response of the kind envisaged by mhGAP and by Kenya's own mental-health legislation [@mhgap2008; @kenyamhact2022; @who2022mhr]. Expanding insurance coverage or targeting the poor, while important for equity in *diagnosis* and for financial protection more broadly, would by itself be unlikely to close a treatment gap that is already near-total among the insured and the wealthy. Embedding the detection and brief treatment of depression and anxiety into primary care and chronic-disease services — where adults with NCDs are already in regular contact with the system — is a more direct lever, and our finding that comorbid adults are more likely to be diagnosed but no more likely to be treated identifies that contact point as both an opportunity and a current failure. Routine, structured psychosocial screening and the availability of brief, scalable interventions within existing NCD and primary-care consultations are concrete next steps, and our national estimates provide a baseline against which their scale-up can be monitored.
+
+## Strengths and limitations
+
+Strengths include the nationally representative design, inclusion of both women and men, full accounting for the complex survey design, and the novel use of the treatment item to construct a treatment-gap metric and contrast its social distribution with that of diagnosis. Several limitations apply. First, the design is cross-sectional and associations are descriptive. Second, both diagnosis and treatment are self-reported. Critically, a reported *diagnosis* is access-dependent and therefore *underestimates* true disorder prevalence, especially among the poor; the true unmet need is larger than the treatment gap among the diagnosed, and our diagnosis estimates should not be read as disorder prevalence. Third, the survey records whether a person is "receiving treatment" without detail on type, adequacy, or continuity, so the gap we measure is a lower bound on inadequate care. Fourth, the diagnosed subsample, while drawn from a large national survey, is modest, which limits precision in small cells. Fifth, the mental-health module was administered to interviewed women (15–49) and men (15–54), so older adults are not represented. Finally, insurance was merged from the household file and a small number of records could not be linked.
 
 # Conclusions
 
-Most Kenyan adults who report a depression or anxiety diagnosis are not receiving treatment, and the gap is
-near-universal across social groups. System-wide expansion of accessible mental-health care — not only
-equity-targeted measures — is needed.
+Most Kenyan adults who report a diagnosis of depression or anxiety are not receiving treatment. Unlike diagnosis, which retains a modest social gradient, this treatment gap is large and near-universal across wealth, insurance, place, and comorbidity. Closing it will require system-wide expansion of accessible mental-health treatment — above all its integration into primary and chronic-disease care — rather than equity-targeted or insurance-based measures alone. These national estimates offer a concrete baseline for monitoring that effort.
+
+# List of abbreviations {.unnumbered}
+
+- APR: adjusted prevalence ratio
+- CI: confidence interval (or concentration index, where specified)
+- DHS: Demographic and Health Survey
+- KDHS: Kenya Demographic and Health Survey
+- LMIC: low- and middle-income country
+- mhGAP: mental health Gap Action Programme
+- NCD: non-communicable disease
+- STROBE: Strengthening the Reporting of Observational Studies in Epidemiology
 
 # Declarations {.unnumbered}
 
-## Ethics approval {.unnumbered}
-This study used de-identified secondary KDHS 2022 data. The survey received ethical approval from the KEMRI
-Scientific and Ethics Review Unit and the ICF IRB; no additional approval was required.
+## Ethics approval and consent to participate {.unnumbered}
+This study used de-identified secondary KDHS 2022 data. The survey received ethical approval from the KEMRI Scientific and Ethics Review Unit and the ICF Institutional Review Board. No additional approval was required.
+
+## Consent for publication {.unnumbered}
+Not applicable.
 
 ## Availability of data and materials {.unnumbered}
-KDHS 2022 data are available from The DHS Program (https://dhsprogram.com/data/). Study scripts are available
-in the project repository.
+KDHS 2022 microdata are available from The DHS Program (https://dhsprogram.com/data/) upon approved request. Study-specific analysis scripts are available in the project repository.
 
 ## Competing interests {.unnumbered}
-The authors declare no competing interests.
+The authors declare that they have no competing interests.
+
+## Funding {.unnumbered}
+This research received no specific external funding.
+
+## Authors' contributions {.unnumbered}
+NWA conceptualised the study, conducted the analysis, and drafted the manuscript. JO contributed to design, interpretation, and critical revision. Both authors approved the final version.
+
+## Acknowledgements {.unnumbered}
+The authors thank The DHS Program, the Kenya National Bureau of Statistics, and the Ministry of Health for the survey and data access.
+
+# Additional files {.unnumbered}
+
+Additional file 1: STROBE checklist.
 
 # References {.unnumbered}
 

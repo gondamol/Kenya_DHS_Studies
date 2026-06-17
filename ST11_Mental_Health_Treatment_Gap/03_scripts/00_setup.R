@@ -97,12 +97,12 @@ clean_label <- function(x) {
 }
 
 education_label <- function(x) {
-  label_chr <- to_chr(x)
+  l <- to_chr(x)
   dplyr::case_when(
-    stringr::str_detect(label_chr, "no education|preschool|none") ~ "No education",
-    label_chr == "primary" ~ "Primary",
-    label_chr == "secondary" ~ "Secondary",
-    label_chr == "higher" ~ "Higher",
+    stringr::str_detect(l, "higher|college|university|tertiary") ~ "Higher",
+    stringr::str_detect(l, "secondary") ~ "Secondary",
+    stringr::str_detect(l, "primary") ~ "Primary",
+    stringr::str_detect(l, "no education|none|preschool|early childhood") ~ "No education",
     TRUE ~ NA_character_
   )
 }
@@ -175,8 +175,10 @@ concentration_index <- function(data, outcome, rank_var = "wealth_rank",
                           Erreygers = NA_real_, E_low = NA_real_, E_high = NA_real_))
   }
 
-  ci_point <- function(df) {
-    w <- df[[weight_var]]; y <- df[[outcome]]; r <- df[[rank_var]]
+  # work on plain numeric vectors for speed
+  W <- as.numeric(d[[weight_var]]); Y <- as.numeric(d[[outcome]]); R <- as.numeric(d[[rank_var]])
+
+  ci_point <- function(w, y, r) {
     o <- order(r); w <- w[o]; y <- y[o]
     wn <- w / sum(w)
     frank <- cumsum(wn) - 0.5 * wn          # weighted fractional rank
@@ -187,15 +189,15 @@ concentration_index <- function(data, outcome, rank_var = "wealth_rank",
     c(CI = CI, E = E)
   }
 
-  point <- ci_point(d)
+  point <- ci_point(W, Y, R)
 
   set.seed(seed)
-  clusters <- unique(d[[psu_var]])
+  idx_by_cluster <- split(seq_along(W), d[[psu_var]])  # precompute row indices per PSU
+  clusters <- names(idx_by_cluster)
   boots <- matrix(NA_real_, nrow = n_boot, ncol = 2)
   for (b in seq_len(n_boot)) {
-    samp <- sample(clusters, length(clusters), replace = TRUE)
-    db <- dplyr::bind_rows(lapply(samp, function(cl) d[d[[psu_var]] == cl, , drop = FALSE]))
-    boots[b, ] <- ci_point(db)
+    rows <- unlist(idx_by_cluster[sample(clusters, length(clusters), replace = TRUE)], use.names = FALSE)
+    boots[b, ] <- ci_point(W[rows], Y[rows], R[rows])
   }
   q <- function(v) stats::quantile(v, c(0.025, 0.975), na.rm = TRUE)
   ci_q <- q(boots[, 1]); e_q <- q(boots[, 2])
