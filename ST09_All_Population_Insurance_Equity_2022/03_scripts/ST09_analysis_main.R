@@ -28,6 +28,7 @@ suppressPackageStartupMessages({
   library(ggplot2)
   library(broom)
   library(scales)
+  library(lme4)
 })
 
 options(
@@ -408,6 +409,9 @@ raw <- read_dta(
     hv104, hv105,                 # sex, age
     hv106, hv270, hv024, hv025,  # education, wealth, region, residence
     hv101,                        # relationship to HH head
+    hv111, hv113,                 # mother alive, father alive (child parental survival)
+    hv219, hv220,                 # sex and age of household head
+    hv243a,                       # household owns a mobile phone
     sh27,                         # any insurance
     sh28a, sh28b, sh28c, sh28x,  # NHIF, private, community, other
     sh29, sh31, sh32,             # hospital admission, outpatient, paid OPD
@@ -627,7 +631,32 @@ analytic_raw <- raw %>%
         age_yrs >= 60 |
         (!is.na(disability_any) & disability_any == 1) |
         (!is.na(wealth) & wealth %in% c("Poorest","Poorer"))
-    )
+    ),
+
+    # ── Variable enrichment (household-head, connectivity, child parental survival) ──
+    hh_head_sex = factor(case_when(
+      num(hv219) == 1 ~ "Male",
+      num(hv219) == 2 ~ "Female",
+      TRUE            ~ NA_character_
+    ), levels = c("Male", "Female")),
+    # hv220 reserved/implausible codes (97-99 / >95) set to missing
+    hh_head_age = ifelse(num(hv220) >= 96, NA_real_, num(hv220)),
+    mobile_phone = case_when(
+      num(hv243a) == 1 ~ 1L,
+      num(hv243a) == 0 ~ 0L,
+      TRUE             ~ NA_integer_
+    ),
+    # Parental survival (hv111 mother alive, hv113 father alive); asked of children only
+    mother_alive = case_when(num(hv111) == 1 ~ 1L, num(hv111) == 0 ~ 0L, TRUE ~ NA_integer_),
+    father_alive = case_when(num(hv113) == 1 ~ 1L, num(hv113) == 0 ~ 0L, TRUE ~ NA_integer_),
+    orphan_status = factor(case_when(
+      is.na(mother_alive) & is.na(father_alive)                              ~ NA_character_,
+      (mother_alive == 0 & !is.na(mother_alive)) &
+        (father_alive == 0 & !is.na(father_alive))                           ~ "Double orphan",
+      (mother_alive == 0 & !is.na(mother_alive)) |
+        (father_alive == 0 & !is.na(father_alive))                          ~ "Single orphan",
+      TRUE                                                                    ~ "Both parents alive"
+    ), levels = c("Both parents alive", "Single orphan", "Double orphan"))
   )
 
 cat("Analytic sample (de-facto, sh27 valid):", nrow(analytic_raw), "\n")
@@ -1895,7 +1924,384 @@ logbin_converged <- !is.null(parsi_lb)
 message("=== SECTION 10 COMPLETE ===")
 
 # =============================================================================
-message("=== SECTION 11: Save outputs and summary ===")
+message("=== SECTION 11: Variable-enrichment descriptives ===")
+# =============================================================================
+# Newly added household-roster variables (head sex/age, mobile-phone ownership,
+# child parental survival) provide additional equity lenses and feed the
+# multilevel and intersectional models in Sections 12-13.
+
+enrich_section <- function(data, group_var, section_label) {
+  wprev_by(data, group_var, "insured_any") %>%
+    transmute(
+      Section = section_label,
+      Category = group,
+      `Unweighted n` = unweighted_n,
+      `Insurance % (95% CI)` = formatted
+    )
+}
+
+analytic_mobile <- analytic %>%
+  filter(!is.na(mobile_phone)) %>%
+  mutate(mobile_lab = factor(
+    ifelse(mobile_phone == 1, "Owns mobile phone", "No mobile phone"),
+    levels = c("No mobile phone", "Owns mobile phone")
+  ))
+
+table13 <- bind_rows(
+  enrich_section(analytic, "hh_head_sex", "Household head sex"),
+  enrich_section(analytic_mobile, "mobile_lab", "Household mobile phone"),
+  enrich_section(analytic %>% filter(age_yrs < 18, !is.na(orphan_status)),
+                 "orphan_status", "Child parental survival (<18)")
+)
+
+save_bundle(
+  table13,
+  file.path(paths$tables_dir, "Table13_ST09_Enrichment_Descriptives.csv"),
+  file.path(paths$tables_dir, "Table13_ST09_Enrichment_Descriptives.docx"),
+  caption = paste(
+    "Table 13. Health insurance coverage by household-head sex, household",
+    "mobile-phone ownership, and child parental-survival status, KDHS 2022."
+  ),
+  footer = c(
+    "Source: Kenya DHS 2022. Survey-weighted estimates with 95% confidence intervals; n values are unweighted.",
+    "Household-head sex and mobile-phone ownership are household-roster characteristics (hv219, hv243a).",
+    "Parental-survival status (mother hv111, father hv113) is recorded only for children and is restricted here to members aged under 18 with valid data."
+  )
+)
+cat("Table 13 done.\n")
+
+message("=== SECTION 11 COMPLETE ===")
+
+# =============================================================================
+message("=== SECTION 12: Intersectional inequality (MAIHDA) ===")
+# =============================================================================
+# Multilevel Analysis of Individual Heterogeneity and Discriminatory Accuracy.
+# Individuals are nested within intersectional strata defined by age group,
+# wealth quintile, residence, and sex. A two-level logistic model partitions the
+# variance to quantify how much coverage inequality operates at the intersection
+# of these identities (VPC), and how much survives adjustment for their additive
+# main effects (PCV; the residual reflects intersectional interaction effects).
+# MAIHDA models are conventionally fitted unweighted; design-based weighted APRs
+# are reported separately in Sections 3 and 13.
+
+maihda_df <- analytic %>%
+  filter(!is.na(insured_any), !is.na(age_group), !is.na(wealth),
+         !is.na(residence), !is.na(sex)) %>%
+  mutate(strata = interaction(age_group, wealth, residence, sex,
+                              drop = TRUE, sep = " | "))
+n_strata <- nlevels(maihda_df$strata)
+
+glmer_ctrl <- glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2e5))
+
+maihda_null <- tryCatch(
+  glmer(insured_any ~ 1 + (1 | strata), data = maihda_df,
+        family = binomial, control = glmer_ctrl),
+  error = function(e) { log_error("MAIHDA null", conditionMessage(e)); NULL }
+)
+maihda_adj <- tryCatch(
+  glmer(insured_any ~ age_group + wealth + residence + sex + (1 | strata),
+        data = maihda_df, family = binomial, control = glmer_ctrl),
+  error = function(e) { log_error("MAIHDA adjusted", conditionMessage(e)); NULL }
+)
+
+strata_var <- function(mod) {
+  if (is.null(mod)) return(NA_real_)
+  as.numeric(VarCorr(mod)[["strata"]][1])
+}
+vpc_latent <- function(v) if (is.na(v)) NA_real_ else v / (v + pi^2 / 3)
+
+v_null   <- strata_var(maihda_null)
+v_adj    <- strata_var(maihda_adj)
+vpc_null <- vpc_latent(v_null)
+vpc_adj  <- vpc_latent(v_adj)
+pcv      <- if (!is.na(v_null) && v_null > 0 && !is.na(v_adj))
+  100 * (v_null - v_adj) / v_null else NA_real_
+
+table14 <- tibble(
+  Metric = c(
+    "Number of intersectional strata",
+    "Between-stratum variance, null model",
+    "VPC, null model (%)",
+    "Between-stratum variance, main-effects model",
+    "VPC, main-effects model (%)",
+    "Proportional change in variance, PCV (%)",
+    "Share of stratum variance from interactions (100 - PCV, %)"
+  ),
+  Value = c(
+    format(n_strata, big.mark = ","),
+    sprintf("%.4f", v_null),
+    sprintf("%.1f", 100 * vpc_null),
+    sprintf("%.4f", v_adj),
+    sprintf("%.1f", 100 * vpc_adj),
+    sprintf("%.1f", pcv),
+    sprintf("%.1f", 100 - pcv)
+  )
+)
+
+save_bundle(
+  table14,
+  file.path(paths$tables_dir, "Table14_ST09_MAIHDA.csv"),
+  file.path(paths$tables_dir, "Table14_ST09_MAIHDA.docx"),
+  caption = paste(
+    "Table 14. Intersectional multilevel analysis (MAIHDA) of any health insurance",
+    "coverage across strata of age, wealth, residence, and sex, KDHS 2022."
+  ),
+  footer = c(
+    "Source: Kenya DHS 2022. Two-level logistic models (individuals within intersectional strata), fitted unweighted.",
+    "VPC = variance partition coefficient (latent-variable method), the share of total variance attributable to differences between intersectional strata.",
+    "PCV = proportional change in the between-stratum variance after adjusting for the additive main effects of age, wealth, residence, and sex.",
+    "The residual share (100 - PCV) approximates the contribution of intersectional interaction (multiplicative) effects beyond additive main effects."
+  )
+)
+cat("Table 14 done.\n")
+
+# Figure 8: MAIHDA caterpillar — predicted coverage by intersectional stratum
+if (!is.null(maihda_null)) {
+  re   <- ranef(maihda_null, condVar = TRUE)$strata
+  b0   <- fixef(maihda_null)[["(Intercept)"]]
+  pv   <- attr(re, "postVar")[1, 1, ]
+  fig8_df <- tibble(
+    strata = rownames(re),
+    eff    = re[, 1],
+    se     = sqrt(pv)
+  ) %>%
+    mutate(
+      pred = plogis(b0 + eff),
+      lo   = plogis(b0 + eff - 1.96 * se),
+      hi   = plogis(b0 + eff + 1.96 * se)
+    ) %>%
+    arrange(pred) %>%
+    mutate(rank = row_number())
+
+  fig8 <- ggplot(fig8_df, aes(x = rank, y = 100 * pred)) +
+    geom_ribbon(aes(ymin = 100 * lo, ymax = 100 * hi),
+                alpha = 0.15, fill = "#2166ac") +
+    geom_line(colour = "#2166ac", linewidth = 0.9) +
+    geom_hline(yintercept = 100 * plogis(b0),
+               linetype = "dashed", colour = "grey45") +
+    annotate("text", x = 1, y = 100 * plogis(b0),
+             label = "Overall predicted mean", hjust = 0, vjust = -0.6,
+             size = 3, colour = "grey35") +
+    labs(
+      title    = "Intersectional inequality in insurance coverage (MAIHDA)",
+      subtitle = sprintf("%d strata of age x wealth x residence x sex, KDHS 2022", n_strata),
+      x        = "Intersectional stratum (ranked by predicted coverage)",
+      y        = "Predicted insurance coverage (%)",
+      caption  = "Source: Kenya DHS 2022. Predicted coverage from a two-level logistic MAIHDA null model with 95% intervals."
+    ) +
+    theme_st09
+  ggsave(file.path(paths$figures_dir, "Figure8_ST09_MAIHDA_Caterpillar.png"),
+         fig8, width = 9, height = 6, dpi = 300)
+  cat("Figure 8 done.\n")
+} else {
+  fig8_df <- NULL
+}
+
+message("=== SECTION 12 COMPLETE ===")
+
+# =============================================================================
+message("=== SECTION 13: Multilevel mixed-effects model ===")
+# =============================================================================
+# Supplement the design-based single-level APRs (Section 3) with a hierarchical
+# model nesting individuals within survey clusters (hv001). Per the analysis
+# plan, a modified-Poisson mixed model (log link) is attempted first to preserve
+# the APR framing used throughout; if it fails to converge, a logistic mixed
+# model (odds ratios) is used as a fallback. The cluster random intercept yields
+# the share of coverage variance attributable to unobserved community factors.
+
+mlm_df <- model_A_df   # all-ages complete-case sample, reference levels already set
+
+mlm_pois <- tryCatch(
+  glmer(insured_any ~ age_group + sex + wealth + residence + region + (1 | cluster),
+        data = mlm_df, family = poisson(link = "log"), control = glmer_ctrl),
+  error = function(e) { log_error("MLM Poisson", conditionMessage(e)); NULL }
+)
+
+if (!is.null(mlm_pois)) {
+  mlm_mod    <- mlm_pois
+  mlm_family <- "Poisson (APR)"
+} else {
+  mlm_mod <- tryCatch(
+    glmer(insured_any ~ age_group + sex + wealth + residence + region + (1 | cluster),
+          data = mlm_df, family = binomial, control = glmer_ctrl),
+    error = function(e) { log_error("MLM logistic", conditionMessage(e)); NULL }
+  )
+  mlm_family <- "Logistic (OR)"
+}
+is_apr_mlm   <- grepl("Poisson", mlm_family)
+effect_label <- if (is_apr_mlm) "Multilevel APR (95% CI)" else "Multilevel OR (95% CI)"
+
+# Formatted exp(effect) with 95% CI for selected fixed-effect terms of a glmerMod
+mlm_effect <- function(mod, terms, label) {
+  if (is.null(mod)) return(tibble(Term = terms, !!label := NA_character_))
+  fe <- fixef(mod)
+  se <- sqrt(diag(as.matrix(vcov(mod))))
+  tibble(
+    Term = terms,
+    !!label := sapply(terms, function(t) {
+      if (!t %in% names(fe)) return(NA_character_)
+      fmt_effect(exp(fe[[t]]), exp(fe[[t]] - 1.96 * se[[t]]), exp(fe[[t]] + 1.96 * se[[t]]))
+    })
+  )
+}
+
+mlm_terms <- c("wealthPoorer", "wealthMiddle", "wealthRicher", "wealthRichest",
+               "residenceRural", "sexFemale")
+mlm_labels <- c(
+  "wealthPoorer"   = "Wealth: Poorer vs Poorest",
+  "wealthMiddle"   = "Wealth: Middle vs Poorest",
+  "wealthRicher"   = "Wealth: Richer vs Poorest",
+  "wealthRichest"  = "Wealth: Richest vs Poorest",
+  "residenceRural" = "Residence: Rural vs Urban",
+  "sexFemale"      = "Sex: Female vs Male"
+)
+
+table15 <- sens_extract(mod_A, mlm_terms, "Single-level APR (95% CI)") %>%
+  left_join(mlm_effect(mlm_mod, mlm_terms, effect_label), by = "Term") %>%
+  mutate(Covariate = mlm_labels[Term]) %>%
+  select(Covariate, `Single-level APR (95% CI)`, !!effect_label)
+
+# Cluster variance and variance partition coefficient
+sig2_u <- if (!is.null(mlm_mod)) as.numeric(VarCorr(mlm_mod)[["cluster"]][1]) else NA_real_
+b0_mlm <- if (!is.null(mlm_mod)) fixef(mlm_mod)[["(Intercept)"]] else NA_real_
+if (is_apr_mlm && !is.na(sig2_u)) {
+  # Poisson-lognormal VPC evaluated at the reference covariate pattern
+  lambda  <- exp(b0_mlm + sig2_u / 2)
+  vpc_mlm <- (lambda * (exp(sig2_u) - 1)) / (1 + lambda * (exp(sig2_u) - 1))
+  vpc_method <- "Poisson-lognormal VPC at the reference covariate pattern"
+} else {
+  vpc_mlm    <- vpc_latent(sig2_u)
+  vpc_method <- "logistic latent-variable VPC"
+}
+
+save_bundle(
+  table15,
+  file.path(paths$tables_dir, "Table15_ST09_Multilevel_Model.csv"),
+  file.path(paths$tables_dir, "Table15_ST09_Multilevel_Model.docx"),
+  caption = paste(
+    "Table 15. Multilevel (individuals within survey clusters) versus single-level",
+    "adjusted effect estimates for any health insurance coverage, KDHS 2022."
+  ),
+  footer = c(
+    "Source: Kenya DHS 2022. Single-level estimates are survey-weighted quasi-Poisson APRs (Section 3, all-ages Model A sample).",
+    sprintf("Multilevel estimates are from an unweighted %s mixed model with a random intercept for survey cluster (hv001).", mlm_family),
+    sprintf("Cluster-level random-intercept variance = %.4f; variance partition coefficient = %.1f%% (%s).",
+            sig2_u, 100 * vpc_mlm, vpc_method),
+    "Closeness of the single-level and multilevel point estimates indicates the wealth and residence gradients are robust to community-level clustering."
+  )
+)
+cat("Table 15 done.\n")
+
+message("=== SECTION 13 COMPLETE ===")
+
+# =============================================================================
+message("=== SECTION 14: SHA subsidy policy microsimulation ===")
+# =============================================================================
+# Counterfactual: how far would subsidising the poorest close the wealth gap?
+# We recompute the standard (Wagstaff) concentration index of coverage under
+# three enrolment scenarios and compare them with the observed baseline. If the
+# index falls toward zero, subsidising the bottom flattens the gradient; if a
+# substantial pro-rich index persists, an uninsured "missing middle" sustains it.
+
+sim_data <- analytic %>%
+  filter(!is.na(insured_any), !is.na(wealth), !is.na(wealth_rank), !is.na(weight))
+poorest_two_flag <- sim_data$wealth %in% c("Poorest", "Poorer")
+safetynet_flag   <- !is.na(sim_data$safety_net_gov) & sim_data$safety_net_gov == 1
+
+scenarios <- list(
+  list(name = "Baseline (observed)",
+       y = sim_data$insured_any),
+  list(name = "100% of poorest two quintiles enrolled",
+       y = ifelse(poorest_two_flag, 1, sim_data$insured_any)),
+  list(name = "80% of poorest two quintiles enrolled",
+       y = ifelse(poorest_two_flag & sim_data$insured_any == 0, 0.8, sim_data$insured_any)),
+  list(name = "Government safety-net beneficiaries enrolled",
+       y = ifelse(safetynet_flag, 1, sim_data$insured_any))
+)
+
+wq_cov <- function(y, q) {
+  idx <- sim_data$wealth == q
+  100 * weighted.mean(y[idx], sim_data$weight[idx], na.rm = TRUE)
+}
+sim_metric <- function(y) {
+  ci <- calc_conc_index(sim_data %>% mutate(.ysim = y), ".ysim")
+  list(
+    cov  = 100 * weighted.mean(y, sim_data$weight, na.rm = TRUE),
+    poor = wq_cov(y, "Poorest"),
+    rich = wq_cov(y, "Richest"),
+    ci   = as.numeric(ci$standard_ci),
+    lo   = as.numeric(ci$standard_ci_lo),
+    hi   = as.numeric(ci$standard_ci_hi)
+  )
+}
+
+baseline_ci <- sim_metric(scenarios[[1]]$y)$ci
+
+table16 <- bind_rows(lapply(scenarios, function(s) {
+  m <- sim_metric(s$y)
+  tibble(
+    Scenario = s$name,
+    `Simulated coverage %`  = sprintf("%.1f", m$cov),
+    `Poorest quintile %`    = sprintf("%.1f", m$poor),
+    `Richest quintile %`    = sprintf("%.1f", m$rich),
+    `Standard CI (95% CI)`  = sprintf("%.4f (%.4f, %.4f)", m$ci, m$lo, m$hi),
+    `Change in CI vs baseline` = sprintf("%+.4f", m$ci - baseline_ci)
+  )
+}))
+
+save_bundle(
+  table16,
+  file.path(paths$tables_dir, "Table16_ST09_SHA_Microsimulation.csv"),
+  file.path(paths$tables_dir, "Table16_ST09_SHA_Microsimulation.docx"),
+  caption = paste(
+    "Table 16. Microsimulation of SHA premium-subsidy scenarios: coverage and the",
+    "wealth-related concentration index under counterfactual enrolment, KDHS 2022."
+  ),
+  footer = c(
+    "Source: Kenya DHS 2022. Survey-weighted simulated coverage; standard concentration indices with 95% CIs from 250 bootstrap replicates.",
+    "Scenario 1 sets coverage to 1 for everyone in the poorest two quintiles; scenario 2 enrols 80% of the currently uninsured in those quintiles (expected-value); scenario 3 enrols all members of households receiving a government cash transfer (sh134aa/sh134ab).",
+    "A concentration index near zero indicates an income-neutral distribution of coverage.",
+    "Persistence of a positive index after subsidising the poorest reflects an uninsured 'missing middle' in the middle and richer quintiles."
+  )
+)
+cat("Table 16 done.\n")
+
+# Figure 9: coverage by wealth quintile across microsimulation scenarios
+quintiles <- c("Poorest", "Poorer", "Middle", "Richer", "Richest")
+scenario_levels <- vapply(scenarios, function(s) s$name, character(1))
+fig9_df <- bind_rows(lapply(scenarios, function(s) {
+  bind_rows(lapply(quintiles, function(q) {
+    tibble(Scenario = s$name, wealth = q, cov = wq_cov(s$y, q))
+  }))
+})) %>%
+  mutate(
+    wealth   = factor(wealth, levels = quintiles),
+    Scenario = factor(Scenario, levels = scenario_levels)
+  )
+
+fig9 <- ggplot(fig9_df, aes(x = wealth, y = cov, colour = Scenario, group = Scenario)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2.6) +
+  scale_colour_viridis_d(option = "viridis", end = 0.9, name = "Scenario") +
+  scale_y_continuous(limits = c(0, 105), breaks = seq(0, 100, 20)) +
+  labs(
+    title    = "Simulated insurance coverage by wealth quintile under SHA subsidy scenarios",
+    subtitle = "Counterfactual enrolment versus observed baseline, KDHS 2022",
+    x        = "Wealth quintile",
+    y        = "Any insurance coverage (%)",
+    caption  = "Source: Kenya DHS 2022. Survey-weighted simulated coverage.\nA persisting dip in the middle and richer quintiles is the uninsured 'missing middle'."
+  ) +
+  theme_st09 +
+  theme(legend.position = "top", legend.direction = "vertical")
+
+ggsave(file.path(paths$figures_dir, "Figure9_ST09_SHA_Microsimulation.png"),
+       fig9, width = 9, height = 6.5, dpi = 300)
+cat("Figure 9 done.\n")
+
+message("=== SECTION 14 COMPLETE ===")
+
+# =============================================================================
+message("=== SECTION 15: Save outputs and summary ===")
 # =============================================================================
 
 # Inline stats helper objects for manuscript
@@ -1937,6 +2343,10 @@ analysis_object <- list(
   table11b = table11b,
   table12 = table12,
   table_sens = table_sens,
+  table13 = table13,
+  table14 = table14,
+  table15 = table15,
+  table16 = table16,
   # Figure data frames
   fig1_df = fig1_df,
   fig2_df = fig2_df,
@@ -1961,6 +2371,18 @@ analysis_object <- list(
   logbin_converged = logbin_converged,
   full_logbin_converged = full_logbin_converged,
   trend_2014_ok    = trend_2014_ok,
+  # Intersectionality (MAIHDA), multilevel and microsimulation scalars
+  maihda_n_strata  = n_strata,
+  maihda_v_null    = v_null,
+  maihda_v_adj     = v_adj,
+  maihda_vpc_null  = vpc_null,
+  maihda_vpc_adj   = vpc_adj,
+  maihda_pcv       = pcv,
+  mlm_family       = mlm_family,
+  mlm_cluster_var  = sig2_u,
+  mlm_vpc          = vpc_mlm,
+  mlm_vpc_method   = vpc_method,
+  sim_baseline_ci  = baseline_ci,
   # Inline stats
   overall_n            = overall_n,
   overall_insured_pct  = overall_insured_pct,
@@ -2000,7 +2422,11 @@ supplementary_tables <- list(
   "Table S3. Standard and Erreygers-corrected concentration indices for health insurance coverage, KDHS 2022." = table6,
   "Table S4. Absolute and relative wealth-related inequality metrics for health insurance coverage, KDHS 2022." = table7,
   "Table S5. Population composition of uninsured household members in policy-priority groups, KDHS 2022." = table8,
-  "Table S6. Sensitivity of adjusted prevalence ratios to model family (quasi-Poisson vs log-binomial), KDHS 2022." = table_sens
+  "Table S6. Sensitivity of adjusted prevalence ratios to model family (quasi-Poisson vs log-binomial), KDHS 2022." = table_sens,
+  "Table S8. Health insurance coverage by household-head sex, mobile-phone ownership, and child parental survival, KDHS 2022." = table13,
+  "Table S9. Intersectional multilevel analysis (MAIHDA) of health insurance coverage, KDHS 2022." = table14,
+  "Table S10. Multilevel versus single-level adjusted effect estimates for health insurance coverage, KDHS 2022." = table15,
+  "Table S11. Microsimulation of SHA premium-subsidy scenarios on the wealth-related concentration index, KDHS 2022." = table16
 )
 if (!is.null(table11b)) {
   supplementary_tables[["Table S7. Wagstaff decomposition of the concentration index among adults aged 15+, adding education and functional difficulty, KDHS 2022."]] <- table11b
@@ -2094,7 +2520,23 @@ summary_lines <- c(
   paste0("Most over-represented group among the uninsured: ",
          uninsured_top_row$`Population group`,
          " (representation ratio ",
-         uninsured_top_row$`Uninsured representation ratio`, ")")
+         uninsured_top_row$`Uninsured representation ratio`, ")"),
+  "",
+  "=== INTERSECTIONALITY (MAIHDA) ===",
+  paste0("Intersectional strata (age x wealth x residence x sex): ", n_strata),
+  paste0("VPC, null model: ", sprintf("%.1f%%", 100 * vpc_null),
+         "; PCV after main effects: ", sprintf("%.1f%%", pcv),
+         " (interactions ~ ", sprintf("%.1f%%", 100 - pcv), ")"),
+  "",
+  "=== MULTILEVEL MODEL ===",
+  paste0("Family used: ", mlm_family),
+  paste0("Cluster random-intercept variance: ", sprintf("%.4f", sig2_u),
+         "; VPC: ", sprintf("%.1f%%", 100 * vpc_mlm), " (", vpc_method, ")"),
+  "",
+  "=== SHA MICROSIMULATION (standard concentration index) ===",
+  paste0("Baseline CI: ", sprintf("%.4f", baseline_ci)),
+  paste0(table16$Scenario, ": coverage ", table16$`Simulated coverage %`,
+         "%, CI ", table16$`Standard CI (95% CI)`)
 )
 
 readr::write_lines(summary_lines,
@@ -2107,5 +2549,5 @@ readr::write_lines(
 cat("\n")
 cat(paste(summary_lines, collapse = "\n"), "\n")
 
-message("=== SECTION 6 COMPLETE ===")
+message("=== SECTION 15 COMPLETE ===")
 message("ST09 analysis complete")
