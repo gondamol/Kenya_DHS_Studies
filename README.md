@@ -12,6 +12,8 @@ The current public study packages are:
   - All-population, life-course baseline of health insurance coverage, wealth-related inequality, and payment at outpatient contact before Kenya's Social Health Authority transition
 - `ST10_Remision_study/`
   - Systematic review and meta-analysis: lifestyle modification for type 2 diabetes remission and drug-free hypertension normalisation in low- and middle-income countries (PROSPERO CRD420261409919). Uses no DHS microdata.
+- `ST11_Mental_Health_Treatment_Gap/`
+  - The national depression and anxiety treatment gap (diagnosed but untreated) and its socioeconomic and insurance patterning, KDHS 2022
 
 ## Repository contents
 
@@ -19,6 +21,7 @@ The current public study packages are:
 - `ST03_NCD_Insurance_Service_Use/`: study-specific protocol notes, analysis scripts, and manuscript source
 - `ST09_All_Population_Insurance_Equity_2022/`: study-specific data notes, analysis script, and manuscript source
 - `ST10_Remision_study/`: registered systematic-review protocol, search strategies, screening/extraction/risk-of-bias templates, and an R meta-analysis pipeline (see its `README.md`)
+- `ST11_Mental_Health_Treatment_Gap/`: study protocol, analysis scripts, and manuscript source
 - `_TEMPLATES/`: shared Quarto and manuscript-formatting assets used by the study workflow
 
 Only source materials are versioned. Rendered Word files, exported tables and figures, logs, and derived data are generated locally and are not committed.
@@ -40,6 +43,11 @@ Kenya_DHS_Studies/
 |-- ST09_All_Population_Insurance_Equity_2022/
 |   |-- README.md
 |   |-- 02_data_notes/
+|   |-- 03_scripts/
+|   `-- 06_manuscript/
+|-- ST11_Mental_Health_Treatment_Gap/
+|   |-- README.md
+|   |-- 01_protocol/
 |   |-- 03_scripts/
 |   `-- 06_manuscript/
 |-- _TEMPLATES/
