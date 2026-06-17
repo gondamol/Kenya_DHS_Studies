@@ -101,6 +101,11 @@ table5 <- analysis_object$table5
 table6 <- analysis_object$table6
 table7 <- analysis_object$table7
 table8 <- analysis_object$table8
+table9 <- analysis_object$table9
+table10 <- analysis_object$table10
+table11 <- analysis_object$table11
+table12 <- analysis_object$table12
+table_sens <- analysis_object$table_sens
 fig4_df <- analysis_object$fig4_df
 
 `%||%` <- function(x, y) {
@@ -167,6 +172,27 @@ get_t7 <- function(group, col) {
 get_t8 <- function(group, col) {
   table8 %>% filter(`Population group` == group) %>% pull(.data[[col]])
 }
+
+get_t10 <- function(stratum, status, col = "Any insurance % (95% CI)") {
+  table10 %>%
+    filter(Stratum == stratum, `Safety-net status` == status) %>%
+    pull(.data[[col]])
+}
+
+cost_val <- function(obj, col) analysis_object[[obj]][[col]][[1]]
+
+get_t12 <- function(population, year, col = "Coverage % (95% CI)") {
+  table12 %>% filter(Population == population, Year == year) %>% pull(.data[[col]])
+}
+
+# Decomposition contributions (precomputed to avoid backticks inside inline code)
+decomp_pct <- function(det) {
+  v <- table11 %>% filter(Determinant == det) %>% pull(`% of total C`)
+  if (length(v) == 0) NA_character_ else v[[1]]
+}
+decomp_wealth_pct    <- decomp_pct("Wealth quintile")
+decomp_residence_pct <- decomp_pct("Residence (rural)")
+decomp_residual_pct  <- decomp_pct("Residual")
 
 fmt_ci_inline <- function(subgroup, measure = c("standard", "erreygers")) {
   measure <- match.arg(measure)
@@ -266,9 +292,9 @@ Nichodemus Werre Amollo^1,*^, Japheth Ogol^1,2^
 
 **Background:** Kenya replaced the National Hospital Insurance Fund (NHIF) with the Social Health Authority (SHA) on 1 October 2024. KDHS 2022 therefore provides the last nationally representative population baseline before the transition. Earlier Kenyan DHS analyses mainly focused on women of reproductive age rather than the full household population across life stages.
 
-**Methods:** We conducted a cross-sectional secondary analysis of the KDHS 2022 person recode file. The analytic sample included de-facto household members with valid insurance responses from the full household questionnaire subsample. We estimated survey-weighted prevalence of insurance coverage, hospital admission, outpatient use, and payment at the last outpatient visit. Wealth-related inequality was summarized using concentration indices, Erreygers-corrected estimates, the slope index of inequality (SII), and the relative index of inequality (RII). Survey-weighted quasi-Poisson models estimated adjusted prevalence ratios (APR) for insurance coverage. Disability analyses were limited to respondents with non-missing disability data; under-five children were not assessed in that module.
+**Methods:** We conducted a cross-sectional secondary analysis of the KDHS 2022 person recode file. The analytic sample included de-facto household members with valid insurance responses from the full household questionnaire subsample. We estimated survey-weighted prevalence of insurance coverage, hospital admission, outpatient use, and payment at the last outpatient visit, and quantified the depth of out-of-pocket (OOP) payment using cleaned continuous cost variables. Wealth-related inequality was summarized using concentration indices, Erreygers-corrected estimates, the slope index of inequality (SII), and the relative index of inequality (RII), and decomposed using the Wagstaff method. Survey-weighted quasi-Poisson models estimated adjusted prevalence ratios (APR) for insurance coverage. We assessed linkage between insurance and household social assistance, and compared coverage with KDHS 2014 for adults of reproductive/working age. Disability analyses were limited to respondents with non-missing disability data; under-five children were not assessed in that module.
 
-**Results:** The analytic sample comprised `r format(analysis_object$overall_n, big.mark = ",")` de-facto household members. Any insurance coverage was `r fmt_pct_string(get_t1("All household members", "Any insurance % (95% CI)"))`, leaving `r fmt_pct_string(get_t1("All household members", "Uninsured % (95% CI)"))` uninsured. Coverage was lowest among young adults aged 18-24 at `r fmt_pct_string(get_t2("18-24", "All: insured % (95% CI)"))`, compared with `r fmt_pct_string(get_t4("Children under 18"))` among children under 18 and `r fmt_pct_string(get_t4("Older adults 60+"))` among adults aged 60 years and above. The wealth gradient was steep, from `r fmt_pct_string(get_t3("Wealth quintile", "Poorest"))` in the poorest quintile to `r fmt_pct_string(get_t3("Wealth quintile", "Richest"))` in the richest (ratio `r wealth_ratio`x). Richest-versus-poorest APR was `r get_t5("Model A: All ages", "Wealth: Richest")` in the all-ages model. The overall standard concentration index was `r fmt_ci_inline("All household members", "standard")`, the SII was `r get_t7("All household members", "SII, pp (95% CI)")` percentage points, and the RII was `r get_t7("All household members", "RII (95% CI)")`. `r top_uninsured_sentence` the most over-represented group among uninsured persons.
+**Results:** The analytic sample comprised `r format(analysis_object$overall_n, big.mark = ",")` de-facto household members. Any insurance coverage was `r fmt_pct_string(get_t1("All household members", "Any insurance % (95% CI)"))`, leaving `r fmt_pct_string(get_t1("All household members", "Uninsured % (95% CI)"))` uninsured. Coverage was lowest among young adults aged 18-24 at `r fmt_pct_string(get_t2("18-24", "All: insured % (95% CI)"))`, compared with `r fmt_pct_string(get_t4("Children under 18"))` among children under 18 and `r fmt_pct_string(get_t4("Older adults 60+"))` among adults aged 60 years and above. The wealth gradient was steep, from `r fmt_pct_string(get_t3("Wealth quintile", "Poorest"))` in the poorest quintile to `r fmt_pct_string(get_t3("Wealth quintile", "Richest"))` in the richest (ratio `r wealth_ratio`x). Richest-versus-poorest APR was `r get_t5("Model A: All ages", "Wealth: Richest")` in the all-ages model. The overall standard concentration index was `r fmt_ci_inline("All household members", "standard")`, the SII was `r get_t7("All household members", "SII, pp (95% CI)")` percentage points, and the RII was `r get_t7("All household members", "RII (95% CI)")`; decomposition attributed the inequality overwhelmingly to the wealth quintile itself. Among recent outpatient users, cash met `r cost_val("opd_overall_cost", "Cash share of cost, %")`% of total outpatient cost and NHIF only `r cost_val("opd_overall_cost", "NHIF share of cost, %")`%, with little difference between insured and uninsured users. `r top_uninsured_sentence` the most over-represented group among uninsured persons.
 
 **Conclusions:** Before SHA, Kenya had low overall insurance coverage, extreme wealth-related inequality, and high payment exposure at outpatient contact. Young adults, children, the poorest households, and people with severe functional difficulty remained vulnerable in different ways. SHA monitoring should therefore track life-course coverage, disability-sensitive access, and point-of-care payment exposure rather than enrolment alone.
 
@@ -308,11 +334,21 @@ Age was grouped into eight life-course categories: under 5, 5-14, 15-17, 18-24, 
 
 Functional-difficulty status was derived from `hdis9`, a household-module summary variable that reflects the highest reported level of difficulty across the Washington Group Short Set domains [@washington2016]. We classified it as no difficulty, some difficulty, and a lot of difficulty or cannot do. For regression, we used a binary indicator for any difficulty versus none. Because `hdis9` was not collected for under-five children and was only available in the full household questionnaire, disability-specific analyses are not fully population-wide in the same way as the insurance estimates.
 
+To assess the depth of financial protection rather than only whether any payment occurred, we used the continuous cost items in the household questionnaire: total outpatient cost at the last visit (`sh304`) and total inpatient cost at the last overnight admission (`sh204`), together with the amounts met by cash, NHIF, private insurance, in-kind, and other means (`sh305a`–`sh305e` for outpatient and `sh205a`–`sh205e` for inpatient). DHS reserved codes for "don't know" and "missing" occupy the highest values of each field and must be removed before any cost calculation, because they otherwise dominate the mean; for example, the uncleaned mean of `sh304` exceeds 500,000 KES against a median of 500 KES. We set reserved codes to missing at the correct field width for each variable: 9999998 and 9999999 for the seven-digit total-cost items and 999998 and 999999 for the six-digit component items. From the cleaned values we derived the cash share of total cost (cash amount divided by total cost) and the NHIF share (NHIF-met amount divided by total cost) among users with a positive recorded cost.
+
+Household receipt of social assistance was captured from items recording assistance from the national government (`sh134aa`), county government (`sh134ab`), non-governmental or community-based organisations (`sh134ac`), and religious organisations (`sh134ad`). We defined a government cash-transfer indicator (national or county assistance) and an any-organised-safety-net indicator (government, NGO/CBO, or religious assistance, excluding informal kin support), because government transfer registries are the administrative channel that SHA premium subsidies for indigent and vulnerable persons are intended to build on.
+
 ## Statistical analysis
 
-All estimates used household sample weights, primary sampling units, and strata from the PR file. We first estimated survey-weighted prevalence of insurance coverage, insurance type, service use, and payment at outpatient contact overall and across key subgroups. We then fitted two survey-weighted quasi-Poisson generalized linear models with log links to estimate adjusted prevalence ratios (APR) for any insurance coverage [@zou2004]. Model A included all ages and adjusted for age group, sex, wealth quintile, residence, and region, using ages 25-34 as the reference age group. Model B was restricted to respondents aged 15 years and above and additionally adjusted for education and functional-difficulty status. Observations with missing values on model covariates were excluded under a complete-case approach; Model A included `r format(analysis_object$model_A_n, big.mark = ",")` members and Model B included `r format(analysis_object$model_B_n, big.mark = ",")` members.
+All estimates used household sample weights, primary sampling units, and strata from the PR file. We first estimated survey-weighted prevalence of insurance coverage, insurance type, service use, and payment at outpatient contact overall and across key subgroups. We then fitted two survey-weighted quasi-Poisson generalized linear models with log links to estimate adjusted prevalence ratios (APR) for any insurance coverage [@zou2004]. Because insurance coverage is a common outcome, odds ratios from logistic regression would overstate prevalence ratios, so we estimated prevalence ratios directly with a log link. We used the quasi-Poisson rather than the log-binomial family because the survey-weighted quasi-Poisson model already provides design-robust (sandwich) variance estimates appropriate for a binary outcome [@zou2004]. In our data the fully adjusted log-binomial model did not converge—with a common outcome and very strong wealth associations, the log link produced fitted probabilities above one—which is the standard rationale for the modified-Poisson approach. To provide a convergent cross-check, we compared the two model families on a parsimonious specification (wealth and residence) in which the log-binomial converged, and the prevalence ratios agreed closely (Additional file 2, Table S6). Model A included all ages and adjusted for age group, sex, wealth quintile, residence, and region, using ages 25-34 as the reference age group. Model B was restricted to respondents aged 15 years and above and additionally adjusted for education and functional-difficulty status. Observations with missing values on model covariates were excluded under a complete-case approach; Model A included `r format(analysis_object$model_A_n, big.mark = ",")` members and Model B included `r format(analysis_object$model_B_n, big.mark = ",")` members. To test whether households already linked to social assistance were more likely to be insured, we added the government cash-transfer indicator to the all-ages specification.
 
-Wealth-related inequality in insurance coverage was quantified using concentration indices ordered by household wealth quintile rank [@wagstaff1991; @erreygers2009; @wagstaff2011binary]. Because insurance is a bounded binary outcome, we report the standard concentration index as the main descriptive measure and the Erreygers-corrected index as a sensitivity estimate. We also estimated the slope index of inequality (SII) and relative index of inequality (RII) using weighted wealth ridit scores to summarize absolute and relative coverage differences across the full wealth distribution [@who2013handbook]. Confidence intervals for the concentration indices were derived from 250 bootstrap replicates. Finally, we calculated the weighted composition of the uninsured population across overlapping policy-priority groups; these shares are descriptive and should not be summed across groups. All analyses were conducted in R.
+Wealth-related inequality in insurance coverage was quantified using concentration indices ordered by household wealth quintile rank [@wagstaff1991; @erreygers2009; @wagstaff2011binary]. Because insurance is a bounded binary outcome, we report the standard concentration index as the main descriptive measure and the Erreygers-corrected index as a sensitivity estimate. We also estimated the slope index of inequality (SII) and relative index of inequality (RII) using weighted wealth ridit scores to summarize absolute and relative coverage differences across the full wealth distribution [@who2013handbook]. Confidence intervals for the concentration indices were derived from 250 bootstrap replicates.
+
+To identify the drivers of wealth-related inequality, we performed a Wagstaff decomposition of the standard concentration index [@wagstaff2003decomposition]. The concentration index is expressed as the sum across determinants of the elasticity-weighted concentration index of each determinant, $C = \sum_k (\beta_k \bar{x}_k / \mu) C_k + GC_\varepsilon / \mu$, where $\beta_k$ is the coefficient of determinant $x_k$ in a survey-weighted linear probability model for coverage, $\bar{x}_k$ its mean, $\mu$ the mean of coverage, $C_k$ the concentration index of the determinant ordered by wealth rank, and $GC_\varepsilon$ the generalized concentration index of the residual. This partitions the overall inequality into the contributions of wealth, age, sex, residence, and region, with a supplementary decomposition among adults adding education and functional difficulty.
+
+For temporal context, we compared the 2022 baseline with KDHS 2014. A like-for-like all-population (person-recode) comparison is not possible because KDHS 2014 did not carry a household-roster insurance item and the 2022 individual recodes no longer carry the individual insurance item. We therefore compared the two populations measured in both rounds—women aged 15–49 and men aged 15–54—using the 2014 individual self-reported insurance items (`v481`, `mv481`) against the same age–sex groups in the 2022 person recode. These comparisons are directional rather than exact because the respondent unit, sample weights, and wealth-index construction differ across rounds.
+
+Finally, we calculated the weighted composition of the uninsured population across overlapping policy-priority groups; these shares are descriptive and should not be summed across groups. All analyses were conducted in R.
 
 ```{r}
 #| label: display-tables
@@ -568,6 +604,91 @@ publication_flextable(
 
 Full concentration-index estimates are provided in Additional file 2, Table S3, and SII/RII estimates are provided in Additional file 2, Table S4.
 
+## Depth of out-of-pocket payment
+
+The binary payment indicator understated how little financial protection insurance provided (Table 4). Among all recent outpatient users, the median cash payment at the last visit was `r cost_val("opd_overall_cost", "Median cash OOP, KES")` KES, cash met `r cost_val("opd_overall_cost", "Cash share of cost, %")`% of total outpatient cost, and NHIF met only `r cost_val("opd_overall_cost", "NHIF share of cost, %")`%. The cash burden was only modestly smaller among the insured (cash share `r cost_val("opd_insured_cost", "Cash share of cost, %")`%, NHIF share `r cost_val("opd_insured_cost", "NHIF share of cost, %")`%) than among the uninsured (cash share `r cost_val("opd_uninsured_cost", "Cash share of cost, %")`%), showing that NHIF financed only a small fraction of routine outpatient spending even for its own members. Inpatient costs were far larger, with a median total cost of `r cost_val("hosp_overall_cost", "Median total cost, KES")` KES; NHIF covered a larger but still incomplete share among the insured (`r cost_val("hosp_insured_cost", "NHIF share of cost, %")`% of inpatient cost), consistent with NHIF's historical orientation toward inpatient cover. The cash share of outpatient cost stayed high across the wealth distribution for both insured and uninsured users (Figure 7).
+
+Table 4. Depth of out-of-pocket payment at the last outpatient visit and last inpatient admission, by insurance status and wealth quintile, KDHS 2022.
+
+```{r}
+#| label: table-9-display
+#| results: asis
+publication_flextable(
+  table9,
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Survey-weighted estimates; n values are unweighted.",
+    "Costs in Kenyan shillings (KES). Reserved 'don't know'/'missing' codes were removed at the correct field width before estimation.",
+    "Cash share = cash payment / total cost; NHIF share = NHIF-met amount / total cost, among users with a positive total cost.",
+    "Cells with fewer than 25 unweighted observations are suppressed."
+  )
+)
+```
+
+```{r}
+#| label: fig-7
+#| fig-cap: "Cash share of total outpatient cost by insurance status and wealth quintile, KDHS 2022. Bars show the survey-weighted mean share of outpatient cost met in cash among recent outpatient users with a recorded cost. A high cash share among insured users indicates limited financial protection at the point of care."
+#| out-width: "95%"
+knitr::include_graphics(file.path("..", "05_figures", "Figure7_ST09_OOP_CashShare.png"))
+```
+
+## Linkage with social safety nets
+
+Households already receiving social assistance were not systematically linked to insurance (Table 5). Among households receiving a government cash transfer, any-insurance coverage was `r fmt_pct_string(get_t10("All household members", "Government cash transfer: yes"))`, compared with `r fmt_pct_string(get_t10("All household members", "Government cash transfer: no"))` among households without such transfers. The pattern persisted in the two poorest quintiles, where coverage among government-transfer beneficiaries was `r fmt_pct_string(get_t10("Two poorest quintiles", "Government cash transfer: yes"))` versus `r fmt_pct_string(get_t10("Two poorest quintiles", "Government cash transfer: no"))` among non-beneficiaries. After adjustment for age, sex, wealth, residence, and region, receiving a government cash transfer had an adjusted prevalence ratio of `r analysis_object$sn_apr` for insurance coverage. The weak linkage indicates that the pre-SHA architecture did not reliably convert social-assistance enrolment into health insurance, supporting the case for a unified registry that links SHA premium subsidies to existing safety-net databases.
+
+Table 5. Health insurance coverage among households receiving social assistance, overall and in the two poorest wealth quintiles, KDHS 2022.
+
+```{r}
+#| label: table-10-display
+#| results: asis
+publication_flextable(
+  table10,
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Survey-weighted estimates with 95% confidence intervals; n values are unweighted.",
+    "Government cash transfer = national or county government assistance.",
+    "Any organised safety net = government, NGO/CBO, or religious-organisation assistance; informal kin support is excluded."
+  )
+)
+```
+
+## Drivers of wealth-related inequality
+
+The Wagstaff decomposition identified which determinants generated the pro-rich concentration of coverage (Table 6). The wealth quintile itself was by far the dominant contributor, accounting for `r decomp_wealth_pct`% of the total concentration index—it more than fully explained the inequality, confirming that affordability and underlying socioeconomic position, rather than spatial or demographic composition, were the binding constraint. Residence made a negative contribution (`r decomp_residence_pct`%), reflecting that once wealth is held constant rural residence is associated with higher, not lower, coverage; this partially offsets the wealth contribution. Region, age, and sex contributed little, and the unexplained residual was negligible (`r decomp_residual_pct`%). The implication is that geographic targeting alone would not close the equity gap without directly addressing affordability. A supplementary decomposition among adults additionally attributed part of the inequality to education (Additional file 2, Table S7).
+
+Table 6. Wagstaff decomposition of the wealth-related concentration index in any health insurance coverage, KDHS 2022.
+
+```{r}
+#| label: table-11-display
+#| results: asis
+publication_flextable(
+  table11,
+  footer_lines = c(
+    sprintf("Source: Kenya DHS 2022. Decomposition of the standard concentration index (%.4f).", analysis_object$decomp_ci_total),
+    "Contributions are elasticity-weighted concentration indices of each determinant; positive values push coverage toward wealthier households.",
+    "Determinant contributions sum to the total concentration index together with the unexplained residual."
+  )
+)
+```
+
+## Change since 2014
+
+Comparison with KDHS 2014 placed the baseline in temporal context for the populations measured in both rounds (Table 7). Among women aged 15–49, coverage moved from `r fmt_pct_string(get_t12("Women 15-49", "2014 (IR)"))` in 2014 to `r fmt_pct_string(get_t12("Women 15-49", "2022 (PR)"))` in 2022, and among men aged 15–54 from `r fmt_pct_string(get_t12("Men 15-54", "2014 (MR)"))` to `r fmt_pct_string(get_t12("Men 15-54", "2022 (PR)"))`. The wealth-related concentration index remained strongly pro-rich in both rounds (women: `r get_t12("Women 15-49", "2014 (IR)", "Concentration index")` in 2014 versus `r get_t12("Women 15-49", "2022 (PR)", "Concentration index")` in 2022). These comparisons are directional only, because the 2014 figures come from individual self-report while the 2022 figures come from the household roster, and the sample weights and wealth-index construction differ across rounds.
+
+Table 7. Health insurance coverage and wealth-related inequality among adults of reproductive/working age, KDHS 2014 versus KDHS 2022.
+
+```{r}
+#| label: table-12-display
+#| results: asis
+publication_flextable(
+  table12,
+  footer_lines = c(
+    "Source: Kenya DHS 2014 and 2022. Survey-weighted estimates; n values are unweighted.",
+    "2014 estimates use the individual self-reported insurance item (women's recode v481; men's recode mv481); 2022 estimates use the household-roster item (sh27) restricted to the same age-sex groups.",
+    "Estimates are directional: respondent type, sample weights, and wealth-index construction differ across rounds.",
+    "A true all-population trend is not possible because KDHS 2014 did not carry a household-roster insurance item."
+  )
+)
+```
+
 # Discussion
 
 This study provides a population-wide pre-SHA baseline for insurance coverage and wealth-related inequality in Kenya. Three findings stand out. First, overall insurance coverage remained low at `r fmt_pct_string(get_t1("All household members", "Any insurance % (95% CI)"))`, with almost three quarters of the population uninsured. Second, coverage was extremely pro-rich by both regression and concentration-index evidence. Third, payment at the last outpatient visit remained high even among insured users, indicating that insurance enrolment alone did not eliminate point-of-care payment.
@@ -580,15 +701,19 @@ The inequality estimates also help place Kenya in a regional monitoring frame. B
 
 The disability findings sharpen the distinction between coverage and need. People with any functional difficulty had similar coverage to people with no difficulty, and the adjusted association between functional difficulty and insurance was weak. Yet their outpatient use was much higher, and point-of-care payment remained high, particularly for those reporting a lot of difficulty or inability. This pattern is consistent with recent systematic review evidence showing that disability-related need in low- and middle-income countries is not reliably matched by insurance inclusion or financial protection [@azizatunnisa2024]. For SHA, the operational implication is not simply to cover disability in principle, but to build workable registration and verification systems that identify high-need persons without creating new access barriers.
 
-The high payment rate at outpatient contact is also important. In this study, `r fmt_pct_string(get_t1("All household members", "Paid for OPD % (95% CI)"))` of recent outpatient users reported paying at their last visit, and payment remained common across wealth groups and across insurance status. This measure is not equivalent to catastrophic spending, but it does indicate that routine outpatient care still involved direct payment for most users. That result is aligned with broader evidence that insurance growth in low- and middle-income countries does not necessarily translate into strong financial protection and with Kenyan analyses showing persistent gaps between enrolment, benefit design, provider payment, and effective access [@hooley2022; @mbau2020; @barasa2018]. It is also consistent with implementation evidence from Kenya's UHC pilot, which documented persistent challenges around benefit-package clarity, funding flows, provider autonomy, and commodity availability even where user-fee reforms were being pursued [@nyawira2024].
+The high payment rate at outpatient contact is also important. In this study, `r fmt_pct_string(get_t1("All household members", "Paid for OPD % (95% CI)"))` of recent outpatient users reported paying at their last visit, and payment remained common across wealth groups and across insurance status. Examining the depth rather than only the occurrence of payment sharpened this conclusion: cash met roughly `r cost_val("opd_overall_cost", "Cash share of cost, %")`% of total outpatient cost and NHIF only about `r cost_val("opd_overall_cost", "NHIF share of cost, %")`%, and the cash share among insured outpatient users was nearly as high as among the uninsured. In other words, even where NHIF membership existed, it financed little of the routine outpatient bill, and protection was concentrated in inpatient care. This measure is not equivalent to catastrophic spending, but it does indicate that routine outpatient care still involved substantial direct payment for most users. That result is aligned with broader evidence that insurance growth in low- and middle-income countries does not necessarily translate into strong financial protection and with Kenyan analyses showing persistent gaps between enrolment, benefit design, provider payment, and effective access [@hooley2022; @mbau2020; @barasa2018]. It is also consistent with implementation evidence from Kenya's UHC pilot, which documented persistent challenges around benefit-package clarity, funding flows, provider autonomy, and commodity availability even where user-fee reforms were being pursued [@nyawira2024]. For SHA, the Primary Healthcare Fund's promise of free primary care will only translate into financial protection if it displaces these cash payments at the outpatient point of care rather than sitting alongside them.
+
+The decomposition and safety-net findings point to concrete policy levers. The wealth quintile more than fully explained the pro-rich concentration of coverage, while region contributed little and residence acted in the opposite direction once wealth was held constant. This means the binding constraint before SHA was affordability rather than geography; subsidy design, not only facility distribution, is therefore central to closing the gap. Yet households already receiving government cash transfers—the very group SHA premium subsidies are meant to reach—were only weakly more likely to be insured, even among the poorest two quintiles. This signals a coordination failure between social-assistance registries and the pre-SHA insurance system. SHA's reliance on means-testing and existing vulnerability databases to finance indigent coverage will succeed only if that linkage is built deliberately, so that enrolment in a cash-transfer programme automatically triggers health-insurance registration.
+
+The comparison with KDHS 2014 indicates that, for women aged 15–49 and men aged 15–54, the wealth-related concentration of coverage remained strongly pro-rich across nearly a decade of NHIF reform. Although the 2014 and 2022 figures are not strictly comparable because of differences in respondent unit and survey instruments, the persistence of a steep gradient suggests that incremental contributory expansion did not, on its own, dismantle the structural inequality that SHA now inherits.
 
 For SHA monitoring, the practical implication is that enrolment totals should be paired with distributional indicators. The indicators in this paper can be repeated as SHA implementation data mature: coverage in the poorest quintile, coverage among children under 18, coverage among young adults aged 18-24, coverage among people with severe functional difficulty, the wealth-related SII/RII, and payment at the last outpatient contact among insured users. These indicators do not determine eligibility for government-financed SHA coverage, but they identify groups for which registration, contribution subsidy, provider payment, and benefit-package implementation should be monitored together.
 
 ## Strengths and limitations
 
-The main strengths of this study are its population-wide scope, its use of the PR file to analyze all ages and both sexes together, its focus on survey-weighted estimates across the full age distribution, and its inclusion of complementary inequality metrics: concentration indices, Erreygers-corrected estimates, SII, RII, and composition of the uninsured population. The life-course framing also makes the results directly relevant to monitoring SHA implementation.
+The main strengths of this study are its population-wide scope, its use of the PR file to analyze all ages and both sexes together, its focus on survey-weighted estimates across the full age distribution, and its inclusion of complementary inequality metrics: concentration indices, Erreygers-corrected estimates, SII, RII, a Wagstaff decomposition, and composition of the uninsured population. By analyzing the depth of out-of-pocket payment rather than only its occurrence, examining linkage with social safety nets, and benchmarking against KDHS 2014, the study moves beyond a single descriptive cross-section. The life-course framing also makes the results directly relevant to monitoring SHA implementation.
 
-Several limitations matter. First, the study is cross-sectional and cannot support causal claims about the determinants of coverage. Second, insurance, service use, and payment at the last outpatient visit were self-reported and may be subject to recall or reporting error. Third, the insurance and disability modules were collected only in the full household questionnaire, so the analytic sample represents that subsample of de-facto household members rather than the entire household roster. Selection into the full household questionnaire subsample was determined by the KDHS 2022 sampling design and is not expected to introduce systematic bias within the survey's design-based inference framework, but residual selection concerns cannot be entirely ruled out. Fourth, disability-specific analyses are additionally limited because the household disability summary variable was not collected for under-five children. Fifth, payment-at-visit estimates are conditional on recent outpatient use and do not capture inpatient payment, total household spending, or catastrophic expenditure; insured and uninsured outpatient users may also differ in underlying need and care-seeking. Sixth, KDHS 2022 was conducted before SHA became operational, so the analysis cannot capture early SHA registration, contribution assessment, or claims experience. Seventh, the survey groups examined here are policy-relevant monitoring categories, not exact administrative counts of who qualifies for government-financed SHA coverage under current legal and operational rules.
+Several limitations matter. First, the study is cross-sectional and cannot support causal claims about the determinants of coverage. Second, insurance, service use, costs, and payment at the last outpatient visit were self-reported and may be subject to recall or reporting error; the cost items in particular contained reserved "don't know" codes and a minority of records in which the reported cash payment exceeded the reported total cost, which is why we summarized cost shares as population-level aggregates rather than averages of individual ratios. Third, the insurance, cost, and disability modules were collected only in the full household questionnaire, so the analytic sample represents that subsample of de-facto household members rather than the entire household roster. Selection into the full household questionnaire subsample was determined by the KDHS 2022 sampling design, and we used the household-member weights provided for that subsample, so it is not expected to introduce systematic bias within the survey's design-based inference framework; nonetheless, residual selection concerns cannot be entirely ruled out. Fourth, disability-specific analyses are additionally limited because the household disability summary variable was not collected for under-five children. Fifth, the payment and cost analyses are conditional on recent care-seeking—outpatient use in the previous 4 weeks or admission in the previous 12 months—which is itself wealth-dependent. Poorer or uninsured individuals who forgo or delay care because they cannot pay are not observed among users, so the payment-exposure estimates are conditional on having sought care and may understate the true financial barrier faced by the poorest; insured and uninsured users may also differ in underlying need. These estimates also do not capture total household spending or catastrophic expenditure. Sixth, the KDHS 2014 comparison is restricted to women aged 15–49 and men aged 15–54 and relies on a different insurance instrument and respondent unit, so it indicates direction rather than precise change. Seventh, KDHS 2022 was conducted before SHA became operational, so the analysis cannot capture early SHA registration, contribution assessment, or claims experience. Eighth, the survey groups examined here are policy-relevant monitoring categories, not exact administrative counts of who qualifies for government-financed SHA coverage under current legal and operational rules.
 
 # Conclusions
 
@@ -611,7 +736,7 @@ Before SHA, Kenya had low overall insurance coverage, strong wealth-related ineq
 
 Additional file 1: STROBE checklist.
 
-Additional file 2: Supplementary tables. Table S1: socioeconomic gradient in health insurance coverage; Table S2: policy-priority group profiles; Table S3: standard and Erreygers-corrected concentration indices; Table S4: SII and RII by subgroup; Table S5: uninsured composition and representation ratios.
+Additional file 2: Supplementary tables. Table S1: socioeconomic gradient in health insurance coverage; Table S2: policy-priority group profiles; Table S3: standard and Erreygers-corrected concentration indices; Table S4: SII and RII by subgroup; Table S5: uninsured composition and representation ratios; Table S6: sensitivity of adjusted prevalence ratios to model family (quasi-Poisson vs log-binomial); Table S7: Wagstaff decomposition among adults aged 15+ adding education and functional difficulty.
 
 # Declarations
 

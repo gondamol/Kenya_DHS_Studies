@@ -15,8 +15,8 @@ immediately before the Social Health Authority (SHA) transition.
 
 Running the workflow creates:
 
-- `04_tables/`: exported tables (Tables 1-8)
-- `05_figures/`: exported figures (Figures 1-6)
+- `04_tables/`: exported tables (Tables 1-12, plus the model-sensitivity supplementary table)
+- `05_figures/`: exported figures (Figures 1-7)
 - `07_derived_data/`: derived R objects (`st09_analysis_outputs.rds`)
 - `08_logs/` and `results/logs/`: validation logs, session info, and execution records
 - rendered `.docx`/`.html` outputs in `06_manuscript/`, including the
@@ -24,7 +24,7 @@ Running the workflow creates:
 
 ## Rebuild steps
 
-1. Place the approved KDHS 2022 recode files in `../01_DHS_Data/KDHS_2022/` relative to the repository root.
+1. Place the approved KDHS 2022 recode files in `../01_DHS_Data/KDHS_2022/` relative to the repository root. For the KDHS 2014 trend comparison (Table 12), also place the 2014 individual (`KEIR72FL.DTA`) and men's (`KEMR72FL.DTA`) recodes in `../01_DHS_Data/KDHS_2014/`; if these are absent the script skips the trend table and continues.
 2. From the study root, run:
 
 ```bash

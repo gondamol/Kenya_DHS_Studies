@@ -14,6 +14,11 @@
 **/07_derived_data/
 **/08_logs/
 **/results/
+**/00_Admin/
+
+# Internal working notes (reviewer responses, critical reviews) — not public source
+**/*Critical_Review*.md
+**/reviewer_*_improvements.md
 **/*.docx
 **/*.pdf
 **/*.html

@@ -411,9 +411,27 @@ raw <- read_dta(
     sh27,                         # any insurance
     sh28a, sh28b, sh28c, sh28x,  # NHIF, private, community, other
     sh29, sh31, sh32,             # hospital admission, outpatient, paid OPD
+    # Out-of-pocket cost depth (full household questionnaire subsample)
+    sh204, sh205a, sh205b, sh205c, sh205d, sh205e,  # inpatient: total + cash/NHIF/private/in-kind/other
+    sh304, sh305a, sh305b, sh305c, sh305d, sh305e,  # outpatient: total + cash/NHIF/private/in-kind/other
+    # Household social safety-net receipt
+    sh134aa, sh134ab, sh134ac, sh134ad, sh134ae,    # national/county gov, NGO/CBO, religious, friends/relatives
     hdis9                         # disability summary (Washington Group)
   )
 )
+
+# DHS reserved-code cleaner for continuous cost variables.
+# Reserved codes ("don't know"/"missing") occupy the maximum field width:
+#   7-digit totals (sh204, sh304): 9999998 / 9999999
+#   6-digit components (sh205a-e, sh305a-e): 999998 / 999999
+# Leaving these in place inflates the raw mean of sh304 to >500,000 KES
+# (median 500 KES); they must be set to NA before any cost calculation.
+clean_cost <- function(x, width = c("total", "component")) {
+  width <- match.arg(width)
+  reserved <- if (width == "total") 9999998 else 999998
+  xn <- as.numeric(x)
+  ifelse(xn >= reserved, NA_real_, xn)
+}
 
 cat("Raw rows:", nrow(raw), "\n")
 defacto_pr_n <- sum(num(raw$hv103) == 1, na.rm = TRUE)
@@ -563,6 +581,44 @@ analytic_raw <- raw %>%
       num(sh32) == 1 ~ 1L,
       num(sh32) == 0 ~ 0L,
       TRUE           ~ NA_integer_
+    ),
+
+    # ── Out-of-pocket cost depth (reserved codes cleaned to NA) ──────────────
+    # Outpatient (conditional on a recent outpatient visit)
+    opd_cost_total = clean_cost(sh304, "total"),
+    opd_cost_cash  = clean_cost(sh305a, "component"),
+    opd_cost_nhif  = clean_cost(sh305b, "component"),
+    opd_cost_priv  = clean_cost(sh305c, "component"),
+    opd_cost_kind  = clean_cost(sh305d, "component"),
+    opd_cost_other = clean_cost(sh305e, "component"),
+    opd_share_oop  = ifelse(!is.na(opd_cost_total) & opd_cost_total > 0,
+                            opd_cost_cash / opd_cost_total, NA_real_),
+    opd_share_nhif = ifelse(!is.na(opd_cost_total) & opd_cost_total > 0,
+                            opd_cost_nhif / opd_cost_total, NA_real_),
+    # Inpatient (conditional on an overnight admission)
+    hosp_cost_total = clean_cost(sh204, "total"),
+    hosp_cost_cash  = clean_cost(sh205a, "component"),
+    hosp_cost_nhif  = clean_cost(sh205b, "component"),
+    hosp_cost_priv  = clean_cost(sh205c, "component"),
+    hosp_cost_kind  = clean_cost(sh205d, "component"),
+    hosp_cost_other = clean_cost(sh205e, "component"),
+    hosp_share_oop  = ifelse(!is.na(hosp_cost_total) & hosp_cost_total > 0,
+                             hosp_cost_cash / hosp_cost_total, NA_real_),
+    hosp_share_nhif = ifelse(!is.na(hosp_cost_total) & hosp_cost_total > 0,
+                             hosp_cost_nhif / hosp_cost_total, NA_real_),
+
+    # ── Household social safety-net receipt ──────────────────────────────────
+    sn_national  = as.integer(num(sh134aa) == 1),
+    sn_county    = as.integer(num(sh134ab) == 1),
+    sn_ngo       = as.integer(num(sh134ac) == 1),
+    sn_religious = as.integer(num(sh134ad) == 1),
+    sn_informal  = as.integer(num(sh134ae) == 1),
+    # Government cash-transfer safety net (the channel SHA premium subsidies build on)
+    safety_net_gov = as.integer(num(sh134aa) == 1 | num(sh134ab) == 1),
+    # Any formal/organised safety net (government, NGO/CBO, or religious; excludes informal kin)
+    safety_net_any = as.integer(
+      num(sh134aa) == 1 | num(sh134ab) == 1 |
+        num(sh134ac) == 1 | num(sh134ad) == 1
     ),
 
     # SHA vulnerability flag (≥1 exemption category)
@@ -1061,40 +1117,8 @@ save_bundle(
 )
 cat("Table 8 done.\n")
 
-supplementary_tables <- list(
-  "Table S1. Socioeconomic gradient in health insurance coverage, KDHS 2022." = table3,
-  "Table S2. Health insurance coverage and service use among policy-priority groups, KDHS 2022." = table4,
-  "Table S3. Standard and Erreygers-corrected concentration indices for health insurance coverage, KDHS 2022." = table6,
-  "Table S4. Absolute and relative wealth-related inequality metrics for health insurance coverage, KDHS 2022." = table7,
-  "Table S5. Population composition of uninsured household members in policy-priority groups, KDHS 2022." = table8
-)
-
-supp_doc <- read_docx() %>%
-  body_add_par("Additional file 2. Supplementary tables for ST09", style = "heading 1") %>%
-  body_add_par(
-    "Supplementary tables for: Who was left outside Kenya's health insurance system before SHA? An all-population equity baseline from the 2022 Kenya Demographic and Health Survey.",
-    style = "Normal"
-  )
-
-for (nm in names(supplementary_tables)) {
-  supp_doc <- supp_doc %>%
-    body_add_par(nm, style = "heading 2") %>%
-    body_add_flextable(build_publication_flextable(
-      supplementary_tables[[nm]],
-      footer = c(
-        "Source: Kenya DHS 2022. n values are unweighted; percentages and modelled estimates are survey-weighted.",
-        "Groups may overlap unless otherwise stated."
-      ),
-      font_size = 8
-    )) %>%
-    body_add_par("", style = "Normal")
-}
-
-print(
-  supp_doc,
-  target = file.path(paths$manuscript_dir, "Additional_file_2_Supplementary_Tables.docx")
-)
-cat("Additional file 2 supplementary tables done.\n")
+# Additional file 2 (supplementary tables) is assembled in Section 11, after the
+# decomposition and model-sensitivity tables have been created.
 
 message("=== SECTION 4 COMPLETE ===")
 
@@ -1343,7 +1367,535 @@ cat("Figure 6 done.\n")
 message("=== SECTION 5 COMPLETE ===")
 
 # =============================================================================
-message("=== SECTION 6: Save outputs and summary ===")
+message("=== SECTION 6: Out-of-pocket payment depth (outpatient & inpatient) ===")
+# =============================================================================
+# Reviewer point: move beyond the binary "paid any money" indicator to the
+# intensity of out-of-pocket (OOP) payment, using the cleaned continuous cost
+# variables. We report survey-weighted mean and median total cost, cash OOP,
+# the proportion paying any cash, and the share of total cost met by cash vs
+# NHIF, overall and by insurance status and wealth quintile.
+
+# Manual weighted median (robust across survey package versions)
+wmedian <- function(x, w) {
+  ok <- is.finite(x) & is.finite(w)
+  x <- x[ok]; w <- w[ok]
+  if (length(x) == 0) return(NA_real_)
+  o <- order(x); x <- x[o]; w <- w[o]
+  cw <- cumsum(w) / sum(w)
+  x[which(cw >= 0.5)[1]]
+}
+
+cost_row <- function(data, setting = c("opd", "hosp"), label) {
+  setting <- match.arg(setting)
+  pre   <- setting
+  tot   <- paste0(pre, "_cost_total")
+  cash  <- paste0(pre, "_cost_cash")
+  nhif  <- paste0(pre, "_cost_nhif")
+
+  d <- data %>% filter(!is.na(.data[[tot]]), !is.na(weight))
+  n <- nrow(d)
+  if (n < 25) {
+    return(tibble(
+      Group = label, `n` = n,
+      `Mean total cost, KES` = NA_character_,
+      `Median total cost, KES` = NA_character_,
+      `Mean cash OOP, KES` = NA_character_,
+      `Median cash OOP, KES` = NA_character_,
+      `% paying any cash (95% CI)` = NA_character_,
+      `Cash share of cost, %` = NA_character_,
+      `NHIF share of cost, %` = NA_character_
+    ))
+  }
+  w <- d$weight
+  paid_cash <- as.integer(d[[cash]] > 0)
+  pc <- wprev(d %>% mutate(.pc = paid_cash), ".pc")
+  # Aggregate (population-level) cost shares = weighted Sum(component) / weighted Sum(total),
+  # among users with a positive total cost. This is the standard, bounded health-financing
+  # measure and avoids the distortion of averaging individual ratios (which can exceed 100%
+  # where a respondent's recorded cash payment exceeds the recorded total cost).
+  pos <- d %>% filter(.data[[tot]] > 0)
+  denom <- sum(pos$weight * pos[[tot]], na.rm = TRUE)
+  cash_share <- if (denom > 0) 100 * sum(pos$weight * pos[[cash]], na.rm = TRUE) / denom else NA_real_
+  nhif_share <- if (denom > 0) 100 * sum(pos$weight * pos[[nhif]], na.rm = TRUE) / denom else NA_real_
+  tibble(
+    Group = label,
+    `n` = n,
+    `Mean total cost, KES`   = format(round(weighted.mean(d[[tot]], w, na.rm = TRUE)), big.mark = ","),
+    `Median total cost, KES` = format(round(wmedian(d[[tot]], w)), big.mark = ","),
+    `Mean cash OOP, KES`     = format(round(weighted.mean(d[[cash]], w, na.rm = TRUE)), big.mark = ","),
+    `Median cash OOP, KES`   = format(round(wmedian(d[[cash]], w)), big.mark = ","),
+    `% paying any cash (95% CI)` = pc$formatted,
+    `Cash share of cost, %` = sprintf("%.1f", cash_share),
+    `NHIF share of cost, %` = sprintf("%.1f", nhif_share)
+  )
+}
+
+cost_block <- function(setting, setting_label) {
+  bind_rows(
+    cost_row(analytic, setting, "All users") %>% mutate(Setting = setting_label),
+    cost_row(analytic %>% filter(insured_any == 1), setting, "  Insured") %>% mutate(Setting = setting_label),
+    cost_row(analytic %>% filter(insured_any == 0), setting, "  Uninsured") %>% mutate(Setting = setting_label),
+    cost_row(analytic %>% filter(wealth == "Poorest"), setting, "  Poorest quintile") %>% mutate(Setting = setting_label),
+    cost_row(analytic %>% filter(wealth == "Poorer"),  setting, "  Poorer quintile")  %>% mutate(Setting = setting_label),
+    cost_row(analytic %>% filter(wealth == "Middle"),  setting, "  Middle quintile")  %>% mutate(Setting = setting_label),
+    cost_row(analytic %>% filter(wealth == "Richer"),  setting, "  Richer quintile")  %>% mutate(Setting = setting_label),
+    cost_row(analytic %>% filter(wealth == "Richest"), setting, "  Richest quintile") %>% mutate(Setting = setting_label)
+  )
+}
+
+table9 <- bind_rows(
+  cost_block("opd",  "Outpatient (last visit)"),
+  cost_block("hosp", "Inpatient (last admission)")
+) %>%
+  select(Setting, Group, everything())
+
+save_bundle(
+  table9,
+  file.path(paths$tables_dir, "Table9_ST09_OOP_Cost_Depth.csv"),
+  file.path(paths$tables_dir, "Table9_ST09_OOP_Cost_Depth.docx"),
+  caption = paste(
+    "Table 9. Depth of out-of-pocket payment at the last outpatient visit and last",
+    "inpatient admission, by insurance status and wealth quintile, KDHS 2022."
+  ),
+  footer = c(
+    "Source: Kenya DHS 2022. Survey-weighted estimates; n values are unweighted.",
+    "Costs in Kenyan shillings (KES). Reserved 'don't know'/'missing' codes (9999998/9999999 for totals; 999998/999999 for components) were set to missing before estimation.",
+    "Cash share = cash payment / total cost; NHIF share = NHIF-met amount / total cost, among users with a positive total cost.",
+    "Outpatient costs refer to the last outpatient visit; inpatient costs to the last overnight admission.",
+    "Cells with fewer than 25 unweighted observations are suppressed."
+  )
+)
+cat("Table 9 done.\n")
+
+# Headline OOP statistics for the manuscript
+opd_overall_cost <- cost_row(analytic, "opd", "All")
+opd_insured_cost <- cost_row(analytic %>% filter(insured_any == 1), "opd", "Insured")
+opd_uninsured_cost <- cost_row(analytic %>% filter(insured_any == 0), "opd", "Uninsured")
+hosp_overall_cost <- cost_row(analytic, "hosp", "All")
+hosp_insured_cost  <- cost_row(analytic %>% filter(insured_any == 1), "hosp", "Insured")
+
+# Figure 7: median cash OOP by wealth and insurance status (outpatient)
+fig7_df <- bind_rows(lapply(c("Poorest","Poorer","Middle","Richer","Richest"), function(wq) {
+  bind_rows(lapply(c(0L, 1L), function(ins) {
+    d <- analytic %>% filter(wealth == wq, insured_any == ins,
+                             !is.na(opd_cost_total), opd_cost_total > 0)
+    denom <- sum(d$weight * d$opd_cost_total, na.rm = TRUE)
+    tibble(
+      wealth = wq,
+      insured = if (ins == 1) "Insured" else "Uninsured",
+      cash_share = if (nrow(d) >= 25 && denom > 0)
+        100 * sum(d$weight * d$opd_cost_cash, na.rm = TRUE) / denom else NA_real_,
+      n = nrow(d)
+    )
+  }))
+})) %>%
+  mutate(
+    wealth = factor(wealth, levels = c("Poorest","Poorer","Middle","Richer","Richest")),
+    insured = factor(insured, levels = c("Uninsured","Insured"))
+  ) %>%
+  filter(!is.na(cash_share))
+
+fig7 <- ggplot(fig7_df, aes(x = wealth, y = cash_share, colour = insured, group = insured)) +
+  geom_line(linewidth = 1.1) +
+  geom_point(size = 3.2) +
+  scale_colour_manual(values = c("Insured" = "#2166ac", "Uninsured" = "#d73027"),
+                      name = "Insurance status") +
+  scale_y_continuous(limits = c(0, 105), breaks = seq(0, 100, 20)) +
+  labs(
+    title    = "Cash share of outpatient costs by insurance status and wealth",
+    subtitle = "Among outpatient users with a recorded cost, KDHS 2022",
+    x        = "Wealth quintile",
+    y        = "Mean cash share of total outpatient cost (%)",
+    caption  = "Source: Kenya DHS 2022. Survey-weighted means; cells with n<25 suppressed.\nA high cash share among the insured indicates limited financial protection at the point of care."
+  ) +
+  theme_st09
+
+ggsave(file.path(paths$figures_dir, "Figure7_ST09_OOP_CashShare.png"),
+       fig7, width = 9, height = 6, dpi = 300)
+cat("Figure 7 done.\n")
+
+message("=== SECTION 6 COMPLETE ===")
+
+# =============================================================================
+message("=== SECTION 7: Social safety-net linkage ===")
+# =============================================================================
+# Reviewer point: assess whether households already receiving social assistance
+# (the registries SHA premium subsidies are meant to build on) were linked to
+# insurance under the pre-SHA system, especially among the poorest.
+
+safety_net_coverage <- function(data, flag_var, flag_label, stratum_label) {
+  d1 <- data %>% filter(.data[[flag_var]] == 1)
+  d0 <- data %>% filter(.data[[flag_var]] == 0)
+  bind_rows(
+    tibble(
+      `Stratum` = stratum_label,
+      `Safety-net status` = paste0(flag_label, ": yes"),
+      `Unweighted n` = nrow(d1),
+      `Any insurance % (95% CI)` = wprev(d1, "insured_any")$formatted
+    ),
+    tibble(
+      `Stratum` = stratum_label,
+      `Safety-net status` = paste0(flag_label, ": no"),
+      `Unweighted n` = nrow(d0),
+      `Any insurance % (95% CI)` = wprev(d0, "insured_any")$formatted
+    )
+  )
+}
+
+poorest_two <- analytic %>% filter(wealth %in% c("Poorest","Poorer"))
+
+table10 <- bind_rows(
+  safety_net_coverage(analytic, "safety_net_gov", "Government cash transfer", "All household members"),
+  safety_net_coverage(analytic, "safety_net_any", "Any organised safety net", "All household members"),
+  safety_net_coverage(poorest_two, "safety_net_gov", "Government cash transfer", "Two poorest quintiles"),
+  safety_net_coverage(poorest_two, "safety_net_any", "Any organised safety net", "Two poorest quintiles")
+)
+
+# Adjusted association: add government safety net to the all-ages Model A specification
+model_sn_df <- model_A_df %>%
+  filter(!is.na(safety_net_gov)) %>%
+  mutate(safety_net_gov = factor(ifelse(safety_net_gov == 1, "Receives", "None"),
+                                 levels = c("None", "Receives")))
+des_sn <- make_design(model_sn_df)
+mod_sn <- tryCatch(
+  svyglm(insured_any ~ safety_net_gov + age_group + sex + wealth + residence + region,
+         design = des_sn, family = quasipoisson(link = "log")),
+  error = function(e) { log_error("Model SN", conditionMessage(e)); NULL }
+)
+sn_apr <- if (!is.null(mod_sn)) {
+  tt <- broom::tidy(mod_sn) %>% filter(term == "safety_net_govReceives")
+  fmt_effect(exp(tt$estimate), exp(tt$estimate - 1.96 * tt$std.error), exp(tt$estimate + 1.96 * tt$std.error))
+} else NA_character_
+
+save_bundle(
+  table10,
+  file.path(paths$tables_dir, "Table10_ST09_SafetyNet_Linkage.csv"),
+  file.path(paths$tables_dir, "Table10_ST09_SafetyNet_Linkage.docx"),
+  caption = paste(
+    "Table 10. Health insurance coverage among households receiving social",
+    "assistance, overall and in the two poorest wealth quintiles, KDHS 2022."
+  ),
+  footer = c(
+    "Source: Kenya DHS 2022. Survey-weighted estimates with 95% confidence intervals; n values are unweighted.",
+    "Government cash transfer = national (sh134aa) or county (sh134ab) government assistance.",
+    "Any organised safety net = government, NGO/CBO, or religious-organisation assistance (sh134aa-ad); informal kin support is excluded.",
+    paste0("Adjusted prevalence ratio for any government cash transfer (all-ages model, adjusting for age, sex, wealth, residence, region): ",
+           sn_apr, ".")
+  )
+)
+cat("Table 10 done.\n")
+
+message("=== SECTION 7 COMPLETE ===")
+
+# =============================================================================
+message("=== SECTION 8: Wagstaff decomposition of the concentration index ===")
+# =============================================================================
+# Decompose the standard concentration index of insurance coverage into the
+# contributions of each determinant: contribution_k = (beta_k * mean_x_k / mu) * C_k,
+# where C_k is the concentration index of determinant x_k ordered by wealth rank.
+
+# Point estimate of a concentration index from raw vectors (no bootstrap)
+conc_point <- function(y, r, w) {
+  ok <- is.finite(y) & is.finite(r) & is.finite(w)
+  y <- y[ok]; r <- r[ok]; w <- w[ok]
+  if (length(y) < 10) return(NA_real_)
+  o <- order(r); y <- y[o]; w <- w[o]
+  wn <- w / sum(w)
+  frac <- cumsum(wn) - 0.5 * wn
+  mu <- weighted.mean(y, w)
+  if (!is.finite(mu) || mu == 0) return(NA_real_)
+  2 * weighted.mean((y - mu) * (frac - 0.5), w) / mu
+}
+
+decompose_ci <- function(data, covariates, var_groups,
+                         outcome = "insured_any", rank_var = "wealth_rank",
+                         wvar = "weight") {
+  keep <- c(outcome, covariates, rank_var, wvar)
+  d <- data %>% filter(if_all(all_of(keep), ~ !is.na(.)))
+  des <- make_design(d, wvar)
+  f <- as.formula(paste(outcome, "~", paste(covariates, collapse = " + ")))
+  fit <- svyglm(f, design = des, family = gaussian())
+  betas <- coef(fit)
+  mm <- model.matrix(fit)
+  mu <- weighted.mean(d[[outcome]], d[[wvar]])
+  ci_total <- conc_point(d[[outcome]], d[[rank_var]], d[[wvar]])
+
+  terms <- setdiff(names(betas), "(Intercept)")
+  per_term <- lapply(terms, function(t) {
+    xk <- mm[, t]
+    mean_x <- weighted.mean(xk, d[[wvar]])
+    elasticity <- betas[[t]] * mean_x / mu
+    ci_x <- conc_point(xk, d[[rank_var]], d[[wvar]])
+    tibble(term = t, contribution = elasticity * ci_x)
+  }) %>% bind_rows()
+
+  # Aggregate dummy terms back to their source variable
+  per_term <- per_term %>%
+    mutate(group = map_chr(term, function(t) {
+      hit <- var_groups$prefix[map_lgl(var_groups$prefix, ~ startsWith(t, .x))]
+      if (length(hit) == 0) t else var_groups$label[match(hit[which.max(nchar(hit))], var_groups$prefix)]
+    }))
+
+  agg <- per_term %>%
+    group_by(Determinant = group) %>%
+    summarise(Contribution = sum(contribution, na.rm = TRUE), .groups = "drop")
+
+  residual <- ci_total - sum(agg$Contribution, na.rm = TRUE)
+  agg <- bind_rows(
+    agg,
+    tibble(Determinant = "Residual", Contribution = residual)
+  ) %>%
+    mutate(
+      `% of total CI` = sprintf("%.1f", 100 * Contribution / ci_total),
+      Contribution = round(Contribution, 4)
+    ) %>%
+    arrange(desc(abs(Contribution)))
+
+  list(table = agg, ci_total = ci_total, n = nrow(d))
+}
+
+# Primary decomposition: all-ages CI on Model A covariates
+groups_A <- tibble(
+  prefix = c("wealth", "age_group", "sexFemale", "residence", "region"),
+  label  = c("Wealth quintile", "Age group", "Sex", "Residence (rural)", "Region")
+)
+decomp_A <- decompose_ci(
+  model_A_df,
+  covariates = c("wealth", "age_group", "sex", "residence", "region"),
+  var_groups = groups_A
+)
+
+table11 <- decomp_A$table %>%
+  transmute(
+    Determinant,
+    `Absolute contribution to C` = Contribution,
+    `% of total C` = `% of total CI`
+  )
+
+save_bundle(
+  table11,
+  file.path(paths$tables_dir, "Table11_ST09_CI_Decomposition.csv"),
+  file.path(paths$tables_dir, "Table11_ST09_CI_Decomposition.docx"),
+  caption = paste(
+    "Table 11. Wagstaff decomposition of the wealth-related concentration index in any",
+    "health insurance coverage, all household members, KDHS 2022."
+  ),
+  footer = c(
+    "Source: Kenya DHS 2022. Survey-weighted decomposition of the standard concentration index.",
+    sprintf("Total standard concentration index decomposed: %.4f (n=%s).",
+            decomp_A$ci_total, format(decomp_A$n, big.mark = ",")),
+    "Contributions are elasticity-weighted concentration indices of each determinant; positive values push coverage toward wealthier households.",
+    "Determinant contributions sum to the total concentration index together with the unexplained residual.",
+    "Determinants entered as in all-ages Model A (wealth quintile, age group, sex, residence, region)."
+  )
+)
+cat("Table 11 done.\n")
+
+# Supplementary decomposition among adults 15+ adding education and disability
+groups_B <- tibble(
+  prefix = c("wealth", "age_group", "sexFemale", "residence", "education",
+             "disability_any", "region"),
+  label  = c("Wealth quintile", "Age group", "Sex", "Residence (rural)",
+             "Education", "Functional difficulty", "Region")
+)
+decomp_B <- tryCatch(
+  decompose_ci(
+    model_B_df,
+    covariates = c("wealth", "age_group", "sex", "residence", "education",
+                   "disability_any", "region"),
+    var_groups = groups_B
+  ),
+  error = function(e) { log_error("Decomp B", conditionMessage(e)); NULL }
+)
+table11b <- if (!is.null(decomp_B)) {
+  decomp_B$table %>%
+    transmute(Determinant,
+              `Absolute contribution to C` = Contribution,
+              `% of total C` = `% of total CI`)
+} else NULL
+
+message("=== SECTION 8 COMPLETE ===")
+
+# =============================================================================
+message("=== SECTION 9: KDHS 2014 vs 2022 trend comparison ===")
+# =============================================================================
+# Reviewer point: place the 2022 baseline in temporal context. A true
+# all-population (PR-file) trend is NOT possible: the 2014 KDHS did not carry a
+# household-roster insurance item, and the 2022 individual recodes do not carry
+# v481/mv481 (insurance moved to the household module). The only comparable
+# populations are women 15-49 (2014 IR v481 vs 2022 PR) and men 15-54
+# (2014 MR mv481 vs 2022 PR). Estimates are directional and not strictly
+# comparable because of differences in respondent (individual self-report vs
+# household-roster report), weights, and wealth-index construction across rounds.
+
+coverage_ci_row <- function(data, label, year) {
+  # data must contain: y (0/1), wealth_rank, weight, psu, strata
+  d <- data %>% filter(!is.na(y), !is.na(wealth_rank), !is.na(weight))
+  cov <- wprev(d %>% mutate(insured_any = y), "insured_any")
+  ci  <- conc_point(d$y, d$wealth_rank, d$weight)
+  tibble(
+    Population = label,
+    Year = year,
+    `Unweighted n` = nrow(d),
+    `Coverage % (95% CI)` = cov$formatted,
+    `Concentration index` = round(ci, 4)
+  )
+}
+
+trend_rows <- list()
+
+# 2022 from PR (this analysis)
+w2022 <- analytic %>%
+  filter(sex == "Female", age_yrs >= 15, age_yrs <= 49) %>%
+  transmute(y = insured_any, wealth_rank, weight, psu, strata)
+m2022 <- analytic %>%
+  filter(sex == "Male", age_yrs >= 15, age_yrs <= 54) %>%
+  transmute(y = insured_any, wealth_rank, weight, psu, strata)
+trend_rows[["w2022"]] <- coverage_ci_row(w2022, "Women 15-49", "2022 (PR)")
+trend_rows[["m2022"]] <- coverage_ci_row(m2022, "Men 15-54", "2022 (PR)")
+
+# 2014 from IR (women) and MR (men)
+ir2014_path <- file.path(data_root, "KDHS_2014", "IR_Individual_Recode", "KEIR72FL.DTA")
+mr2014_path <- file.path(data_root, "KDHS_2014", "MR_Mens_Recode", "KEMR72FL.DTA")
+
+trend_2014_ok <- TRUE
+if (file.exists(ir2014_path)) {
+  ir14 <- read_dta(ir2014_path, col_select = c(v481, v005, v021, v022, v190, v012))
+  w2014 <- ir14 %>%
+    transmute(
+      y = case_when(num(v481) == 1 ~ 1L, num(v481) == 0 ~ 0L, TRUE ~ NA_integer_),
+      wealth_rank = num(v190),
+      weight = num(v005) / 1e6,
+      psu = num(v021), strata = num(v022)
+    ) %>% filter(!is.na(y))
+  trend_rows[["w2014"]] <- coverage_ci_row(w2014, "Women 15-49", "2014 (IR)")
+} else { trend_2014_ok <- FALSE; log_error("Trend", "KDHS 2014 IR file not found") }
+
+if (file.exists(mr2014_path)) {
+  mr14 <- read_dta(mr2014_path, col_select = c(mv481, mv005, mv021, mv022, mv190, mv012))
+  m2014 <- mr14 %>%
+    transmute(
+      y = case_when(num(mv481) == 1 ~ 1L, num(mv481) == 0 ~ 0L, TRUE ~ NA_integer_),
+      wealth_rank = num(mv190),
+      weight = num(mv005) / 1e6,
+      psu = num(mv021), strata = num(mv022)
+    ) %>% filter(!is.na(y))
+  trend_rows[["m2014"]] <- coverage_ci_row(m2014, "Men 15-54", "2014 (MR)")
+} else { trend_2014_ok <- FALSE; log_error("Trend", "KDHS 2014 MR file not found") }
+
+table12 <- bind_rows(
+  trend_rows[["w2014"]], trend_rows[["w2022"]],
+  trend_rows[["m2014"]], trend_rows[["m2022"]]
+) %>%
+  arrange(Population, Year)
+
+save_bundle(
+  table12,
+  file.path(paths$tables_dir, "Table12_ST09_Trend_2014_2022.csv"),
+  file.path(paths$tables_dir, "Table12_ST09_Trend_2014_2022.docx"),
+  caption = paste(
+    "Table 12. Health insurance coverage and wealth-related inequality among adults of",
+    "reproductive/working age, KDHS 2014 versus KDHS 2022."
+  ),
+  footer = c(
+    "Source: Kenya DHS 2014 and 2022. Survey-weighted estimates; n values are unweighted.",
+    "2014 estimates use the individual self-reported insurance item (women's recode v481; men's recode mv481).",
+    "2022 estimates use the household-roster insurance item (sh27) restricted to the same age-sex groups.",
+    "Estimates are directional: respondent type (individual vs household-roster report), sample weights, and wealth-index construction differ across rounds, so differences should not be interpreted as precise change.",
+    "A true all-population (person-recode) trend is not possible because KDHS 2014 did not carry a household-roster insurance item."
+  )
+)
+cat("Table 12 done.\n")
+
+message("=== SECTION 9 COMPLETE ===")
+
+# =============================================================================
+message("=== SECTION 10: Model-family sensitivity (quasi-Poisson vs log-binomial) ===")
+# =============================================================================
+# Reviewer minor point: justify the quasi-Poisson choice and verify consistency
+# with a log-binomial model. The survey-weighted quasi-Poisson GLM already
+# returns design-robust (sandwich) variance estimates; we compare its APRs for
+# key terms with a log-binomial specification on the same all-ages sample.
+
+# Generic APR extractor for a fitted model (svyglm or glm), formatted with 95% CI.
+sens_extract <- function(mod, terms, label) {
+  if (is.null(mod)) {
+    return(tibble(Term = terms, !!label := NA_character_))
+  }
+  td <- broom::tidy(mod)
+  tibble(
+    Term = terms,
+    !!label := sapply(terms, function(t) {
+      r <- td %>% filter(term == t)
+      if (nrow(r) == 0) return(NA_character_)
+      fmt_effect(exp(r$estimate), exp(r$estimate - 1.96 * r$std.error),
+                 exp(r$estimate + 1.96 * r$std.error))
+    })
+  )
+}
+
+# The fully adjusted log-binomial model does not converge here: with a common outcome
+# and very large wealth associations, the log link produces fitted probabilities above 1
+# and no valid starting values exist. This non-convergence is the standard rationale for
+# preferring the modified-Poisson (quasi-Poisson with robust variance) approach. To still
+# provide a convergent cross-check, we compare the two model families on a parsimonious
+# specification (wealth + residence) in which the log-binomial converges.
+full_logbin_converged <- tryCatch({
+  fit <- suppressWarnings(glm(insured_any ~ age_group + sex + wealth + residence + region,
+                              data = model_A_df, family = binomial(link = "log"),
+                              start = coef(glm(insured_any ~ age_group + sex + wealth + residence + region,
+                                               data = model_A_df, family = poisson(), weights = weight)),
+                              weights = weight))
+  fit$converged
+}, error = function(e) FALSE)
+
+parsi_formula <- insured_any ~ wealth + residence
+parsi_qp  <- svyglm(parsi_formula, design = des_A, family = quasipoisson(link = "log"))
+parsi_pois <- glm(parsi_formula, data = model_A_df, family = poisson(), weights = weight)
+parsi_lb  <- tryCatch(
+  suppressWarnings(glm(parsi_formula, data = model_A_df,
+                       family = binomial(link = "log"), weights = weight,
+                       start = coef(parsi_pois))),
+  error = function(e) { log_error("Parsimonious log-binomial", conditionMessage(e)); NULL }
+)
+
+sens_terms  <- c("wealthPoorer", "wealthMiddle", "wealthRicher", "wealthRichest", "residenceRural")
+term_labels <- c(
+  "wealthPoorer"   = "Wealth: Poorer vs Poorest",
+  "wealthMiddle"   = "Wealth: Middle vs Poorest",
+  "wealthRicher"   = "Wealth: Richer vs Poorest",
+  "wealthRichest"  = "Wealth: Richest vs Poorest",
+  "residenceRural" = "Residence: Rural vs Urban"
+)
+
+table_sens <- sens_extract(parsi_qp,  sens_terms, "Quasi-Poisson APR (95% CI)") %>%
+  left_join(sens_extract(parsi_lb, sens_terms, "Log-binomial APR (95% CI)"), by = "Term") %>%
+  mutate(Term = term_labels[Term]) %>%
+  rename(`Comparison (parsimonious model)` = Term)
+
+save_bundle(
+  table_sens,
+  file.path(paths$tables_dir, "TableS6_ST09_Model_Sensitivity.csv"),
+  file.path(paths$tables_dir, "TableS6_ST09_Model_Sensitivity.docx"),
+  caption = paste(
+    "Table S6. Sensitivity of adjusted prevalence ratios to the model family",
+    "(survey-weighted quasi-Poisson vs log-binomial), KDHS 2022."
+  ),
+  footer = c(
+    "Source: Kenya DHS 2022. Estimates on the all-ages Model A sample.",
+    "The fully adjusted log-binomial model did not converge (fitted probabilities exceed 1 given the strong wealth associations), a recognised limitation of log-binomial models for common outcomes; this is the rationale for the modified-Poisson approach.",
+    "To provide a convergent comparison, both families were fitted on a parsimonious specification (wealth + residence). Quasi-Poisson estimates use the survey design with robust variance; the log-binomial was fitted as a weighted GLM.",
+    "Close agreement of the parsimonious-model prevalence ratios indicates the estimates are not sensitive to the model family."
+  )
+)
+cat("Table S6 (model sensitivity) done.\n")
+
+logbin_converged <- !is.null(parsi_lb)
+
+message("=== SECTION 10 COMPLETE ===")
+
+# =============================================================================
+message("=== SECTION 11: Save outputs and summary ===")
 # =============================================================================
 
 # Inline stats helper objects for manuscript
@@ -1379,6 +1931,12 @@ analysis_object <- list(
   table6 = table6,
   table7 = table7,
   table8 = table8,
+  table9 = table9,
+  table10 = table10,
+  table11 = table11,
+  table11b = table11b,
+  table12 = table12,
+  table_sens = table_sens,
   # Figure data frames
   fig1_df = fig1_df,
   fig2_df = fig2_df,
@@ -1386,9 +1944,23 @@ analysis_object <- list(
   fig4_df = fig4_df,
   fig5_df = fig2_df,
   fig6_df = fig6_df,
+  fig7_df = fig7_df,
   # Model objects
   model_A = if (!is.null(mod_A)) broom::tidy(mod_A) else NULL,
   model_B = if (!is.null(mod_B)) broom::tidy(mod_B) else NULL,
+  # OOP cost headline stats
+  opd_overall_cost  = opd_overall_cost,
+  opd_insured_cost  = opd_insured_cost,
+  opd_uninsured_cost = opd_uninsured_cost,
+  hosp_overall_cost = hosp_overall_cost,
+  hosp_insured_cost = hosp_insured_cost,
+  # Safety net / decomposition / sensitivity scalars
+  sn_apr           = sn_apr,
+  decomp_ci_total  = decomp_A$ci_total,
+  decomp_n         = decomp_A$n,
+  logbin_converged = logbin_converged,
+  full_logbin_converged = full_logbin_converged,
+  trend_2014_ok    = trend_2014_ok,
   # Inline stats
   overall_n            = overall_n,
   overall_insured_pct  = overall_insured_pct,
@@ -1420,6 +1992,46 @@ analysis_object <- list(
 
 saveRDS(analysis_object,
   file.path(paths$derived_dir, "st09_analysis_outputs.rds"))
+
+# ── Additional file 2: supplementary tables (assembled after all tables) ─────
+supplementary_tables <- list(
+  "Table S1. Socioeconomic gradient in health insurance coverage, KDHS 2022." = table3,
+  "Table S2. Health insurance coverage and service use among policy-priority groups, KDHS 2022." = table4,
+  "Table S3. Standard and Erreygers-corrected concentration indices for health insurance coverage, KDHS 2022." = table6,
+  "Table S4. Absolute and relative wealth-related inequality metrics for health insurance coverage, KDHS 2022." = table7,
+  "Table S5. Population composition of uninsured household members in policy-priority groups, KDHS 2022." = table8,
+  "Table S6. Sensitivity of adjusted prevalence ratios to model family (quasi-Poisson vs log-binomial), KDHS 2022." = table_sens
+)
+if (!is.null(table11b)) {
+  supplementary_tables[["Table S7. Wagstaff decomposition of the concentration index among adults aged 15+, adding education and functional difficulty, KDHS 2022."]] <- table11b
+}
+
+supp_doc <- read_docx() %>%
+  body_add_par("Additional file 2. Supplementary tables for ST09", style = "heading 1") %>%
+  body_add_par(
+    "Supplementary tables for: Who was left outside Kenya's health insurance system before SHA? An all-population equity baseline from the 2022 Kenya Demographic and Health Survey.",
+    style = "Normal"
+  )
+
+for (nm in names(supplementary_tables)) {
+  supp_doc <- supp_doc %>%
+    body_add_par(nm, style = "heading 2") %>%
+    body_add_flextable(build_publication_flextable(
+      supplementary_tables[[nm]],
+      footer = c(
+        "Source: Kenya DHS 2022. n values are unweighted; percentages and modelled estimates are survey-weighted.",
+        "Groups may overlap unless otherwise stated."
+      ),
+      font_size = 8
+    )) %>%
+    body_add_par("", style = "Normal")
+}
+
+print(
+  supp_doc,
+  target = file.path(paths$manuscript_dir, "Additional_file_2_Supplementary_Tables.docx")
+)
+cat("Additional file 2 supplementary tables done.\n")
 
 # ── Human-readable summary ───────────────────────────────────────────────────
 summary_lines <- c(
