@@ -1,0 +1,36 @@
+---
+title: ""
+output-file: Additional_file_1_STROBE_Checklist.docx
+format:
+  docx: default
+editor: source
+---
+
+# STROBE checklist
+
+Study type: Cross-sectional secondary analysis of KDHS 2022 (women's and men's recodes).
+
+| Item | Reporting element | Location in manuscript |
+|---|---|---|
+| 1 | Study design in title and abstract | Title; Abstract |
+| 2 | Background and rationale | Background |
+| 3 | Objectives | End of Background |
+| 4 | Study design | Methods |
+| 5 | Setting and dates | Methods |
+| 6 | Participants / eligibility | Methods |
+| 7 | Variables (outcome, exposures, covariates) | Methods |
+| 8 | Data sources and measurement | Methods |
+| 9 | Bias | Discussion: limitations |
+| 10 | Study size | Methods; Results |
+| 11 | Quantitative variables | Methods |
+| 12 | Statistical methods | Methods |
+| 13 | Participants / flow | Methods; Results |
+| 14 | Descriptive data | Results; Table 1 |
+| 15 | Outcome data | Results; Tables 1-2; Figure 1 |
+| 16 | Main results (adjusted) | Results; Table 3 |
+| 17 | Other analyses (subgroups, concentration index) | Results; Table 2 |
+| 18 | Key results | Discussion |
+| 19 | Limitations | Discussion |
+| 20 | Interpretation | Discussion |
+| 21 | Generalisability | Discussion; Conclusions |
+| 22 | Funding | Declarations |

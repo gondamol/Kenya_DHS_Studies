@@ -1,0 +1,9 @@
+constructed,source,definition
+dx_depression,chd17/mchd17,Ever told by a health worker you have depression
+dx_anxiety,chd18/mchd18,Ever told by a health worker you have anxiety
+dx_dep_or_anx,chd17/18,Diagnosed with depression OR anxiety
+treat_dep_anx,chd19/mchd19,Currently receiving treatment for depression/anxiety (among diagnosed)
+untreated,chd17/18/19,Diagnosed but NOT receiving treatment (the treatment gap)
+ncd_count,chd02/07/11/13/20,"Count of diagnosed physical NCDs (HTN, diabetes, heart, lung, arthritis)"
+insured_any,sh27 (PR merge),Any health insurance coverage (household member)
+wealth_rank,v190/mv190,Wealth quintile rank 1 (poorest) to 5 (richest)
