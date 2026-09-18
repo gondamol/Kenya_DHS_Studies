@@ -26,11 +26,11 @@ keywords:
   - health insurance
   - care-seeking
   - Washington Group Short Set
-  - SHA exemption
+  - out-of-pocket payment
   - Kenya
   - demographic and health survey
   - health equity
-  - outpatient payment
+  - Social Health Authority
   - universal health coverage
 
 funding: |
@@ -45,10 +45,10 @@ author-note:
       The authors declare that they have no competing interests.
 
     ethics: |
-      This study used publicly available de-identified data from the Kenya Demographic and Health Survey 2022. The original survey received ethical approval from the Kenya Medical Research Institute (KEMRI) Scientific and Ethics Review Unit and the ICF Institutional Review Board. No additional ethical approval was required for this secondary analysis.
+      This study used de-identified data from the Kenya Demographic and Health Survey 2022, obtained from The DHS Program under an approved data request. The original survey received ethical approval from the Kenya Medical Research Institute (KEMRI) Scientific and Ethics Review Unit and the ICF Institutional Review Board. No additional ethical approval was required for this secondary analysis.
 
     data-availability: |
-      The data that support the findings of this study are openly available from the DHS Program at https://dhsprogram.com/data/. Study-specific analysis code is publicly available at https://github.com/gondamol/Kenya_DHS_Studies/tree/main/ST02_Disability_Insurance_Equity.
+      The data that support the findings of this study are available to registered researchers from The DHS Program at https://dhsprogram.com/data/ following an approved data request. Study-specific analysis code is publicly available at https://github.com/gondamol/Kenya_DHS_Studies/tree/main/ST02_Disability_Insurance_Equity.
 
 format:
   docx:
@@ -90,6 +90,11 @@ table1 <- analysis_object$table1
 table2 <- analysis_object$table2
 table3 <- analysis_object$table3
 table4 <- analysis_object$table4
+table5 <- analysis_object$table5
+table6 <- analysis_object$table6
+table_s1 <- analysis_object$table_s1
+table_s2 <- analysis_object$table_s2
+table_s3 <- analysis_object$table_s3
 key_results <- analysis_object$key_results
 table_specs <- analysis_object$table_specs
 
@@ -143,6 +148,95 @@ highest_domain_prevalence <- key_results$domain_threshold_prevalence %>%
 lowest_domain_prevalence <- key_results$domain_threshold_prevalence %>%
   dplyr::arrange(est) %>%
   dplyr::slice(1)
+
+# ---------------------------------------------------------------------------
+# Inline formatting helpers for the revised results text.
+# ---------------------------------------------------------------------------
+
+fmt_count <- function(x) format(x, big.mark = ",")
+
+# Point estimate only. Used in the abstract, where the same quantity is reported
+# with its interval in the Results, to keep the abstract within the word limit.
+fmt_pct_point_only <- function(stat) sprintf("%.1f%%", 100 * stat$est)
+
+fmt_pct_row_point <- function(summary_df, group_name) {
+  row <- summary_df %>% dplyr::filter(group == group_name)
+  sprintf("%.1f%%", 100 * row$insurer_met_any[[1]])
+}
+
+get_contrast <- function(outcome_name, spec_name) {
+  key_results$whole_sample_contrasts %>%
+    dplyr::filter(outcome == outcome_name, specification == spec_name)
+}
+
+fmt_contrast_apr <- function(outcome_name, spec_name) {
+  row <- get_contrast(outcome_name, spec_name)
+  sprintf("PR %.2f, 95%% CI %.2f to %.2f", row$apr[[1]], row$apr_ci_low[[1]], row$apr_ci_high[[1]])
+}
+
+fmt_contrast_apr_short <- function(outcome_name, spec_name) {
+  row <- get_contrast(outcome_name, spec_name)
+  sprintf("%.2f, 95%% CI %.2f to %.2f", row$apr[[1]], row$apr_ci_low[[1]], row$apr_ci_high[[1]])
+}
+
+fmt_contrast_pp_plain <- function(outcome_name, spec_name) {
+  row <- get_contrast(outcome_name, spec_name)
+  sprintf(
+    "%.1f percentage points, 95%% CI %.1f to %.1f",
+    100 * row$standardised_difference[[1]],
+    100 * row$standardised_difference_ci_low[[1]],
+    100 * row$standardised_difference_ci_high[[1]]
+  )
+}
+
+fmt_contrast_pp <- function(outcome_name, spec_name) {
+  row <- get_contrast(outcome_name, spec_name)
+  sprintf(
+    "%+.1f (95%% CI %+.1f to %+.1f)",
+    100 * row$standardised_difference[[1]],
+    100 * row$standardised_difference_ci_low[[1]],
+    100 * row$standardised_difference_ci_high[[1]]
+  )
+}
+
+fmt_severity <- function(spec_name, contrast_name) {
+  row <- key_results$severity_contrasts %>%
+    dplyr::filter(specification == spec_name, contrast == contrast_name)
+  p_text <- ifelse(row$p_value[[1]] < 0.001, "p < 0.001", sprintf("p = %.3f", row$p_value[[1]]))
+  sprintf("PR %.2f, 95%% CI %.2f to %.2f; %s", row$pr[[1]], row$ci_low[[1]], row$ci_high[[1]], p_text)
+}
+
+fmt_global <- function(spec_name) {
+  row <- key_results$severity_global_tests %>% dplyr::filter(specification == spec_name)
+  p_text <- ifelse(row$p_value[[1]] < 0.001, "p < 0.001", sprintf("p = %.2f", row$p_value[[1]]))
+  sprintf("F = %.2f on %d and %s df, %s", row$statistic[[1]], as.integer(row$df[[1]]),
+          format(row$ddf[[1]], big.mark = ","), p_text)
+}
+
+fmt_apr_row <- function(model_df, term_name) {
+  row <- model_df %>% dplyr::filter(term == term_name)
+  sprintf("%.2f (95%% CI %.2f to %.2f)", row$apr[[1]], row$ci_low[[1]], row$ci_high[[1]])
+}
+
+fmt_ratio_row <- function(model_df, term_name) {
+  row <- model_df %>% dplyr::filter(term == term_name)
+  sprintf("%.2f (95%% CI %.2f to %.2f)", row$ratio[[1]], row$ci_low[[1]], row$ci_high[[1]])
+}
+
+fmt_pct_row <- function(summary_df, group_name, which_stat) {
+  row <- summary_df %>% dplyr::filter(group == group_name)
+  if (which_stat == "insurer") {
+    values <- c(row$insurer_met_any[[1]], row$insurer_ci_low[[1]], row$insurer_ci_high[[1]])
+  } else {
+    values <- c(row$cash_share[[1]], row$cash_share_ci_low[[1]], row$cash_share_ci_high[[1]])
+  }
+  sprintf("%.1f%% (95%% CI %.1f%% to %.1f%%)", 100 * values[1], 100 * values[2], 100 * values[3])
+}
+
+fmt_money_row <- function(group_name, field) {
+  row <- key_results$cost_group_summary %>% dplyr::filter(group == group_name)
+  format(round(row[[field]][[1]]), big.mark = ",", trim = TRUE)
+}
 ```
 
 ```{r}
@@ -163,77 +257,85 @@ if (knitr::pandoc_to() == "docx") {
 }
 ```
 
-# Abstract
+# Abstract {.unnumbered}
 
-**Background:** Persons with disability often need more healthcare but are frequently excluded from contributory insurance schemes. In Kenya, the Social Health Insurance Act 2023 created an exemption pathway for some persons with severe disability, making KDHS 2022 the last nationally representative pre-SHA baseline.
+**Background:** Adults with disability tend to need more healthcare and to have less capacity to pay for it. Kenya replaced the National Hospital Insurance Fund with the Social Health Authority (SHA) in October 2024, so KDHS 2022 is the last nationally representative measurement before that transition.
 
-**Methods:** We conducted a cross-sectional secondary analysis of the KDHS 2022 person recode file, restricted to adult usual residents in the long-questionnaire subsample. Disability was measured using the Washington Group Short Set functional-difficulty items. Survey-weighted prevalence estimates with 95% confidence intervals were calculated for insurance coverage, service utilisation, and payment at the last outpatient visit. Survey-weighted quasi-Poisson models with log links estimated adjusted prevalence ratios for being uninsured among adults meeting the WG disability threshold and for paying at the last outpatient visit among outpatient users with disability.
+**Methods:** Cross-sectional analysis of the KDHS 2022 person recode file, restricted to adults aged 18 years and above in the long-questionnaire subsample, where the disability, insurance and service-use modules were administered. Disability was measured with the Washington Group Short Set (WG-SS). We estimated survey-weighted prevalences and prevalence ratios from quasi-Poisson models under three adjustment sets with marginal standardised differences; adjacent severity categories were contrasted directly. Amounts paid and payer sources were analysed among those who paid.
 
-**Results:** The main analytic sample comprised `r format(key_results$sample_long_questionnaire, big.mark = ",")` adults. Overall, `r fmt_inline_pct(key_results$any_functional_difficulty)` had any functional difficulty and `r fmt_inline_pct(key_results$wg_disability)` met the WG disability threshold. Any insurance coverage was lower among adults with disability than among adults without disability (`r fmt_inline_pct(key_results$disability_insurance)` versus `r fmt_inline_pct(key_results$no_disability_insurance)`), and coverage declined from `r table2$AnyInsurance[table2$Characteristic == "  No functional difficulty"]` among adults with no functional difficulty to `r table2$AnyInsurance[table2$Characteristic == "  Severe functional difficulty"]` among adults with severe functional difficulty. Outpatient use was higher among adults with disability than among adults without disability (`r fmt_inline_pct(key_results$disability_outpatient)` versus `r fmt_inline_pct(key_results$no_disability_outpatient)`), and payment at the last outpatient visit remained high in both groups (`r fmt_inline_pct(key_results$disability_payment)` and `r fmt_inline_pct(key_results$no_disability_payment)`). Within the disability subpopulation, adults in the poorest wealth quintile had higher uninsured prevalence than those in the richest quintile (APR `r fmt_inline_apr(key_results$model_uninsured, "wealthPoorest")`; `r fmt_inline_p_clause(key_results$model_uninsured, "wealthPoorest")`). Any insurance was not statistically associated with lower payment at the last outpatient visit among adults with disability who had recently used care (APR `r fmt_inline_apr(key_results$model_payment, "insured_any")`; `r fmt_inline_p_clause(key_results$model_payment, "insured_any")`).
+**Results:** Of `r fmt_count(key_results$sample_long_questionnaire)` adults, `r fmt_pct_point_only(key_results$wg_disability)` met the WG threshold. Uninsured prevalence was higher among them unadjusted (`r fmt_contrast_apr("uninsured", "crude")`) and after adjustment for sex, age group and residence (`r fmt_contrast_apr("uninsured", "confounder")`; standardised difference `r sprintf("%.1f", 100 * key_results$contrast("uninsured", "confounder")$standardised_difference)` percentage points), but null once wealth and education were added (`r fmt_contrast_apr("uninsured", "full")`). Outpatient use and hospitalisation were higher in every specification (fully adjusted PR `r fmt_contrast_apr_short("outpatient_last4w", "full")` and `r fmt_contrast_apr_short("inpatient_last12m", "full")`). Among outpatient users with disability, `r fmt_pct_point_only(key_results$disability_payment)` paid something, insured or not (`r fmt_pct_point_only(key_results$disability_payment_insured)` and `r fmt_pct_point_only(key_results$disability_payment_uninsured)`). Among those who paid, an insurer met any part of the bill for `r fmt_pct_row_point(key_results$payer_source_summary, "WG disability, insured")` of insured adults with disability, whose median cash payment was KSh `r fmt_money_row("WG disability, insured", "cash_median")` against KSh `r fmt_money_row("WG disability, uninsured", "cash_median")` for uninsured adults with disability.
 
-**Conclusions:** Immediately before SHA implementation, adults with disability in Kenya had lower insurance coverage, higher healthcare use, and persistently high payment at outpatient contact. Monitoring the SHA transition should therefore assess both disability-inclusive enrolment and whether point-of-care financial protection improves.
+**Conclusions:** The crude coverage deficit among adults with disability was explained statistically by their older, poorer and less educated composition; their higher use of care was not. At the point of care, holding cover rarely meant that an insurer paid. Monitoring enrolment counts alone would miss both.
 
-**Keywords:** disability; Washington Group Short Set; health insurance; SHA exemption; care-seeking; outpatient payment; health equity; Kenya; demographic and health survey; universal health coverage
+**Keywords:** disability; Washington Group Short Set; health insurance; out-of-pocket payment; care-seeking; health equity; Kenya; demographic and health survey; universal health coverage; Social Health Authority
 
 # Background
 
-Disability is an important but still under-measured dimension of health-system inequity. The World Health Organization estimates that around 1.3 billion people, or roughly 16% of the global population, live with significant disability, with especially high barriers to care in low- and middle-income countries [@who2023disability]. For health financing, the policy relevance is direct: persons with disability often need more healthcare, but they are also more likely to face income insecurity, transport barriers, and direct medical costs at the point of care.
+Disability is an under-measured dimension of health-system inequity. The World Health Organization estimates that about 1.3 billion people, roughly 16% of the world's population, live with significant disability, and that barriers to care are steepest in low- and middle-income countries [@who2023disability]. The financing implication is direct: adults with disability tend to need more care, while the same functional difficulty constrains schooling, earnings and the ability to pay a contributory premium.
 
-In Kenya, the health-insurance literature has already shown that coverage is socially patterned and strongly concentrated among more advantaged groups. Analyses of earlier Kenya DHS rounds found large socioeconomic differences in insurance ownership by wealth, education, and employment [@kimani2014; @kazungu2017]. A broader cross-country study from sub-Saharan Africa similarly showed that insurance coverage is typically low and pro-rich where contributory mechanisms dominate [@barasa2021]. However, those studies did not focus specifically on adults with disability as the primary equity population.
+Kenyan evidence has established that insurance coverage is socially patterned and pro-rich. Analyses of earlier KDHS rounds documented large differences by wealth, education and employment [@kimani2014; @kazungu2017], and a 36-country analysis found the same pattern wherever contributory mechanisms dominate [@barasa2021]. Two analyses of KDHS 2022 itself are already in print: one reports coverage levels and their determinants without examining disability [@alhajeri2026], and one uses coarsened exact matching to separate gross healthcare expenditure from net out-of-pocket payment after reimbursement [@okova2026]. Qualitative work with women with disabilities living in poverty in Kenya has shown that pro-poor financing policies can reach the enrolment margin and still leave people paying [@kabia2018]. What is missing is a national, adult, disability-stratified account that places coverage, care-seeking and payment in one sample.
 
-The policy context changed materially with the Social Health Insurance Act 2023, which replaced the National Hospital Insurance Fund (NHIF) with the Social Health Authority (SHA) and created an exemption pathway for some persons with severe disability through the Equitable Access Fund [@kenya2023sha; @nungo2024]. The Persons with Disabilities Act 2003 had already established the legal and administrative architecture for disability certification in Kenya, but nationally representative evidence on pre-SHA insurance coverage and care-seeking among adults with disability remained limited [@kenya2003pda].
+The policy context has since changed. The Social Health Insurance Act 2023 repealed the NHIF Act and established the Social Health Authority together with three funds: the Primary Healthcare Fund, the Social Health Insurance Fund and the Emergency, Chronic and Critical Illness Fund [@kenya2023sha]. The Act does not create a disability-specific fund or a standing premium exemption for disability. It defines a person with disability who is wholly dependent on and living with a contributor as a beneficiary, includes persons with disability among vulnerable persons, and provides that contributions for households identified as unable to pay, through a means-testing instrument, are met from funds appropriated by Parliament [@kenya2023sha; @kenya2024shiregs]. Eligibility for that support therefore runs through household means testing and administrative identification, not through a functional-difficulty score. The separate legal architecture for disability certification, formerly the Persons with Disabilities Act 2003, was replaced by the Persons with Disabilities Act 2025, in force from 27 May 2025 [@kenya2003pda; @kenya2025pda]. KDHS 2022 records neither certification status nor programme enrolment, so this study cannot speak to who would qualify for public support under either instrument.
 
-KDHS 2022 provides the last nationally representative pre-SHA baseline and includes the Washington Group Short Set (WG-SS) in the person recode file, allowing functional-difficulty severity and domain to be measured consistently [@kdhs2022report; @washingtongroup2016]. This study therefore aimed to estimate insurance coverage, service utilisation, and payment at the last outpatient visit among Kenyan adults with disability before SHA implementation, and to identify the main sociodemographic predictors of insurance exclusion within the disability subpopulation.
+KDHS 2022 carries the Washington Group Short Set (WG-SS) in the person recode file, which allows functional difficulty to be measured consistently alongside insurance, service use and payment [@kdhs2022report; @washingtongroup2016]. This study is descriptive and estimates, for Kenyan adults immediately before the SHA transition: (i) the difference in insurance coverage, outpatient use and hospitalisation between adults at and below the WG disability threshold, both unadjusted and under prespecified adjustment sets; (ii) whether coverage varies across WG severity categories once those categories are contrasted formally rather than compared by eye; and (iii) what was paid at the last outpatient visit, how much, and who met the bill. No causal effect of disability or of insurance is estimated.
 
 # Methods
 
 ## Study design and data source
 
-This study is reported in accordance with the Strengthening the Reporting of Observational Studies in Epidemiology (STROBE) statement.
+This study is reported in accordance with the STROBE statement for cross-sectional studies.
 
-We conducted a cross-sectional secondary analysis of the 2022 Kenya Demographic and Health Survey. KDHS 2022 used a stratified two-stage cluster sample, selecting enumeration areas in the first stage and households within enumeration areas in the second stage, yielding a nationally representative sample of households and their resident members [@kdhs2022report]. All analyses in this study used the person recode (`PR`) file, which contains one record per household member. In KDHS 2022, the disability, insurance, and service-use items used here were available in the PR long-questionnaire subsample; disability-specific analyses therefore relied on adult usual residents with non-missing module data from that form.
+KDHS 2022 used a stratified two-stage cluster design: enumeration areas were selected in the first stage and households within them in the second [@kdhs2022report]. Within each cluster the sampled households were divided between two instruments: one in every two households received the full household questionnaire and the remainder a short version. The disability, insurance, service-use and expenditure modules analysed here were administered only in the full-questionnaire households, so the analytic base is that half-sample. All analyses use the person recode (PR) file, which holds one record per household member.
+
+The household questionnaire is answered by a household respondent on behalf of household members. The disability, insurance, utilisation and payment items used here are therefore household-reported and, for most adults in the file, proxy-reported rather than self-reported. The PR file does not identify which member supplied the information for which record.
 
 ## Study population
 
-The analytic population comprised adults aged 18 years and above residing in sampled households at the time of the KDHS 2022 interview. The WG-SS was administered in the PR file, but the insurance and utilisation items used here were available only in the long-questionnaire subsample. Adults with incomplete WG-SS classification were excluded from disability-status analyses. Adults with missing values on a specific outcome were excluded from that outcome analysis but retained for others.
+The analytic population was adult usual residents aged 18 years and above in long-questionnaire households with complete six-domain WG-SS data. The age threshold of 18 was set a priori to match the adult policy population for premium contribution, rather than the 15-year threshold used in the KDHS report tables. Participant flow from the raw file to each outcome-specific denominator is given in Table S1, and missing values by variable in Table S2. Analyses are complete-case within each outcome and model.
 
-## Variables and measurements
+## Variables
 
-### Disability: Washington Group Short Set
+### Disability
 
-Functional difficulty was assessed using the Washington Group Short Set (WG-SS), which in KDHS 2022 is captured by six functional-difficulty items: seeing (`hdis2`), hearing (`hdis4`), communicating in the respondent's usual language (`hdis5`), remembering or concentrating (`hdis6`), walking or climbing steps (`hdis7`), and self-care including washing and dressing (`hdis8`) [@washingtongroup2016]. The adjacent items `hdis1` and `hdis3` record use of glasses or contact lenses and hearing aids and were not treated as WG disability domains in this analysis. The WG disability threshold was defined as reporting "a lot of difficulty" or "cannot do at all" in at least one of the six domains [@washingtongroup2016].
+The WG-SS comprises six functional-difficulty items, captured in KDHS 2022 as seeing (`hdis2`), hearing (`hdis4`), communication in the respondent's usual language (`hdis5`), remembering or concentrating (`hdis6`), walking or climbing steps (`hdis7`) and self-care (`hdis8`) [@washingtongroup2016]. The adjacent variables `hdis1` and `hdis3`, which in the standard recode carry use of glasses and of hearing aids, are empty in this dataset and were not used; the seeing and hearing items were therefore analysed as recorded, without information on whether the respondent was assessed with usual assistive devices. The WG threshold was defined as "a lot of difficulty" or "cannot do at all" in at least one domain.
 
-Disability severity was classified from the KDHS 2022 summary item `hdis9`, which records the highest degree of difficulty reported across all six domains for each respondent. Severity categories were: no functional difficulty (`hdis9` = 1), mild functional difficulty (`hdis9` = 2), moderate functional difficulty (`hdis9` = 3), and severe functional difficulty (`hdis9` = 4). The WG disability threshold corresponds to the combination of moderate and severe severity categories (`hdis9 >= 3`).
+Severity was taken from `hdis9`, the highest degree of difficulty reported across the six domains, and labelled no, mild, moderate and severe functional difficulty. This is a maximum, not a scale: one severe domain and substantial difficulty in several domains are collapsed differently by it. The count of domains at or above threshold is therefore analysed as a prespecified alternative specification.
 
-In secondary analyses examining domain-specific insurance coverage, each WG-SS functional domain was classified as meeting the WG threshold within that domain versus lower levels of difficulty. Domain-specific analyses were non-mutually exclusive because respondents could report substantial difficulty in more than one domain.
+### Insurance, service use and payment
 
-### Insurance and financial-protection outcomes
+Insurance coverage was taken from `sh27`, an individual-level item recorded for each household member within the household questionnaire, and NHIF coverage from `sh28a`. Uninsured status was defined as a "no" response; the 293 adults answering "don't know" were treated as missing in the main analysis and grouped with the uninsured in a prespecified sensitivity analysis. Outpatient use in the previous four weeks came from `sh31` and hospitalisation in the previous 12 months from `sh29`.
 
-Any health insurance coverage was derived from the household-level insurance item `sh27` (coded as insured versus not insured). NHIF-specific coverage was derived from `sh28a` among those reported as insured. Uninsured status was defined as `sh27` = 0 or no affirmative insurance response. Payment for the most recent outpatient visit, the primary financial-protection outcome, was derived from `sh32` and was restricted to adults who reported outpatient care use in the previous four weeks (`sh31` = 1).
+Payment was measured at three levels. Whether any money was paid at the last outpatient visit came from `sh32`, which is an incidence measure and says nothing about magnitude. The amount came from `sh304`, the total cost of that visit, and the payer split from `sh305a` to `sh305e`, the amounts met in cash, by NHIF, by private insurance, in kind and by other means. The questionnaire asks the amount items only of respondents who reported paying, so the amount analyses are conditional on having paid and are reported as such. Values coded 999998 and above are non-response codes and were set to missing. The gross cost (`sh304`) is distinguished throughout from the cash amount (`sh305a`), which is the net out-of-pocket payment once any insurer contribution is deducted, following the gross-versus-net distinction drawn for these data elsewhere [@okova2026]. KDHS does not collect household consumption or income, so catastrophic and impoverishing health expenditure cannot be constructed from this file, and no such measure is reported.
 
-### Service utilisation outcomes
+### Covariates and their assumed roles
 
-Outpatient service use in the four weeks preceding the interview was derived from `sh31` (any outpatient visit: yes or no). Hospitalisation in the 12 months preceding the interview was derived from `sh29` (any hospitalisation: yes or no). Both utilisation outcomes were examined for all adults regardless of insurance status to characterise overall care-seeking differences by disability status.
-
-### Covariates
-
-Wealth quintile was derived from the DHS composite wealth index (`hv270`), classified into five categories from poorest (1) to richest (5). Place of residence was taken from `hv025` (urban versus rural). Age group was derived from the age in completed years recorded in the PR file and classified as 18-29, 30-44, 45-59, and 60 years and above. Sex was taken from the PR sex variable. Educational attainment was classified as no education, primary, secondary, or higher. County or region of residence (`hv024`) was used for geographic descriptives but not included in adjusted models to avoid over-parameterisation. These covariates were selected a priori from prior Kenya insurance-equity analyses and their policy relevance to disability inclusion [@kimani2014; @kazungu2017; @barasa2021].
+Sex, age group (18-29, 30-44, 45-59, 60+) and place of residence (`hv025`) were treated as confounders of the disability contrast: they are fixed or precede functional difficulty in adulthood. Wealth quintile (`hv270`) and educational attainment (`hv106`) were treated as plausible mediators rather than confounders. For a population whose functional difficulty is largely lifelong or acquired well before the survey, disability restricts schooling and earning capacity, which then determine the ability to pay a contributory premium; conditioning on them estimates an association net of that pathway and not a better-confounded total association. Both roles are reported side by side rather than one being chosen. County (`hv024`) was not entered in the models: the long-questionnaire subsample is not powered for 47-county fixed effects in the disability stratum, and no county-level estimates are reported.
 
 ## Statistical analysis
 
-All analyses incorporated the DHS complex sample design using the primary sampling unit (`hv021`), sampling strata (`hv022`), and household-member sample weights (`hv005` divided by 1,000,000) [@kdhs2022report; @dhsguide2023]. We first described the long-questionnaire adult sample by WG disability status using weighted proportions or means with 95% confidence intervals. We then estimated weighted prevalence of insurance coverage, NHIF coverage, outpatient use in the previous four weeks, hospitalisation in the previous 12 months, and payment at the last outpatient visit across disability severity groups and functional domains.
+All estimates used the complex design: PSU (`hv021`), stratum (`hv022`) and household-member weight (`hv005`/1,000,000), with `nest = TRUE`. The analytic base contains `r fmt_count(key_results$design_metadata$psu_n)` PSUs in `r key_results$design_metadata$strata_n` strata, giving `r fmt_count(key_results$design_metadata$design_df)` design degrees of freedom. Strata containing a single PSU were handled with the centring adjustment (`options(survey.lonely.psu = "adjust")`). Confidence intervals for proportions were logit-transformed, which keeps small-domain intervals inside the unit interval; intervals for regression coefficients use the survey degrees of freedom rather than a normal approximation.
 
-For adjusted analyses, we fitted survey-weighted generalised linear models with a quasi-Poisson family and log link to estimate adjusted prevalence ratios (APR) for being uninsured among adults meeting the WG disability threshold. The quasi-Poisson log-link specification was used because uninsured status is common and odds ratios would overstate prevalence differences [@zou2004]. A second model estimated APR for paying at the last outpatient visit among recent outpatient users with disability, additionally adjusting for insurance status. Both models adjusted for sex, age group, wealth quintile, place of residence, educational attainment, and disability severity. Analyses were conducted in R version 4.5.1 using the `survey` package for complex survey estimation [@lumley2010].
+Prevalence ratios were estimated with survey-weighted quasi-Poisson models with a log link, which is appropriate where the outcome is common [@zou2004]. For each of the three whole-sample outcomes we fitted the crude model, a confounder-adjusted model (sex, age group, residence) and a fully adjusted model adding wealth and education, and report both the prevalence ratio and the marginal standardised difference in percentage points, computed by g-computation over the covariate distribution of the analytic sample with delta-method confidence limits.
+
+Severity was tested with prespecified contrasts between adjacent categories, estimated on the linear predictor and exponentiated, together with a design-based global Wald test of the severity term. Overlapping confidence intervals were not used as a test, and no equivalence claim is made, since no equivalence margin was prespecified.
+
+Amounts paid were summarised as survey-weighted medians and means with confidence intervals, and modelled as ratios of geometric means using a survey-weighted linear model on the log amount, given the strong right skew. The payer split was summarised as the proportion of payers for whom an insurer met any part of the bill and as the mean cash share of the reported amounts.
+
+Two analyses condition on having used outpatient care or on having paid. Because disability, insurance, wealth and need all influence care-seeking, these are descriptive associations among the selected group and are not interpretable as effects of insurance; this is stated wherever they are reported.
+
+Prespecified sensitivity analyses covered the coding of "don't know" insurance responses, the multi-domain alternative to the severity summary, and a comparison of adults included in and excluded from the fully adjusted model. Analyses followed the DHS guidance on weighting and design-based estimation [@dhsguide2023] and used R 4.5.1 with `survey` 4.4.2, `tidyverse` 2.0.0, `flextable` 0.9.9 and `officer` 0.6.10 [@lumley2010]; scripts and session information are in the public repository.
 
 ## Ethical considerations
 
-This study used publicly available, de-identified secondary data from KDHS 2022. The original survey received ethical approval from the Kenya Medical Research Institute Scientific and Ethics Review Unit and from the ICF Institutional Review Board. No new participant contact occurred in this secondary analysis; accordingly, no additional ethical review was required.
+This study used de-identified secondary data from KDHS 2022, obtained from The DHS Program under an approved data request. The original survey was approved by the Kenya Medical Research Institute Scientific and Ethics Review Unit and the ICF Institutional Review Board. No new participant contact occurred and no additional ethical approval was required.
 
 # Results
 
-## Study population characteristics
+## Participant flow and sample characteristics
 
-The main analytic sample comprised `r format(key_results$sample_long_questionnaire, big.mark = ",")` adults from `r format(key_results$sample_households_long_questionnaire, big.mark = ",")` long-questionnaire households with complete WG-SS disability classification. Overall, `r fmt_inline_pct(key_results$any_functional_difficulty)` of adults reported any functional difficulty and `r fmt_inline_pct(key_results$wg_disability)` met the WG disability threshold. Adults meeting the WG threshold were markedly older than adults without disability (mean age `r table1$WG_stat[table1$Characteristic == "Mean age, years (95% CI)"]` versus `r table1$NoWG_stat[table1$Characteristic == "Mean age, years (95% CI)"]`), were more likely to live in rural areas, and were more concentrated in the two poorest wealth quintiles (Table 1). Walking and seeing were the most prevalent threshold domains in the full sample, while communication was the least prevalent.
+Of `r fmt_count(key_results$sample_flow$n[key_results$sample_flow$step == "Raw PR records"])` records in the PR file, `r fmt_count(key_results$sample_flow$n[2])` were adult usual residents with complete design variables, of whom `r fmt_count(key_results$sample_flow$n[3])` were in short-questionnaire households where the modules were not administered. The analytic base was `r fmt_count(key_results$sample_long_questionnaire)` adults in `r fmt_count(key_results$sample_households_long_questionnaire)` long-questionnaire households with complete WG-SS data (Table S1). Item missingness within that base was below 1% for every outcome and covariate (Table S2); adults excluded from the fully adjusted insurance model (`r fmt_count(key_results$inclusion_comparison$n[key_results$inclusion_comparison$included == 0])`, `r sprintf("%.1f%%", 100 * key_results$inclusion_comparison$n[key_results$inclusion_comparison$included == 0] / key_results$sample_long_questionnaire)`) were similar in age to those included (mean `r sprintf("%.1f", key_results$inclusion_comparison$mean_age[key_results$inclusion_comparison$included == 0])` versus `r sprintf("%.1f", key_results$inclusion_comparison$mean_age[key_results$inclusion_comparison$included == 1])` years) but less often rural (`r sprintf("%.0f%%", key_results$inclusion_comparison$pct_rural[key_results$inclusion_comparison$included == 0])` versus `r sprintf("%.0f%%", key_results$inclusion_comparison$pct_rural[key_results$inclusion_comparison$included == 1])`).
+
+`r fmt_inline_pct(key_results$any_functional_difficulty)` of adults reported any functional difficulty and `r fmt_inline_pct(key_results$wg_disability)` met the WG threshold. Adults at the threshold were much older than adults below it (mean age `r table1$WG_stat[table1$Characteristic == "Mean age, years (95% CI)"]` versus `r table1$NoWG_stat[table1$Characteristic == "Mean age, years (95% CI)"]` years), more often rural, and concentrated in the poorer quintiles (Table 1). That imbalance is the reason the disability contrasts below are reported under more than one adjustment set.
 
 ```{r}
 #| label: tbl-1
@@ -241,8 +343,8 @@ The main analytic sample comprised `r format(key_results$sample_long_questionnai
 publication_flextable(
   table1,
   footer_lines = c(
-    "Source: Kenya DHS 2022. Survey-weighted estimates.",
-    "Table 1 is restricted to adult usual residents in the PR long-questionnaire subsample with complete WG-SS classification."
+    "Source: Kenya DHS 2022. Percentages are weighted column percentages; n is the unweighted count in that category.",
+    "Restricted to adult usual residents in the long-questionnaire subsample with complete WG-SS classification."
   ),
   header_labels = table_specs$table1$header_labels,
   spanner_values = table_specs$table1$spanner_values,
@@ -250,11 +352,11 @@ publication_flextable(
 )
 ```
 
-## Insurance coverage by disability severity and functional domain
+## Insurance coverage across the severity gradient
 
-Insurance coverage declined with disability severity. Any insurance coverage was `r table2$AnyInsurance[table2$Characteristic == "  No functional difficulty"]` among adults with no functional difficulty, `r table2$AnyInsurance[table2$Characteristic == "  Mild functional difficulty"]` among adults with mild functional difficulty, `r table2$AnyInsurance[table2$Characteristic == "  Moderate functional difficulty"]` among adults with moderate functional difficulty, and `r table2$AnyInsurance[table2$Characteristic == "  Severe functional difficulty"]` among adults with severe functional difficulty. NHIF coverage followed the same gradient, falling from `r table2$NHIF[table2$Characteristic == "  No functional difficulty"]` to `r table2$NHIF[table2$Characteristic == "  Severe functional difficulty"]`. Adults meeting the WG disability threshold had lower overall insurance coverage than adults without disability (`r fmt_inline_pct(key_results$disability_insurance)` versus `r fmt_inline_pct(key_results$no_disability_insurance)`).
+Unadjusted coverage fell across severity categories, from `r table2$AnyInsurance[table2$Characteristic == "  No functional difficulty"]` at no difficulty to `r table2$AnyInsurance[table2$Characteristic == "  Severe functional difficulty"]` at severe difficulty, with NHIF tracking any insurance closely at every level (Table 2, Figure 1). Tested directly rather than read off overlapping intervals, the gradient is a single step. Coverage at mild difficulty did not differ from coverage at no difficulty (`r fmt_severity("crude", "Mild vs no difficulty")`); the step from mild to moderate did (`r fmt_severity("crude", "Moderate vs mild")`); and the further step from moderate to severe did not (`r fmt_severity("crude", "Severe vs moderate")`). The design-based global test of severity was significant unadjusted (`r fmt_global("crude")`) and after adjustment for sex, age group and residence (`r fmt_global("confounder")`), but not after wealth and education were added (`r fmt_global("full")`), where every adjacent contrast was null (Table S3). The multi-domain alternative behaved the same way: relative to no domain at threshold, the fully adjusted uninsured APR was `r fmt_apr_row(key_results$domain_burden, "domain_burdenOne domain at threshold")` for one domain and `r fmt_apr_row(key_results$domain_burden, "domain_burdenTwo or more domains at threshold")` for two or more (global p = `r sprintf("%.2f", key_results$domain_burden_global$p_value)`).
 
-Among adults meeting the WG disability threshold, insurance coverage also varied by functional domain. Communication limitation showed the lowest any-insurance coverage (`r fmt_pct_ci(lowest_domain_coverage$any_insurance_est, lowest_domain_coverage$any_insurance_ci_low, lowest_domain_coverage$any_insurance_ci_high)`), while walking limitation showed the highest (`r fmt_pct_ci(highest_domain_coverage$any_insurance_est, highest_domain_coverage$any_insurance_ci_low, highest_domain_coverage$any_insurance_ci_high)`). Figure 1 shows the severity gradient for any insurance and NHIF coverage.
+Because NHIF accounted for most cover, private and community schemes did not offset the gradient at any severity level. Among adults at the WG threshold, coverage also varied by domain, from `r fmt_pct_ci(lowest_domain_coverage$any_insurance_est, lowest_domain_coverage$any_insurance_ci_low, lowest_domain_coverage$any_insurance_ci_high)` for communication difficulty to `r fmt_pct_ci(highest_domain_coverage$any_insurance_est, highest_domain_coverage$any_insurance_ci_low, highest_domain_coverage$any_insurance_ci_high)` for walking difficulty; these domain estimates are descriptive, non-mutually exclusive and were not contrasted formally.
 
 ```{r}
 #| label: tbl-2
@@ -262,144 +364,163 @@ Among adults meeting the WG disability threshold, insurance coverage also varied
 publication_flextable(
   table2,
   footer_lines = c(
-    "Source: Kenya DHS 2022. Survey-weighted estimates.",
-    "Domain rows are non-mutually exclusive and are restricted to adults meeting the WG disability threshold."
+    "Source: Kenya DHS 2022. Survey-weighted estimates with logit-transformed 95% confidence intervals.",
+    "Domain rows are non-mutually exclusive and are restricted to adults meeting the WG disability threshold.",
+    "Adjacent severity categories are contrasted formally in Table S3; the intervals in this table are not a test of the differences between rows."
   ),
   header_labels = table_specs$table2$header_labels
 )
 ```
 
-
-The severity gradient in @tbl-2 is not linear, and Figure 1 makes the shape of it explicit. Coverage
-among adults with mild functional difficulty is statistically indistinguishable from coverage among
-adults with no difficulty, and the confidence intervals for the two groups overlap almost entirely.
-The coverage penalty appears only from moderate difficulty onward, and deepens at severe difficulty,
-where roughly one adult in five holds any cover. The practical implication is that a severity
-threshold, rather than the presence of any functional difficulty, marks the point at which the
-financing system begins to fail this population.
-
-Figure 1 also shows that the NHIF series tracks the any-insurance series closely at every severity
-level, with the two never separating by more than a few percentage points. Because NHIF accounted for
-the large majority of cover in this period, private and community schemes did not compensate for the
-gradient at any level of severity: adults with more severe functional difficulty were not offsetting
-lower NHIF enrolment by purchasing cover elsewhere. Falling NHIF enrolment is therefore the mechanism
-behind the whole gradient, which is directly relevant to the exemption pathway SHA inherits.
-
 ```{r}
 #| label: fig-1
-#| fig-cap: "Insurance coverage by Washington Group Short Set disability severity among adults aged 18 years and above in Kenya, KDHS 2022. Bars show survey-weighted prevalence and error bars indicate 95% confidence intervals."
+#| fig-cap: "Insurance coverage by Washington Group Short Set disability severity among adults aged 18 years and above in Kenya, KDHS 2022. Bars show survey-weighted prevalence and error bars indicate logit-transformed 95% confidence intervals."
 #| fig-width: 7
 #| fig-height: 4
 knitr::include_graphics(file.path("..", "05_figures", "Figure1_Insurance_By_Disability_Severity.png"))
 ```
 
-## Service utilisation patterns by disability status
+## The disability contrast under three adjustment sets
 
-Service use was higher among adults with disability. Outpatient use in the previous four weeks was `r fmt_inline_pct(key_results$disability_outpatient)` among adults meeting the WG disability threshold, compared with `r fmt_inline_pct(key_results$no_disability_outpatient)` among adults without disability. Hospitalisation in the previous 12 months showed a similar contrast: `r fmt_inline_pct(key_results$disability_inpatient)` versus `r fmt_inline_pct(key_results$no_disability_inpatient)`.
+Adults at the WG threshold were more likely to be uninsured than adults below it, unadjusted (`r fmt_contrast_apr("uninsured", "crude")`) and after adjustment for sex, age group and residence (`r fmt_contrast_apr("uninsured", "confounder")`, a standardised difference of `r fmt_contrast_pp_plain("uninsured", "confounder")`). Adding wealth quintile and educational attainment removed the association (`r fmt_contrast_apr("uninsured", "full")`; standardised difference `r fmt_contrast_pp_plain("uninsured", "full")`). The crude coverage deficit is therefore accounted for, statistically, by the age and socioeconomic composition of the disability population, and specifically by wealth and education rather than by age: adjusting for age alone left the association intact.
 
-Among recent outpatient users, payment for the most recent visit was reported by `r fmt_inline_pct(key_results$disability_payment)` of adults with disability and `r fmt_inline_pct(key_results$no_disability_payment)` of adults without disability. Within the disability subpopulation, payment prevalence was effectively unchanged by insurance status: `r fmt_inline_pct(key_results$disability_payment_insured)` among insured outpatient users versus `r fmt_inline_pct(key_results$disability_payment_uninsured)` among uninsured outpatient users. Figure 2 shows the same pattern across moderate and severe disability severity categories.
+The two utilisation contrasts behaved differently. Outpatient use in the previous four weeks was higher among adults at the threshold in every specification (crude `r fmt_contrast_apr_short("outpatient_last4w", "crude")`; confounder-adjusted `r fmt_contrast_apr_short("outpatient_last4w", "confounder")`; fully adjusted `r fmt_contrast_apr_short("outpatient_last4w", "full")`), as was hospitalisation in the previous 12 months (fully adjusted `r fmt_contrast_apr_short("inpatient_last12m", "full")`, a standardised difference of `r fmt_contrast_pp_plain("inpatient_last12m", "full")`). Table 3 and Figure 2 set the three outcomes side by side.
 
 ```{r}
 #| label: tbl-3
-#| tbl-cap: "Weighted service utilisation and payment at the last outpatient visit by Washington Group Short Set disability status and insurance coverage, adults aged 18 years and above, KDHS 2022."
+#| tbl-cap: "Prevalence ratios and standardised prevalence differences for adults meeting the Washington Group Short Set disability threshold compared with adults below it, whole adult sample, KDHS 2022."
 publication_flextable(
   table3,
   footer_lines = c(
-    "Source: Kenya DHS 2022. Survey-weighted estimates.",
-    "Payment estimates are restricted to recent outpatient users within each row group."
+    "Source: Kenya DHS 2022. Survey-weighted quasi-Poisson models with a log link; confidence limits use the survey degrees of freedom.",
+    "Standardised differences are marginal contrasts in percentage points over the covariate distribution of the analytic sample, with delta-method confidence limits.",
+    "Wealth and education are plausibly downstream of lifelong functional difficulty, so the third row of each block estimates an association net of that pathway rather than a more completely confounder-adjusted one."
   ),
   header_labels = table_specs$table3$header_labels
 )
 ```
 
-
-Figure 2 decomposes the payment result in @tbl-3 by severity, and its most informative feature is how
-little movement there is. Across both moderate and severe functional difficulty, and across insured and
-uninsured users alike, the proportion paying at the last outpatient visit sits within about one
-percentage point of 90%. Insurance status does not shift payment at either severity level, and neither
-does severity shift it within insurance categories. Whatever the insured members of this population
-obtained from their cover, it was not protection from paying at the point of outpatient contact.
-
-The estimate for insured adults with severe functional difficulty rests on 19 respondents and its
-confidence interval is correspondingly wide, so that cell should not be read as a precise estimate. It
-is retained because it is the only direct observation of the group the SHA exemption pathway is
-designed for, and because its point estimate is consistent with the three better-measured cells rather
-than in tension with them. The flatness of the pattern, not the value of any single bar, is the finding.
-
 ```{r}
 #| label: fig-2
-#| fig-cap: "Payment at the last outpatient visit by disability severity and insurance status among adult outpatient users with disability in Kenya, KDHS 2022. Bars show survey-weighted proportions and error bars indicate 95% confidence intervals."
+#| fig-cap: "Prevalence ratios for adults at the Washington Group disability threshold versus adults below it, by adjustment set, KDHS 2022. Points show prevalence ratios and horizontal bars 95% confidence intervals on a log scale."
 #| fig-width: 7
-#| fig-height: 5
-knitr::include_graphics(file.path("..", "05_figures", "Figure2_Outpatient_Payment_By_Severity_Insurance.png"))
+#| fig-height: 5.4
+knitr::include_graphics(file.path("..", "05_figures", "Figure2_Disability_Contrast_By_Adjustment.png"))
 ```
 
-## Multivariable predictors of insurance exclusion among persons with disability
+## Service use and payment at outpatient contact
 
-Table 4 presents adjusted prevalence ratios from the survey-weighted quasi-Poisson model for uninsured status among adults meeting the WG disability threshold (`r format(key_results$uninsured_model_n, big.mark = ",")`). Wealth quintile was the dominant predictor of insurance exclusion. Compared with adults with disability in the richest quintile, uninsured prevalence was higher in the richer quintile (APR `r fmt_inline_apr(key_results$model_uninsured, "wealthRicher")`; `r fmt_inline_p_clause(key_results$model_uninsured, "wealthRicher")`), middle quintile (APR `r fmt_inline_apr(key_results$model_uninsured, "wealthMiddle")`; `r fmt_inline_p_clause(key_results$model_uninsured, "wealthMiddle")`), poorer quintile (APR `r fmt_inline_apr(key_results$model_uninsured, "wealthPoorer")`; `r fmt_inline_p_clause(key_results$model_uninsured, "wealthPoorer")`), and poorest quintile (APR `r fmt_inline_apr(key_results$model_uninsured, "wealthPoorest")`; `r fmt_inline_p_clause(key_results$model_uninsured, "wealthPoorest")`).
+Outpatient use was `r fmt_inline_pct(key_results$disability_outpatient)` among adults at the WG threshold and `r fmt_inline_pct(key_results$no_disability_outpatient)` among adults below it; hospitalisation was `r fmt_inline_pct(key_results$disability_inpatient)` and `r fmt_inline_pct(key_results$no_disability_inpatient)` respectively (Table 4).
 
-Older age was associated with lower uninsured prevalence than age 18-29, while female sex was not independently associated with insurance exclusion (APR `r fmt_inline_apr(key_results$model_uninsured, "sexWomen")`; `r fmt_inline_p_clause(key_results$model_uninsured, "sexWomen")`). Rural residence was associated with slightly lower uninsured prevalence than urban residence after adjustment (APR `r fmt_inline_apr(key_results$model_uninsured, "residenceRural")`; `r fmt_inline_p_clause(key_results$model_uninsured, "residenceRural")`), and severe functional difficulty was not independently associated with higher uninsured prevalence relative to moderate difficulty (APR `r fmt_inline_apr(key_results$model_uninsured, "wg_severitySevere functional difficulty")`; `r fmt_inline_p_clause(key_results$model_uninsured, "wg_severitySevere functional difficulty")`).
-
-In the outpatient-payment model among recent outpatient users with disability (`r format(key_results$payment_model_n, big.mark = ",")`), any insurance was not statistically associated with lower payment prevalence (APR `r fmt_inline_apr(key_results$model_payment, "insured_any")`; `r fmt_inline_p_clause(key_results$model_payment, "insured_any")`), consistent with the descriptive results.
+Among adults who used outpatient care, payment of some amount was close to universal: `r fmt_inline_pct(key_results$disability_payment)` of those with disability and `r fmt_inline_pct(key_results$no_disability_payment)` of those without. Within the disability group, payment incidence was `r fmt_inline_pct(key_results$disability_payment_insured)` among insured users and `r fmt_inline_pct(key_results$disability_payment_uninsured)` among uninsured users (Figure 3). In the whole-sample model among outpatient users, holding any insurance was not associated with a lower probability of paying (APR `r fmt_inline_apr(key_results$model_payment_whole, "insured_any")`; `r fmt_inline_p_clause(key_results$model_payment_whole, "insured_any")`). Because `r sprintf("%.0f%%", 100 * key_results$payment_outcome_counts$weighted_paid)` of users paid something, this outcome has little room to discriminate, and these estimates condition on having sought care.
 
 ```{r}
 #| label: tbl-4
-#| tbl-cap: "Survey-weighted adjusted prevalence ratios for uninsured status and outpatient payment among adults meeting the Washington Group Short Set disability threshold, KDHS 2022."
+#| tbl-cap: "Weighted service utilisation and payment at the last outpatient visit by disability status and insurance coverage, adults aged 18 years and above, KDHS 2022."
 publication_flextable(
   table4,
   footer_lines = c(
-    "Source: Kenya DHS 2022. Survey-weighted estimates.",
-    "Uninsured model: adults meeting the WG disability threshold. Payment model: adults meeting the WG disability threshold who used outpatient care in the previous four weeks. Both models used quasi-Poisson regression with log link."
+    "Source: Kenya DHS 2022. Survey-weighted estimates; n is the unweighted denominator for the adjacent column.",
+    "Utilisation is estimated among all adults in the row group; payment only among those who used outpatient care in the previous four weeks.",
+    "Payment records whether any money was paid, not how much. Amounts and payers are in Table 5."
   ),
   header_labels = table_specs$table4$header_labels
 )
 ```
 
+```{r}
+#| label: fig-3
+#| fig-cap: "Payment at the last outpatient visit by disability severity and insurance status among adult outpatient users with disability in Kenya, KDHS 2022. Bars show survey-weighted proportions and error bars logit-transformed 95% confidence intervals; the shaded bar rests on fewer than 30 respondents."
+#| fig-width: 7
+#| fig-height: 5
+knitr::include_graphics(file.path("..", "05_figures", "Figure3_Outpatient_Payment_By_Severity_Insurance.png"))
+```
+
+## What was paid, and who paid it
+
+The amount data locate the financial-protection question more precisely than the incidence data can (Table 5). Among `r fmt_count(key_results$cost_payers_n)` adults who paid and reported an amount, the median gross cost of the visit was `r fmt_money_row("WG disability, insured", "median")` KSh for insured adults with disability and `r fmt_money_row("WG disability, uninsured", "median")` KSh for uninsured adults with disability. The cash amount, the part met out of pocket, was `r fmt_money_row("WG disability, insured", "cash_median")` KSh and `r fmt_money_row("WG disability, uninsured", "cash_median")` KSh respectively. Adjusted for sex, age group, residence, wealth and education, adults with disability paid `r fmt_ratio_row(key_results$cost_model, "wg_disability")` times as much in gross terms as adults without disability (n = `r fmt_count(key_results$cost_model_n)`), and insured adults paid `r fmt_ratio_row(key_results$cost_model, "insured_any")` times as much as uninsured adults; on the cash amount the corresponding ratios were `r fmt_ratio_row(key_results$cash_model, "wg_disability")` and `r fmt_ratio_row(key_results$cash_model, "insured_any")`.
+
+The payer split explains why holding cover changed so little. Among insured adults with disability who paid, an insurer met any part of the bill for `r fmt_pct_row(key_results$payer_source_summary, "WG disability, insured", "insurer")`, and the mean cash share of the reported amounts was `r fmt_pct_row(key_results$payer_source_summary, "WG disability, insured", "cash")`. Among all insured payers the insurer contribution was `r fmt_pct_row(key_results$payer_source_summary, "No WG disability, insured", "insurer")`. Among uninsured adults with disability, no respondent reported any insurer contribution, as expected.
+
+```{r}
+#| label: tbl-5
+#| tbl-cap: "Amount paid at the last outpatient visit and the source of that payment, among adults who used outpatient care in the previous four weeks and reported paying, KDHS 2022."
+publication_flextable(
+  table5,
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Survey-weighted estimates; amounts are Kenyan shillings at the time of the survey.",
+    "Restricted to respondents who reported paying, which is the questionnaire's own skip pattern for these items. Estimates describe the size and source of a payment among those who made one.",
+    "The amount is the gross cost of the visit (sh304); the cash figure is the part met out of pocket (sh305a). Insurer contribution is any non-zero amount met by NHIF or private insurance.",
+    "KDHS does not collect household consumption, so catastrophic health expenditure cannot be constructed from these data."
+  ),
+  header_labels = table_specs$table6$header_labels
+)
+```
+
+## Variation within the disability population
+
+Within the population of adults at the WG threshold (`r fmt_count(key_results$uninsured_model_n)`), wealth dominated the adjusted model for uninsured status: compared with the richest quintile, uninsured prevalence was higher in the richer (APR `r fmt_inline_apr(key_results$model_uninsured, "wealthRicher")`), middle (`r fmt_inline_apr(key_results$model_uninsured, "wealthMiddle")`), poorer (`r fmt_inline_apr(key_results$model_uninsured, "wealthPoorer")`) and poorest (`r fmt_inline_apr(key_results$model_uninsured, "wealthPoorest")`) quintiles. Older age was associated with lower uninsured prevalence, and severe difficulty was not associated with higher uninsured prevalence than moderate difficulty (`r fmt_inline_apr(key_results$model_uninsured, "wg_severitySevere functional difficulty")`; `r fmt_inline_p_clause(key_results$model_uninsured, "wg_severitySevere functional difficulty")`). In the corresponding payment model among outpatient users with disability (`r fmt_count(key_results$payment_model_n)`), insurance was not associated with payment incidence (`r fmt_inline_apr(key_results$model_payment, "insured_any")`; `r fmt_inline_p_clause(key_results$model_payment, "insured_any")`). These are contrasts across prevalence-ratio scales within one subpopulation and are not comparable measures of importance across variables.
+
+```{r}
+#| label: tbl-6
+#| tbl-cap: "Survey-weighted adjusted prevalence ratios for uninsured status and for any payment at the last outpatient visit within the population of adults meeting the Washington Group Short Set disability threshold, KDHS 2022."
+publication_flextable(
+  table6,
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Survey-weighted quasi-Poisson models with a log link; confidence limits use the survey degrees of freedom.",
+    "These models describe variation within the disability subpopulation; the disability contrast itself is in Table 3.",
+    "The payment model conditions on having used outpatient care, which is itself associated with disability, insurance and wealth, so its estimates are descriptive associations among users."
+  ),
+  header_labels = table_specs$table5$header_labels
+)
+```
+
+## Sensitivity analyses
+
+Grouping "don't know" insurance responses with the uninsured left both the confounder-adjusted (`r fmt_apr_row(key_results$sensitivity_dk %>% dplyr::filter(specification == "confounder"), "wg_disability")`) and the fully adjusted (`r fmt_apr_row(key_results$sensitivity_dk %>% dplyr::filter(specification == "full"), "wg_disability")`) disability contrasts unchanged. The domain-count specification of disability burden gave the same null after full adjustment as the severity summary. Adults excluded from the fully adjusted model for missing covariates differed little from those included.
+
 # Discussion
 
 ## Principal findings
 
-This study provides a nationally representative pre-SHA baseline on disability, insurance coverage, service use, and payment at outpatient contact in Kenya, using the Washington Group Short Set embedded in KDHS 2022. Four findings matter most.
+Four findings stand, and the differences between them matter more than any one of them.
 
-First, insurance coverage was lower among adults with disability than among adults without disability, and declined across the disability-severity gradient. Second, that gradient has a threshold rather than a slope: coverage at mild functional difficulty was indistinguishable from coverage at no difficulty, and the deficit emerged only from moderate difficulty onward. Third, adults with disability reported higher outpatient use and hospitalisation, indicating greater healthcare need alongside lower coverage. Fourth, payment at outpatient contact remained very common even among insured adults with disability, so nominal coverage was not accompanied by meaningful financial protection at the point of care.
+First, the crude coverage deficit among adults with disability is real as a description and does not survive adjustment for wealth and education. Uninsured prevalence was higher at the WG threshold unadjusted and after adjustment for sex, age group and residence, a standardised difference of about `r sprintf("%.0f", 100 * key_results$contrast("uninsured", "confounder")$standardised_difference)` percentage points, and the association disappeared when wealth and education entered the model. Because those two variables are plausibly consequences of lifelong functional difficulty rather than causes of it, the honest reading is not that disability is irrelevant to coverage but that its association with coverage operates through economic position. Adjusting for age alone did not weaken the association, which rules out the simplest alternative explanation.
 
-A fifth observation cuts across these. The descriptive severity gradient and the adjusted model tell different stories, and both are true. Severity predicts coverage when nothing else is held constant, but once age, education, residence, and wealth are accounted for, socioeconomic position rather than severity carries the association. Disability in Kenya is therefore not an independent axis of insurance exclusion so much as an amplifier of the existing socioeconomic one, layered on top of higher need.
+Second, the severity pattern is a single step, not a slope, and it is a compositional step. The only adjacent contrast that reached significance was mild to moderate, and no contrast survived adjustment for wealth and education. The earlier reading of these data as showing a severity threshold at which the financing system fails is not supported by a formal test.
+
+Third, adults with disability used more care, and this contrast survived every specification: about 63% higher outpatient use and about twice the hospitalisation prevalence after full adjustment. Greater need is not explained away by composition in the way that lower coverage is.
+
+Fourth, at the point of care, insurance rarely paid. Nearly every outpatient user paid something regardless of cover, and among insured adults with disability who paid, an insurer met any part of the bill in roughly one case in seven. Insured adults with disability also paid larger amounts, both gross and in cash, which is consistent with insured users reaching higher-level or costlier providers rather than with cover reducing what they pay there.
 
 ## Relation to existing evidence
 
-Kenyan analyses of insurance coverage have established that cover is socially patterned and pro-rich [@kimani2014; @kazungu2017; @barasa2021], and cross-country work has shown the same for contributory schemes across sub-Saharan Africa. Those analyses treat disability, where they consider it at all, as one covariate among several. Here disability is the organising equity dimension, and coverage, service use, and payment at the point of care are observed within a single consistent adult sample.
+The socioeconomic patterning of coverage reproduces what earlier Kenyan and cross-country analyses have found [@kimani2014; @kazungu2017; @barasa2021; @alhajeri2026]. The contribution here is the disability stratification and the joint treatment of coverage, use and payment in one adult sample, not the discovery that coverage is pro-rich.
 
-Three results bear directly on how the SHA exemption pathway should be read. The severity threshold locates the coverage deficit at moderate functional difficulty and above rather than at any reported difficulty. The parallel tracking of NHIF and any-insurance coverage across severity levels indicates that private and community schemes did not absorb adults whom NHIF did not reach, so the gradient SHA inherits is an NHIF gradient. And the absence of an association between holding insurance and paying at the last outpatient visit, within the disability subpopulation, points to benefit realisation rather than enrolment as the binding constraint.
+The payment results should be read alongside the coarsened exact matching analysis of the same survey, which found that insured people had substantially higher gross expenditure but lower net out-of-pocket payment after reimbursement was taken into account [@okova2026]. Our gross finding agrees with theirs. Our net finding does not point the same way: conditional on having paid, and adjusted for socioeconomic position, insured adults still reported larger cash amounts. The two analyses answer different questions, ours conditional on a payment having been made and theirs on matched samples including those who paid nothing, so they are complementary rather than contradictory, and the divergence marks where more work is needed. What both establish is that an insurance indicator and a payment indicator are not substitutes for one another.
 
-SHA began operating on 1 October 2024, so KDHS 2022 is the last nationally representative measurement before the transition. The baseline against which the exemption pathway will be judged cannot now be re-collected.
+The qualitative finding that Kenyan pro-poor financing schemes can enrol poor women with disabilities and still leave them paying at the facility [@kabia2018] is reproduced here at national scale and with an amount attached. It also sits within a longer Kenyan record of NHIF membership delivering incomplete financial protection and uneven benefit access, documented in the fund's own reform history [@barasa2018], in analyses of coverage and out-of-pocket costs among chronically ill and older populations [@mbau2020; @oyando2023], and in facility-level work on medicine availability and chronic-care readiness [@otieno2023]. Our payer split gives that record a mechanism at the point of contact: for most insured users who paid, the scheme contributed nothing to the bill in front of them.
 
-## Exclusion runs through socioeconomic position, not severity alone
+## Implications for the SHA transition
 
-The insurance results are consistent with earlier Kenya and sub-Saharan African evidence showing that contributory insurance systems tend to favour older, wealthier, and more socioeconomically advantaged groups [@kimani2014; @kazungu2017; @barasa2021]. In the adjusted model, the strongest predictor of being uninsured within the disability subpopulation was not severity itself but socioeconomic position. Once age, education, residence, and severity were taken into account, the richest-poorest gradient remained steep, while severe versus moderate disability was not independently associated with higher uninsured prevalence. That pattern suggests that pre-SHA insurance exclusion among adults with disability was driven largely through the same structural channels seen in the wider population, but with higher healthcare need layered on top.
+The Social Health Insurance Act 2023 routes support for people who cannot pay through means testing of the household, not through a disability category [@kenya2023sha; @kenya2024shiregs]. Our results are consistent with that design in one respect and awkward for it in another. They are consistent with it in that the coverage deficit associated with disability runs through household economic position, which is what a means-tested premium subsidy targets. They are awkward for it in that the WG-SS threshold, the instrument used to identify disability in population surveys, is not the instrument used to identify eligibility administratively, and KDHS records neither certification under the Persons with Disabilities Act nor programme enrolment [@kenya2025pda]. Nothing in these data indicates how many adults with functional difficulty would be identified by a means test, and no inference of that kind should be drawn from a WG-SS category.
 
-## Implications for the SHA exemption pathway
+The payment results carry a sharper implication. A subsidy that covers a premium addresses the enrolment margin. It does not, on this evidence, address the payment margin, where holding cover was associated with neither a lower probability of paying nor a smaller amount paid. A monitoring framework built on enrolment counts would record a transition from uninsured to enrolled as a success while the household's outlay at the next outpatient visit stayed where it was. Monitoring should therefore track the amount paid and the payer split, both of which KDHS already collects, and not enrolment alone.
 
-The SHA reform is therefore relevant but not automatically sufficient. The Social Health Insurance Act 2023 created an exemption pathway for some persons with severe disability, which directly addresses a clear coverage problem [@kenya2023sha; @nungo2024]. However, our results suggest that implementation should pay close attention to socioeconomic targeting and enrolment reach, because the largest adjusted coverage deficits were concentrated among poorer households. The descriptive severity gradient still matters for policy, but the adjusted findings indicate that severity alone does not explain who remained uninsured before SHA.
-
-## Enrolment is not financial protection
-
-The service-use and payment results point to an equally important gap between enrolment and financial protection. Adults with disability sought care more often, yet payment at the last outpatient visit exceeded 90% among both insured and uninsured outpatient users with disability. That finding aligns with broader Kenyan evidence that NHIF membership did not always translate into reliable financial protection or comprehensive service access [@barasa2018; @mbau2020; @oyando2023]. It also fits facility-level evidence that chronic-care readiness and medicine access remain uneven in Kenya [@otieno2023]. In practical terms, expanding enrolment without improving benefits, medicine availability, and provider payment arrangements would be unlikely to eliminate the financial burden experienced by adults with disability.
-
-The distinction matters for how the exemption pathway should be evaluated. An exemption that waives premiums addresses the enrolment margin, which our adjusted model suggests is principally a question of household resources. It does not by itself address the payment margin, where we observe no difference between insured and uninsured users. If benefit packages, medicine supply, and provider reimbursement remain unchanged, an adult with severe disability moved from uninsured to exempt-and-enrolled would, on this evidence, still expect to pay at the next outpatient visit. Monitoring that counts enrolments alone would record that transition as a success. A monitoring framework that also tracks payment at the point of care would not.
-
-Two features of our results suggest where such monitoring should concentrate. The severity threshold implies that adults with moderate difficulty, who fall outside a severe-disability exemption but already show a measurable coverage deficit, are the group most likely to be missed by a narrowly drawn eligibility rule. And because the coverage gradient is carried almost entirely by NHIF, the administrative systems SHA inherits are the same ones that produced the gradient, which argues for auditing enrolment reach directly rather than assuming that a change of scheme resolves it.
+For rehabilitation and assistive services specifically, these data are silent: KDHS 2022 does not record rehabilitation contacts, assistive product access or therapy costs. What the data do show is that the point-of-care payment barrier that would apply to such services was substantial and was not removed by cover. Establishing whether rehabilitation access moves with the SHA benefit package will require a survey instrument that asks about it.
 
 ## Strengths and limitations
 
-This study has several strengths. KDHS 2022 provides a nationally representative sampling frame, all analyses accounted for the complex survey design, and the WG-SS allowed disability to be analysed as the main equity dimension rather than a peripheral covariate. The long-questionnaire PR file also made it possible to examine insurance, service use, and payment outcomes within one consistent adult sample.
+The strengths are the national sampling frame, the design-based analysis throughout, the use of the WG-SS as the organising equity dimension, and the availability of coverage, use, amount and payer in one consistent adult sample.
 
-Several limitations should be noted. The design was cross-sectional, so associations should be interpreted descriptively rather than causally. The disability, insurance, utilisation, and payment variables were self-reported current-status measures. Insurance and payment modules were observed only in the PR long-questionnaire subsample, and the payment outcome captures whether money was paid at the last outpatient visit, not how much was paid or whether the payment was catastrophic. Disability severity was summarised from the maximum WG domain score, which does not capture multi-domain complexity. Finally, the KDHS PR file does not record disability-certification status, so this study cannot determine how many adults who might qualify for SHA exemption already held the documentation needed to access that pathway.
+The limitations are substantial and shape what can be concluded. The design is cross-sectional, with exposure and outcome measured at the same moment, so no causal claim is made. The data are household-reported and largely proxy-reported, which is likely to matter most for the cognition and communication domains, for less visible difficulty, and for another member's insurance status; the file does not identify which member responded. Wealth and education may be mediators, and if they are, the fully adjusted estimates are not the estimates of interest for a total association; both are reported for that reason. Two analyses condition on care-seeking or on having paid, which can induce selection bias, and neither is interpretable as an effect of insurance. The amount items are asked only of those who paid, so nothing here describes the cost faced by people who did not seek care or who were turned away. KDHS collects no consumption or income measure, so catastrophic and impoverishing expenditure cannot be constructed. Severity is a maximum across domains rather than a validated scale, although the domain-count alternative gave the same answer. Some cells are small, notably insured adults with severe difficulty (n = 19), and are marked in the figures rather than interpreted. Analyses are complete-case, though missingness was under 1%. The modules were administered in half of sampled households, so estimates generalise to adult usual residents represented by that half-sample design, and not to institutionalised populations, people absent from households, or those whose disability prevented reliable proxy report. Finally, the WG-SS threshold is not Kenyan administrative disability certification, and the two should not be treated as interchangeable.
 
 # Conclusions
 
-In KDHS 2022, adults with disability faced a compound inequity before the SHA transition: they were less likely to be insured, more likely to use both outpatient and inpatient care, and still very likely to pay at outpatient contact. Insurance coverage declined across the disability-severity gradient, but the strongest adjusted predictor of being uninsured within the disability subpopulation was wealth rather than severity alone.
+Immediately before the SHA transition, Kenyan adults with disability were less likely to hold insurance, used substantially more outpatient and inpatient care, and paid at the point of care about as often as everyone else. The coverage gap was explained statistically by their older, poorer and less educated composition; the higher use of care was not, and neither was the payment burden. Among insured adults with disability who paid, an insurer met part of the bill in roughly one case in seven.
 
-These findings provide a concrete pre-SHA baseline for monitoring whether disability-inclusive reforms translate into measurable coverage gains and better financial protection. Progress should be judged not only by enrolment counts, but by whether the disability insurance gap narrows and whether insured adults with disability become less likely to pay at the point of care. Without that second step, coverage expansion alone will leave a large financial-protection gap intact.
+Two things follow for monitoring the transition. Enrolment counts will not reveal whether the financing system has begun to work for this population, because enrolment was not what distinguished payers from non-payers. And a disability-specific coverage target may be the wrong instrument if the coverage deficit runs through household poverty, which the Act already means-tests for; the test of the reform is whether the amount paid at the point of care falls, which KDHS is already equipped to measure.
+
 
 # List of abbreviations {.unnumbered}
 
@@ -416,6 +537,8 @@ These findings provide a concrete pre-SHA baseline for monitoring whether disabi
 
 Additional file 1: STROBE checklist.
 
+Additional file 2: Supplementary tables. Table S1, participant flow; Table S2, missing data; Table S3, prespecified contrasts between adjacent Washington Group severity categories.
+
 # Declarations {.unnumbered}
 
 ## Ethics approval and consent to participate {.unnumbered}
@@ -428,7 +551,7 @@ Not applicable.
 
 ## Availability of data and materials {.unnumbered}
 
-KDHS 2022 microdata are available from The DHS Program upon approved request at https://www.dhsprogram.com. Study-specific analysis scripts and supporting files for this study are publicly available at https://github.com/gondamol/Kenya_DHS_Studies/tree/main/ST02_Disability_Insurance_Equity.
+KDHS 2022 microdata are available to registered researchers from The DHS Program following an approved data request at https://www.dhsprogram.com; they are not distributed by the authors. Study-specific analysis scripts and supporting files for this study are publicly available at https://github.com/gondamol/Kenya_DHS_Studies/tree/main/ST02_Disability_Insurance_Equity.
 
 ## Competing interests {.unnumbered}
 

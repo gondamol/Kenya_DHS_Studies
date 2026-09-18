@@ -21,10 +21,17 @@ pr <- haven::read_dta(
   col_select = c(
     hv001, hv002, hvidx, hv102, hv103, hv104, hv105, hv005, hv021, hv022,
     hv024, hv025, hv106, hv270, shshort,
-    sh27, sh28a, sh28b, sh28c, sh29, sh31, sh32,
+    sh27, sh28a, sh28b, sh28c, sh29, sh31, sh32, sh33,
+    sh304, sh305a, sh305b, sh305c, sh305d, sh305e,
     hdis1, hdis2, hdis3, hdis4, hdis5, hdis6, hdis7, hdis8, hdis9
   )
 )
+
+# sh304 (total cost of the last outpatient visit) and sh305a-e (the amount of
+# that cost met in cash, by NHIF, by private insurance, in kind, and by other
+# means) are asked only of respondents who reported paying, so they describe the
+# size and the payer of a payment rather than whether one occurred. They carry
+# the financial-protection analysis that sh32 alone cannot support.
 
 save_rds_output(list(pr = pr), "st02_import_raw.rds")
 

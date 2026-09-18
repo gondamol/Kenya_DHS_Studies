@@ -5,7 +5,10 @@ This folder contains the public reproducible source package for the ST02 study.
 ## Included in version control
 
 - `02_data_notes/`: variable-mapping notes used to document the KDHS 2022 PR disability and insurance items
-- `03_scripts/`: modular analysis workflow
+- `03_scripts/`: modular analysis workflow, run in the order `00_setup.R`, `01_data_import.R`,
+  `02_variable_construction.R`, `03_analysis_main.R` (estimates within the disability subpopulation),
+  `03b_analysis_whole_sample.R` (the disability contrast itself, severity contrasts, outpatient
+  amounts and payers, sensitivity analyses), `04_tables_figures.R`
 - `06_manuscript/`: Quarto manuscript source and bibliography
 
 ## Generated locally, not versioned

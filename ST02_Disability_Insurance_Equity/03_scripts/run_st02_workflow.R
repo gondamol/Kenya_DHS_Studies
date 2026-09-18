@@ -22,4 +22,5 @@ run_section <- function(script_name, section_name) {
 run_section("01_data_import.R", "SECTION 1")
 run_section("02_variable_construction.R", "SECTION 2")
 run_section("03_analysis_main.R", "SECTION 3")
+run_section("03b_analysis_whole_sample.R", "SECTION 3B")
 run_section("04_tables_figures.R", "SECTION 4")

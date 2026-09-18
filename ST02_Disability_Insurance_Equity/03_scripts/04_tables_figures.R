@@ -11,6 +11,9 @@ source(file.path(find_study_root(), "03_scripts", "00_setup.R"), local = TRUE)
 analytic_adults <- readRDS(file.path(paths$derived_dir, "st02_analytic_pr_adults.rds"))
 model_uninsured <- readr::read_csv(file.path(paths$logs_dir, "st02_model_uninsured_disabled.csv"), show_col_types = FALSE)
 model_payment <- readr::read_csv(file.path(paths$logs_dir, "st02_model_paid_outpatient_disabled.csv"), show_col_types = FALSE)
+extended <- readRDS(file.path(paths$derived_dir, "st02_extended_outputs.rds"))
+sample_flow <- readr::read_csv(file.path(paths$logs_dir, "st02_sample_flow.csv"), show_col_types = FALSE)
+missingness <- readr::read_csv(file.path(paths$logs_dir, "st02_missingness.csv"), show_col_types = FALSE)
 
 append_log("Building ST02 manuscript-facing tables, figures, and summary outputs.", also_message = TRUE)
 
@@ -37,6 +40,17 @@ table_groups <- list(
   NoWG = analysis_base %>% dplyr::filter(wg_disability == 0),
   WG = analysis_base %>% dplyr::filter(wg_disability == 1)
 )
+
+model_covariates <- c("sex", "age_group", "wealth", "residence", "education", "wg_severity")
+
+uninsured_model_n_value <- analysis_base %>%
+  dplyr::filter(wg_disability == 1, !is.na(uninsured),
+                !dplyr::if_any(dplyr::all_of(model_covariates), is.na)) %>%
+  nrow()
+
+payment_model_n_value <- payment_disabled_base %>%
+  dplyr::filter(!is.na(insured_any), !dplyr::if_any(dplyr::all_of(model_covariates), is.na)) %>%
+  nrow()
 
 fmt_pvalue <- function(x) {
   ifelse(is.na(x), "", ifelse(x < 0.001, "<0.001", sprintf("%.3f", x)))
@@ -82,8 +96,11 @@ make_sample_row <- function(label, var = NULL, level = NULL, type = c("level", "
       ))
     }
 
+    # For a category row, n is the unweighted count of people in that category,
+    # not the denominator. Reporting the denominator on every row repeated the
+    # same sample size down the table and invited it to be read as a count.
     list(
-      n = format(sum(!is.na(df[[var]])), big.mark = ","),
+      n = format(sum(df[[var]] == level, na.rm = TRUE), big.mark = ","),
       stat = get_binary_stat_string(
         df %>% dplyr::mutate(.indicator = dplyr::if_else(.data[[var]] == level, 1L, 0L, missing = NA_integer_)),
         ".indicator"
@@ -129,9 +146,11 @@ add_section_row <- function(label, table_type = c("table1", "table2", "table3", 
   if (table_type == "table3") {
     return(tibble::tibble(
       AnalysisGroup = label,
-      n = "",
+      OutpatientN = "",
       Outpatient = "",
+      HospitalisationN = "",
       Hospitalisation = "",
+      PaymentN = "",
       Payment = ""
     ))
   }
@@ -233,40 +252,57 @@ table2 <- dplyr::bind_rows(
   table2_domains
 )
 
+# Each column of Table 3 has its own denominator: utilisation is estimated among
+# all adults in the group, payment only among those who used outpatient care in
+# the previous four weeks. A single n column implied one denominator for all
+# three and understated how small the payment cells are.
+make_use_row <- function(label, data_group, payment_group) {
+  outpatient_data <- data_group %>% dplyr::filter(!is.na(outpatient_last4w))
+  inpatient_data <- data_group %>% dplyr::filter(!is.na(inpatient_last12m))
+
+  tibble::tibble(
+    AnalysisGroup = label,
+    OutpatientN = format(nrow(outpatient_data), big.mark = ","),
+    Outpatient = get_binary_stat_string(outpatient_data, "outpatient_last4w"),
+    HospitalisationN = format(nrow(inpatient_data), big.mark = ","),
+    Hospitalisation = get_binary_stat_string(inpatient_data, "inpatient_last12m"),
+    PaymentN = format(nrow(payment_group), big.mark = ","),
+    Payment = get_binary_stat_string(payment_group, "paid_outpatient_recent")
+  )
+}
+
 payment_disabled_by_insurance <- purrr::map_dfr(c(1, 0), function(insured_value) {
   data_use <- payment_disabled_base %>%
     dplyr::filter(insured_any == insured_value)
 
   tibble::tibble(
     AnalysisGroup = ifelse(insured_value == 1, "  Insured", "  Uninsured"),
-    n = format(nrow(data_use), big.mark = ","),
+    OutpatientN = "",
     Outpatient = "",
+    HospitalisationN = "",
     Hospitalisation = "",
+    PaymentN = format(nrow(data_use), big.mark = ","),
     Payment = get_binary_stat_string(data_use, "paid_outpatient_recent")
   )
 })
 
-table3 <- dplyr::bind_rows(
+table_use <- dplyr::bind_rows(
   add_section_row("Disability status", "table3"),
-  tibble::tibble(
-    AnalysisGroup = "  No WG disability",
-    n = format(nrow(table_groups$NoWG), big.mark = ","),
-    Outpatient = get_binary_stat_string(table_groups$NoWG %>% dplyr::filter(!is.na(outpatient_last4w)), "outpatient_last4w"),
-    Hospitalisation = get_binary_stat_string(table_groups$NoWG %>% dplyr::filter(!is.na(inpatient_last12m)), "inpatient_last12m"),
-    Payment = get_binary_stat_string(payment_base %>% dplyr::filter(wg_disability == 0), "paid_outpatient_recent")
+  make_use_row(
+    "  No WG disability",
+    table_groups$NoWG,
+    payment_base %>% dplyr::filter(wg_disability == 0)
   ),
-  tibble::tibble(
-    AnalysisGroup = "  WG disability threshold",
-    n = format(nrow(table_groups$WG), big.mark = ","),
-    Outpatient = get_binary_stat_string(table_groups$WG %>% dplyr::filter(!is.na(outpatient_last4w)), "outpatient_last4w"),
-    Hospitalisation = get_binary_stat_string(table_groups$WG %>% dplyr::filter(!is.na(inpatient_last12m)), "inpatient_last12m"),
-    Payment = get_binary_stat_string(payment_base %>% dplyr::filter(wg_disability == 1), "paid_outpatient_recent")
+  make_use_row(
+    "  WG disability threshold",
+    table_groups$WG,
+    payment_base %>% dplyr::filter(wg_disability == 1)
   ),
-  add_section_row("Insurance status among adults with disability who used outpatient care", "table3"),
+  add_section_row("Insurance status, outpatient users with disability", "table3"),
   payment_disabled_by_insurance
 )
 
-table4_term_order <- c(
+within_term_order <- c(
   "insured_any",
   "sexWomen",
   "age_group30-44",
@@ -283,7 +319,7 @@ table4_term_order <- c(
   "wg_severitySevere functional difficulty"
 )
 
-table4_labels <- tibble::tribble(
+within_labels <- tibble::tribble(
   ~term, ~label,
   "insured_any", "  Any insurance (ref: uninsured)",
   "sexWomen", "  Women (ref: men)",
@@ -315,7 +351,7 @@ model_payment_display <- model_payment %>%
   ) %>%
   dplyr::select(term, PaymentAPR)
 
-table4_body <- table4_labels %>%
+within_body <- within_labels %>%
   dplyr::left_join(model_uninsured_display, by = "term") %>%
   dplyr::left_join(model_payment_display, by = "term") %>%
   dplyr::mutate(
@@ -324,21 +360,21 @@ table4_body <- table4_labels %>%
   ) %>%
   dplyr::select(Characteristic = label, UninsuredAPR, PaymentAPR)
 
-table4 <- dplyr::bind_rows(
+table_within_build <- dplyr::bind_rows(
   add_section_row("Insurance status", "table4"),
-  table4_body %>% dplyr::slice(1),
+  within_body %>% dplyr::slice(1),
   add_section_row("Sex", "table4"),
-  table4_body %>% dplyr::slice(2),
+  within_body %>% dplyr::slice(2),
   add_section_row("Age group (ref: 18-29)", "table4"),
-  table4_body %>% dplyr::slice(3:5),
+  within_body %>% dplyr::slice(3:5),
   add_section_row("Wealth quintile (ref: richest)", "table4"),
-  table4_body %>% dplyr::slice(6:9),
+  within_body %>% dplyr::slice(6:9),
   add_section_row("Place of residence", "table4"),
-  table4_body %>% dplyr::slice(10),
+  within_body %>% dplyr::slice(10),
   add_section_row("Educational attainment (ref: no education)", "table4"),
-  table4_body %>% dplyr::slice(11:13),
+  within_body %>% dplyr::slice(11:13),
   add_section_row("Disability severity", "table4"),
-  table4_body %>% dplyr::slice(14)
+  within_body %>% dplyr::slice(14)
 )
 
 save_table_bundle(
@@ -380,37 +416,268 @@ save_table_bundle(
   )
 )
 
-save_table_bundle(
-  table3,
-  file.path(paths$tables_dir, "Table3_Service_Use_And_Payment.csv"),
-  file.path(paths$tables_dir, "Table3_Service_Use_And_Payment.docx"),
-  "Table 3. Weighted service utilisation and outpatient payment by disability status and insurance coverage, adults aged 18 years and above, KDHS 2022.",
-  footer_lines = c(
-    "Source: Kenya DHS 2022. Survey-weighted estimates.",
-    "Payment estimates are restricted to recent outpatient users within each row group."
-  ),
-  header_labels = list(
-    AnalysisGroup = "Analysis group",
-    n = "n",
-    Outpatient = "Outpatient use % (95% CI)",
-    Hospitalisation = "Hospitalisation % (95% CI)",
-    Payment = "Paid at last outpatient visit % (95% CI)"
-  )
+table_use_header_labels <- list(
+  AnalysisGroup = "Analysis group",
+  OutpatientN = "n",
+  Outpatient = "Outpatient use % (95% CI)",
+  HospitalisationN = "n",
+  Hospitalisation = "Hospitalisation % (95% CI)",
+  PaymentN = "n",
+  Payment = "Paid at last visit % (95% CI)"
 )
 
 save_table_bundle(
-  table4,
-  file.path(paths$tables_dir, "Table4_Adjusted_Prevalence_Ratios.csv"),
-  file.path(paths$tables_dir, "Table4_Adjusted_Prevalence_Ratios.docx"),
-  "Table 4. Survey-weighted adjusted prevalence ratios for uninsured status and outpatient payment among adults meeting the Washington Group Short Set disability threshold, KDHS 2022.",
+  table_use,
+  file.path(paths$tables_dir, "Table4_Service_Use_And_Payment.csv"),
+  file.path(paths$tables_dir, "Table4_Service_Use_And_Payment.docx"),
+  "Table 4. Weighted service utilisation and payment at the last outpatient visit by disability status and insurance coverage, adults aged 18 years and above, KDHS 2022.",
   footer_lines = c(
-    "Source: Kenya DHS 2022. Survey-weighted estimates.",
-    "Uninsured model: adults meeting the WG disability threshold. Payment model: adults meeting the WG disability threshold who used outpatient care in the previous four weeks. Both models used quasi-Poisson regression with log link."
+    "Source: Kenya DHS 2022. Survey-weighted estimates; n is the unweighted denominator for the adjacent column.",
+    "Utilisation is estimated among all adults in the row group. Payment is estimated only among adults in that group who used outpatient care in the previous four weeks, so its denominator is smaller.",
+    "Payment records whether any money was paid, not how much; amounts and payers are in Table 5."
+  ),
+  header_labels = table_use_header_labels
+)
+
+table_within <- table_within_build
+table_within_header_labels <- list(
+  Characteristic = "Characteristic",
+  UninsuredAPR = "Uninsured APR (95% CI); p",
+  PaymentAPR = "Any payment APR (95% CI); p"
+)
+
+save_table_bundle(
+  table_within,
+  file.path(paths$tables_dir, "Table6_Within_Disability_Models.csv"),
+  file.path(paths$tables_dir, "Table6_Within_Disability_Models.docx"),
+  "Table 6. Survey-weighted adjusted prevalence ratios for uninsured status and for any payment at the last outpatient visit, within the population of adults meeting the Washington Group Short Set disability threshold, KDHS 2022.",
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Survey-weighted quasi-Poisson models with a log link; confidence limits use the survey degrees of freedom.",
+    paste0("Uninsured model: adults meeting the WG disability threshold (n = ", format(uninsured_model_n_value, big.mark = ","), "). Payment model: adults meeting the threshold who used outpatient care in the previous four weeks (n = ", format(payment_model_n_value, big.mark = ","), ")."),
+    "These models describe variation within the disability subpopulation. The disability contrast itself is in Table 3.",
+    "The payment model conditions on having used outpatient care, which is affected by disability, insurance and wealth; estimates are descriptive associations among users and not effects of insurance."
+  ),
+  header_labels = table_within_header_labels
+)
+
+# --------------------------------------------------------------------------
+# Table 4. The disability contrast itself, estimated on the whole adult sample.
+#
+# The previous Table 4 reported only within-disability variation, so the study's
+# main comparison was supported by crude percentages alone. This table reports it
+# under three specifications and on both the ratio and the difference scale.
+# --------------------------------------------------------------------------
+
+spec_labels <- c(
+  crude = "  Crude",
+  confounder = "  Adjusted for sex, age group, residence",
+  full = "  Additionally adjusted for wealth, education"
+)
+
+outcome_labels <- c(
+  uninsured = "Uninsured",
+  outpatient_last4w = "Outpatient use in previous 4 weeks",
+  inpatient_last12m = "Hospitalisation in previous 12 months"
+)
+
+fmt_pp_ci <- function(est, lo, hi) {
+  sprintf("%+.1f (%+.1f, %+.1f)", 100 * est, 100 * lo, 100 * hi)
+}
+
+table_contrasts <- purrr::imap_dfr(outcome_labels, function(outcome_label, outcome_name) {
+  rows <- extended$whole_sample_contrasts %>%
+    dplyr::filter(outcome == outcome_name) %>%
+    dplyr::mutate(specification = factor(specification, levels = names(spec_labels))) %>%
+    dplyr::arrange(specification) %>%
+    dplyr::transmute(
+      Characteristic = spec_labels[as.character(specification)],
+      APR = fmt_apr_ci_p(apr, apr_ci_low, apr_ci_high, p_value),
+      StandardisedDifference = fmt_pp_ci(
+        standardised_difference, standardised_difference_ci_low, standardised_difference_ci_high
+      )
+    )
+
+  dplyr::bind_rows(
+    tibble::tibble(
+      Characteristic = paste0(outcome_label, " (n = ",
+                              format(dplyr::first(extended$whole_sample_contrasts$model_n[extended$whole_sample_contrasts$outcome == outcome_name]), big.mark = ","),
+                              ")"),
+      APR = "",
+      StandardisedDifference = ""
+    ),
+    rows
+  )
+})
+
+save_table_bundle(
+  table_contrasts,
+  file.path(paths$tables_dir, "Table3_Disability_Contrasts_Whole_Sample.csv"),
+  file.path(paths$tables_dir, "Table3_Disability_Contrasts_Whole_Sample.docx"),
+  "Table 3. Prevalence ratios and standardised prevalence differences for adults meeting the Washington Group Short Set disability threshold compared with adults below it, whole adult sample, KDHS 2022.",
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Survey-weighted quasi-Poisson models with a log link; confidence limits use the survey degrees of freedom.",
+    "Standardised differences are marginal (g-computation) contrasts in percentage points over the covariate distribution of the analytic sample, with delta-method confidence limits.",
+    "Wealth quintile and educational attainment are plausibly downstream of lifelong functional difficulty. The third row of each block therefore estimates an association net of that pathway rather than a more completely confounder-adjusted one."
   ),
   header_labels = list(
-    Characteristic = "Characteristic",
-    UninsuredAPR = "Uninsured APR (95% CI); p",
-    PaymentAPR = "Outpatient payment APR (95% CI); p"
+    Characteristic = "Outcome and specification",
+    APR = "Prevalence ratio (95% CI); p",
+    StandardisedDifference = "Standardised difference, percentage points (95% CI)"
+  )
+)
+
+# --------------------------------------------------------------------------
+# Table 5. What was paid and who paid it.
+# --------------------------------------------------------------------------
+
+zero_safe_pct <- function(est, lo, hi) {
+  # svyciprop returns a vanishingly small positive value rather than an exact
+  # zero when no respondent in a domain has the outcome. Reported as zero, with
+  # no interval, because there is no information for one.
+  ifelse(est < 1e-6, "0 (not estimable)", fmt_pct_ci(est, lo, hi))
+}
+
+cost_group_order <- c(
+  "No WG disability, uninsured",
+  "No WG disability, insured",
+  "WG disability, uninsured",
+  "WG disability, insured"
+)
+
+table_cost <- extended$cost_group_summary %>%
+  dplyr::left_join(
+    extended$payer_source_summary %>%
+      dplyr::select(group, payer_n = n, insurer_met_any, insurer_ci_low, insurer_ci_high,
+                    cash_share, cash_share_ci_low, cash_share_ci_high),
+    by = "group"
+  ) %>%
+  dplyr::mutate(group = factor(group, levels = cost_group_order)) %>%
+  dplyr::arrange(group) %>%
+  dplyr::transmute(
+    Group = as.character(group),
+    N = format(n, big.mark = ",", trim = TRUE),
+    MedianCost = sprintf("%s (%s, %s)",
+                         format(round(median), big.mark = ",", trim = TRUE),
+                         format(round(median_ci_low), big.mark = ",", trim = TRUE),
+                         format(round(median_ci_high), big.mark = ",", trim = TRUE)),
+    MedianCash = sprintf("%s (%s, %s)",
+                         format(round(cash_median), big.mark = ",", trim = TRUE),
+                         format(round(cash_median_ci_low), big.mark = ",", trim = TRUE),
+                         format(round(cash_median_ci_high), big.mark = ",", trim = TRUE)),
+    MeanCost = sprintf("%s (%s, %s)",
+                       format(round(mean), big.mark = ",", trim = TRUE),
+                       format(round(mean_ci_low), big.mark = ",", trim = TRUE),
+                       format(round(mean_ci_high), big.mark = ",", trim = TRUE)),
+    InsurerMet = zero_safe_pct(insurer_met_any, insurer_ci_low, insurer_ci_high),
+    CashShare = fmt_pct_ci(cash_share, cash_share_ci_low, cash_share_ci_high)
+  )
+
+save_table_bundle(
+  table_cost,
+  file.path(paths$tables_dir, "Table5_Outpatient_Cost_And_Payer.csv"),
+  file.path(paths$tables_dir, "Table5_Outpatient_Cost_And_Payer.docx"),
+  "Table 5. Amount paid at the last outpatient visit and the source of that payment, among adults who used outpatient care in the previous four weeks and reported paying, KDHS 2022.",
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Survey-weighted estimates; amounts are Kenyan shillings at the time of the survey.",
+    "Restricted to respondents who reported paying, which is the questionnaire's own skip pattern for these items: KDHS does not record an amount for a visit at which nothing was paid. Estimates therefore describe the size and source of a payment among those who made one.",
+    "The amount is the gross cost of the visit (sh304); the cash figure is the part of it met out of pocket (sh305a), which is the net payment after any insurer contribution.",
+    "Insurer contribution is any non-zero amount met by NHIF or private insurance. Cash share is the mean proportion of the reported amounts met in cash.",
+    "KDHS does not collect household consumption, so catastrophic health expenditure cannot be constructed from these data."
+  ),
+  header_labels = list(
+    Group = "Group",
+    N = "n",
+    MedianCost = "Median amount, KSh (95% CI)",
+    MedianCash = "Median paid in cash, KSh (95% CI)",
+    MeanCost = "Mean amount, KSh (95% CI)",
+    InsurerMet = "Insurer met any part % (95% CI)",
+    CashShare = "Mean cash share of amount % (95% CI)"
+  )
+)
+
+# --------------------------------------------------------------------------
+# Supplementary tables: participant flow, missingness, severity contrasts.
+# --------------------------------------------------------------------------
+
+table_s1 <- sample_flow %>%
+  dplyr::transmute(Step = step, N = format(n, big.mark = ",", trim = TRUE))
+
+save_table_bundle(
+  table_s1,
+  file.path(paths$tables_dir, "TableS1_Participant_Flow.csv"),
+  file.path(paths$tables_dir, "TableS1_Participant_Flow.docx"),
+  "Table S1. Participant flow from the KDHS 2022 person recode file to the ST02 analytic base and to each outcome-specific denominator.",
+  footer_lines = c(
+    "Source: Kenya DHS 2022, person recode file. Unweighted counts.",
+    "Indented rows are subsets of the row above them."
+  ),
+  header_labels = list(Step = "Step", N = "n")
+)
+
+table_s2 <- missingness %>%
+  dplyr::transmute(
+    Variable = variable,
+    Denominator = format(denominator, big.mark = ",", trim = TRUE),
+    Missing = format(missing_n, big.mark = ",", trim = TRUE),
+    Percent = sprintf("%.2f", missing_pct)
+  )
+
+save_table_bundle(
+  table_s2,
+  file.path(paths$tables_dir, "TableS2_Missing_Data.csv"),
+  file.path(paths$tables_dir, "TableS2_Missing_Data.docx"),
+  "Table S2. Missing values for each outcome and adjustment variable within the ST02 analytic base, KDHS 2022.",
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Unweighted counts within the analytic base of adults in long-questionnaire households with complete WG-SS classification.",
+    "Analyses are complete-case within each model; the excluded and included groups are compared in the text."
+  ),
+  header_labels = list(
+    Variable = "Variable",
+    Denominator = "Denominator",
+    Missing = "Missing n",
+    Percent = "Missing %"
+  )
+)
+
+severity_spec_labels <- c(
+  crude = "Crude",
+  confounder = "Adjusted for sex, age group, residence",
+  full = "Additionally adjusted for wealth, education"
+)
+
+table_s3 <- extended$severity_contrasts %>%
+  dplyr::mutate(specification = factor(specification, levels = names(severity_spec_labels))) %>%
+  dplyr::arrange(specification) %>%
+  dplyr::transmute(
+    Specification = severity_spec_labels[as.character(specification)],
+    Contrast = contrast,
+    PR = fmt_apr_ci_p(pr, ci_low, ci_high, p_value)
+  )
+
+save_table_bundle(
+  table_s3,
+  file.path(paths$tables_dir, "TableS3_Severity_Contrasts.csv"),
+  file.path(paths$tables_dir, "TableS3_Severity_Contrasts.docx"),
+  "Table S3. Prespecified contrasts between adjacent Washington Group severity categories for uninsured status, KDHS 2022.",
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Survey-weighted quasi-Poisson models with a log link; contrasts estimated on the linear predictor and exponentiated.",
+    paste0(
+      "Design-based global test of severity: crude F = ",
+      sprintf("%.2f", extended$severity_global_tests$statistic[extended$severity_global_tests$specification == "crude"]),
+      " (p ", fmt_pvalue(extended$severity_global_tests$p_value[extended$severity_global_tests$specification == "crude"]),
+      "); confounder-adjusted F = ",
+      sprintf("%.2f", extended$severity_global_tests$statistic[extended$severity_global_tests$specification == "confounder"]),
+      " (p ", fmt_pvalue(extended$severity_global_tests$p_value[extended$severity_global_tests$specification == "confounder"]),
+      "); fully adjusted F = ",
+      sprintf("%.2f", extended$severity_global_tests$statistic[extended$severity_global_tests$specification == "full"]),
+      " (p = ", sprintf("%.2f", extended$severity_global_tests$p_value[extended$severity_global_tests$specification == "full"]),
+      ")."
+    )
+  ),
+  header_labels = list(
+    Specification = "Specification",
+    Contrast = "Contrast",
+    PR = "Prevalence ratio (95% CI); p"
   )
 )
 
@@ -475,12 +742,14 @@ figure1 <- ggplot2::ggplot(
     y = "Weighted prevalence (%)",
     fill = NULL,
     caption = paste(
-      "Disability measured with the Washington Group Short Set. Coverage at mild difficulty is",
-      "statistically indistinguishable from
-no difficulty; the coverage penalty begins at moderate",
-      "difficulty. NHIF tracks any insurance closely at every severity level,
-so other schemes do",
-      "not offset the gradient. Intervals are logit-transformed and n is the unweighted denominator."
+      "Disability measured with the Washington Group Short Set. Unadjusted prevalences; the",
+      "severity steps are tested formally in
+Table S3, where the step from mild to moderate",
+      "difficulty is the one that reaches significance before adjustment for wealth and",
+      "education
+and is null after it. NHIF tracks any insurance at every severity level, so other",
+      "schemes did not offset the gradient.
+Intervals are logit-transformed; n is the unweighted denominator."
     )
   ) +
   ggplot2::theme_minimal(base_size = 11) +
@@ -508,7 +777,12 @@ ggplot2::ggsave(
   compression = "lzw"
 )
 
-figure2_data <- payment_disabled_base %>%
+# The severe-and-insured cell has 19 respondents. It is kept because it is the
+# only direct observation of the group a severe-disability exemption would cover,
+# but it is marked on the figure so that it cannot be read as a stable estimate.
+unstable_cell_threshold <- 30
+
+figure_payment_data <- payment_disabled_base %>%
   dplyr::filter(wg_severity %in% c("Moderate functional difficulty", "Severe functional difficulty")) %>%
   dplyr::group_by(wg_severity, insured_any) %>%
   dplyr::group_modify(~{
@@ -523,26 +797,32 @@ figure2_data <- payment_disabled_base %>%
   dplyr::ungroup() %>%
   dplyr::mutate(
     insurance = dplyr::if_else(insured_any == 1, "Insured", "Uninsured"),
+    unstable = n < unstable_cell_threshold,
+    label = dplyr::if_else(unstable, paste0("n=", n, " (unstable)"), paste0("n=", n)),
     wg_severity = factor(
       wg_severity,
       levels = c("Moderate functional difficulty", "Severe functional difficulty")
     )
   )
 
-figure2 <- ggplot2::ggplot(
-  figure2_data,
+figure_payment <- ggplot2::ggplot(
+  figure_payment_data,
   ggplot2::aes(x = wg_severity, y = 100 * est, fill = insurance)
 ) +
-  ggplot2::geom_col(position = ggplot2::position_dodge(width = 0.72), width = 0.62) +
+  ggplot2::geom_col(
+    ggplot2::aes(alpha = unstable, group = insurance),
+    position = ggplot2::position_dodge(width = 0.72), width = 0.62
+  ) +
   ggplot2::geom_errorbar(
-    ggplot2::aes(ymin = 100 * ci_low, ymax = 100 * ci_high),
+    ggplot2::aes(ymin = 100 * ci_low, ymax = 100 * ci_high, group = insurance),
     position = ggplot2::position_dodge(width = 0.72),
     width = 0.14
   ) +
   ggplot2::scale_fill_manual(values = c("Insured" = "#0f6e8c", "Uninsured" = "#cf5c36")) +
+  ggplot2::scale_alpha_manual(values = c(`FALSE` = 1, `TRUE` = 0.45), guide = "none") +
   ggplot2::scale_y_continuous(limits = c(0, 100), expand = ggplot2::expansion(mult = c(0, 0.05))) +
   ggplot2::geom_text(
-    ggplot2::aes(y = 100 * ci_high, label = paste0("n=", n)),
+    ggplot2::aes(y = 100 * ci_high, label = label, group = insurance),
     position = ggplot2::position_dodge(width = 0.72),
     vjust = -0.6, size = 2.5, colour = "grey30"
   ) +
@@ -553,12 +833,12 @@ figure2 <- ggplot2::ggplot(
     y = "Paid at last outpatient visit (%)",
     fill = NULL,
     caption = paste(
-      "Holding insurance is not associated with a lower probability of paying, at either severity",
-      "level: the four estimates lie
-within about one percentage point of each other. The",
-      "severe-and-insured cell rests on 19 respondents, so its interval
-is wide; intervals are",
-      "logit-transformed and bounded at 100%. n is the unweighted denominator."
+      "Unadjusted proportions paying any amount. The severe-and-insured cell is shaded because it",
+      "rests on fewer than 30
+respondents and cannot support a conclusion on its own. Whether any",
+      "money was paid is a coarse measure of financial protection;
+the amount paid and who met it",
+      "are in Table 5. Intervals are logit-transformed and bounded at 100%; n is unweighted."
     )
   ) +
   ggplot2::theme_minimal(base_size = 11) +
@@ -570,17 +850,107 @@ is wide; intervals are",
   )
 
 ggplot2::ggsave(
-  file.path(paths$figures_dir, "Figure2_Outpatient_Payment_By_Severity_Insurance.png"),
-  figure2,
+  file.path(paths$figures_dir, "Figure3_Outpatient_Payment_By_Severity_Insurance.png"),
+  figure_payment,
   width = 9,
   height = 5.6,
   dpi = 300
 )
 ggplot2::ggsave(
-  file.path(paths$figures_dir, "Figure2_Outpatient_Payment_By_Severity_Insurance.tiff"),
-  figure2,
+  file.path(paths$figures_dir, "Figure3_Outpatient_Payment_By_Severity_Insurance.tiff"),
+  figure_payment,
   width = 9,
   height = 5.6,
+  dpi = 300,
+  compression = "lzw"
+)
+
+# Figure 3. What happens to the disability contrast as the adjustment set grows.
+# The point of the figure is that the insurance contrast and the utilisation
+# contrasts behave differently: utilisation survives every specification, while
+# the coverage contrast is absorbed once wealth and education enter.
+figure_forest_data <- extended$whole_sample_contrasts %>%
+  dplyr::mutate(
+    outcome_label = dplyr::recode(
+      outcome,
+      uninsured = "Uninsured",
+      outpatient_last4w = "Outpatient use, 4 weeks",
+      inpatient_last12m = "Hospitalisation, 12 months"
+    ),
+    outcome_label = factor(
+      outcome_label,
+      levels = c("Uninsured", "Outpatient use, 4 weeks", "Hospitalisation, 12 months")
+    ),
+    specification_label = dplyr::recode(
+      specification,
+      crude = "Crude",
+      confounder = "+ sex, age, residence",
+      full = "+ wealth, education"
+    ),
+    specification_label = factor(
+      specification_label,
+      levels = rev(c("Crude", "+ sex, age, residence", "+ wealth, education"))
+    )
+  )
+
+figure_forest <- ggplot2::ggplot(
+  figure_forest_data,
+  ggplot2::aes(x = apr, y = specification_label, colour = outcome_label)
+) +
+  ggplot2::geom_vline(xintercept = 1, linetype = "dashed", colour = "grey55") +
+  ggplot2::geom_errorbarh(
+    ggplot2::aes(xmin = apr_ci_low, xmax = apr_ci_high),
+    height = 0.16, linewidth = 0.6
+  ) +
+  ggplot2::geom_point(size = 2.4) +
+  ggplot2::geom_text(
+    ggplot2::aes(label = sprintf("%.2f (%.2f, %.2f)", apr, apr_ci_low, apr_ci_high)),
+    vjust = -1.1, size = 2.6, show.legend = FALSE
+  ) +
+  ggplot2::facet_wrap(~outcome_label, ncol = 1, scales = "free_x") +
+  ggplot2::scale_colour_manual(
+    values = c(
+      "Uninsured" = "#0f6e8c",
+      "Outpatient use, 4 weeks" = "#1b7f5f",
+      "Hospitalisation, 12 months" = "#8c4a0f"
+    ),
+    guide = "none"
+  ) +
+  ggplot2::labs(
+    title = "Disability contrast by adjustment set, Kenyan adults aged 18 and above",
+    subtitle = "Kenya DHS 2022. Prevalence ratios for adults at the WG threshold versus adults below it",
+    x = "Prevalence ratio (log scale)",
+    y = NULL,
+    caption = paste(
+      "Wealth and education are plausibly consequences of lifelong functional difficulty rather than",
+      "confounders of it, so the
+bottom row of each panel estimates an association net of that",
+      "pathway. The coverage contrast is absorbed by it; the two
+utilisation contrasts are not."
+    )
+  ) +
+  ggplot2::scale_x_log10() +
+  ggplot2::theme_minimal(base_size = 11) +
+  ggplot2::theme(
+    strip.text = ggplot2::element_text(face = "bold", hjust = 0, size = 9.5),
+    plot.title = ggplot2::element_text(face = "bold", size = 11.5),
+    plot.subtitle = ggplot2::element_text(size = 9),
+    plot.caption = ggplot2::element_text(size = 7.5, colour = "grey30", hjust = 0),
+    panel.spacing = ggplot2::unit(0.9, "lines")
+  )
+
+ggplot2::ggsave(
+  file.path(paths$figures_dir, "Figure2_Disability_Contrast_By_Adjustment.png"),
+  figure_forest,
+  width = 8.4,
+  height = 6.4,
+  dpi = 300
+)
+ggplot2::ggsave(
+  file.path(paths$figures_dir, "Figure2_Disability_Contrast_By_Adjustment.tiff"),
+  figure_forest,
+  width = 8.4,
+  height = 6.4,
   dpi = 300,
   compression = "lzw"
 )
@@ -663,16 +1033,50 @@ key_results <- list(
     ) %>%
     nrow(),
   model_uninsured = model_uninsured,
-  model_payment = model_payment
+  model_payment = model_payment,
+
+  # Whole-sample disability contrasts, the comparison the study is named for.
+  contrast = function(outcome_name, spec_name) {
+    extended$whole_sample_contrasts %>%
+      dplyr::filter(outcome == outcome_name, specification == spec_name)
+  },
+  whole_sample_contrasts = extended$whole_sample_contrasts,
+  severity_contrasts = extended$severity_contrasts,
+  severity_global_tests = extended$severity_global_tests,
+  domain_burden = extended$domain_burden,
+  domain_burden_global = extended$domain_burden_global,
+  design_metadata = extended$design_metadata,
+  cost_group_summary = extended$cost_group_summary,
+  payer_source_summary = extended$payer_source_summary,
+  insurer_realisation = extended$insurer_realisation,
+  cost_model = extended$cost_model,
+  cost_model_n = extended$cost_model_n,
+  cash_model = extended$cash_model,
+  cash_model_n = extended$cash_model_n,
+  model_payment_whole = extended$model_payment_whole,
+  payment_outcome_counts = extended$payment_outcome_counts,
+  sensitivity_dk = extended$sensitivity_dk,
+  inclusion_comparison = extended$inclusion_comparison,
+  sample_flow = sample_flow,
+  missingness = missingness,
+  cost_payers_n = sum(extended$cost_group_summary$n),
+  payer_source_n = sum(extended$payer_source_summary$n)
 )
 
+# Numbers follow the order in which the tables appear in the manuscript.
 analysis_object <- list(
   table1 = table1,
   table2 = table2,
-  table3 = table3,
-  table4 = table4,
+  table3 = table_contrasts,
+  table4 = table_use,
+  table5 = table_cost,
+  table6 = table_within,
+  table_s1 = table_s1,
+  table_s2 = table_s2,
+  table_s3 = table_s3,
   figure1_data = figure1_data,
-  figure2_data = figure2_data,
+  figure2_data = figure_forest_data,
+  figure3_data = figure_payment_data,
   key_results = key_results,
   table_specs = list(
     table1 = list(
@@ -698,18 +1102,38 @@ analysis_object <- list(
     ),
     table3 = list(
       header_labels = list(
-        AnalysisGroup = "Analysis group",
-        n = "n",
-        Outpatient = "Outpatient use % (95% CI)",
-        Hospitalisation = "Hospitalisation % (95% CI)",
-        Payment = "Paid at last outpatient visit % (95% CI)"
+        Characteristic = "Outcome and specification",
+        APR = "Prevalence ratio (95% CI); p",
+        StandardisedDifference = "Standardised difference, percentage points (95% CI)"
       )
     ),
-    table4 = list(
+    table4 = list(header_labels = table_use_header_labels),
+    table6 = list(header_labels = table_within_header_labels),
+    table5 = list(
       header_labels = list(
-        Characteristic = "Characteristic",
-        UninsuredAPR = "Uninsured APR (95% CI); p",
-        PaymentAPR = "Outpatient payment APR (95% CI); p"
+        Group = "Group",
+        N = "n",
+        MedianCost = "Median amount, KSh (95% CI)",
+        MedianCash = "Median paid in cash, KSh (95% CI)",
+        MeanCost = "Mean amount, KSh (95% CI)",
+        InsurerMet = "Insurer met any part % (95% CI)",
+        CashShare = "Mean cash share of amount % (95% CI)"
+      )
+    ),
+    table_s1 = list(header_labels = list(Step = "Step", N = "n")),
+    table_s2 = list(
+      header_labels = list(
+        Variable = "Variable",
+        Denominator = "Denominator",
+        Missing = "Missing n",
+        Percent = "Missing %"
+      )
+    ),
+    table_s3 = list(
+      header_labels = list(
+        Specification = "Specification",
+        Contrast = "Contrast",
+        PR = "Prevalence ratio (95% CI); p"
       )
     )
   )

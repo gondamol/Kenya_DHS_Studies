@@ -98,6 +98,15 @@ yn_flag <- function(x, yes = "yes", no = "no") {
   )
 }
 
+# KDHS records "don't know" and "missing" for the cost items as 999998 / 999999
+# and their 9999998 / 9999999 analogues, so any value at or above 999998 is a
+# code rather than a shilling amount and has to be dropped before the amount is
+# used. Values are Kenyan shillings.
+dhs_amount <- function(x) {
+  value <- as.numeric(x)
+  dplyr::if_else(value >= 999998, NA_real_, value)
+}
+
 sex_label <- function(x) {
   label_chr <- to_chr(x)
   dplyr::case_when(
@@ -286,6 +295,77 @@ weighted_level <- function(data, var, level_value, weight_var = "weight") {
     est = r$est,
     ci_low = r$ci_low,
     ci_high = r$ci_high
+  )
+}
+
+# Design-based confidence limits use the survey degrees of freedom rather than a
+# normal approximation. With 1,691 PSUs in 92 strata the two are numerically very
+# close here, but the t reference is the correct one for a survey model and it is
+# what the p values reported alongside these limits already use.
+tidy_apr_design <- function(model, design) {
+  df_design <- survey::degf(design)
+  broom::tidy(model) %>%
+    dplyr::mutate(
+      apr = exp(estimate),
+      ci_low = exp(estimate - stats::qt(0.975, df_design) * std.error),
+      ci_high = exp(estimate + stats::qt(0.975, df_design) * std.error),
+      df = df_design
+    ) %>%
+    dplyr::select(term, apr, ci_low, ci_high, p.value, df)
+}
+
+# Marginal standardisation (g-computation) over the observed covariate
+# distribution of the analytic sample, weighted by the survey weights. Every
+# record is set first to exposed and then to unexposed, predictions are averaged
+# under each setting, and the contrast is taken on both the difference and the
+# ratio scale. Standard errors come from the delta method applied to the model
+# variance-covariance matrix, so they carry the design through the fitted model.
+standardised_contrast <- function(model, design, exposure, value_1 = 1, value_0 = 0) {
+  data_model <- model$data
+  if (is.null(data_model)) data_model <- design$variables
+  weights_vec <- stats::weights(design)
+  if (is.null(weights_vec) || length(weights_vec) != nrow(data_model)) {
+    weights_vec <- rep(1, nrow(data_model))
+  }
+  keep <- !is.na(stats::predict(model, newdata = data_model, type = "link"))
+  weights_vec <- weights_vec[keep]
+
+  build_mm <- function(set_value) {
+    newdata <- data_model[keep, , drop = FALSE]
+    newdata[[exposure]] <- set_value
+    stats::model.matrix(stats::delete.response(stats::terms(model)), data = newdata)
+  }
+
+  beta <- stats::coef(model)
+  vcov_beta <- stats::vcov(model)
+  mm_1 <- build_mm(value_1)
+  mm_0 <- build_mm(value_0)
+  mu_1 <- exp(as.vector(mm_1 %*% beta))
+  mu_0 <- exp(as.vector(mm_0 %*% beta))
+  w <- weights_vec / sum(weights_vec)
+  p1 <- sum(w * mu_1)
+  p0 <- sum(w * mu_0)
+
+  grad_1 <- as.vector(crossprod(mm_1, w * mu_1))
+  grad_0 <- as.vector(crossprod(mm_0, w * mu_0))
+  grad_diff <- grad_1 - grad_0
+  se_diff <- sqrt(as.numeric(t(grad_diff) %*% vcov_beta %*% grad_diff))
+  grad_log_ratio <- grad_1 / p1 - grad_0 / p0
+  se_log_ratio <- sqrt(as.numeric(t(grad_log_ratio) %*% vcov_beta %*% grad_log_ratio))
+
+  df_design <- survey::degf(design)
+  t_crit <- stats::qt(0.975, df_design)
+
+  tibble::tibble(
+    prevalence_exposed = p1,
+    prevalence_unexposed = p0,
+    difference = p1 - p0,
+    difference_ci_low = (p1 - p0) - t_crit * se_diff,
+    difference_ci_high = (p1 - p0) + t_crit * se_diff,
+    ratio = p1 / p0,
+    ratio_ci_low = exp(log(p1 / p0) - t_crit * se_log_ratio),
+    ratio_ci_high = exp(log(p1 / p0) + t_crit * se_log_ratio),
+    df = df_design
   )
 }
 

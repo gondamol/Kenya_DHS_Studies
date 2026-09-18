@@ -13,3 +13,14 @@ insured_nhif,sh28a,NHIF coverage among those with any insurance
 outpatient_last4w,sh31,Outpatient medical care in the previous 4 weeks
 inpatient_last12m,sh29,Overnight stay in a medical facility in the previous 12 months
 paid_outpatient_recent,sh32,"Paid money for last outpatient care, among recent outpatient users"
+cost_outpatient_total,sh304,"Total cost of the last outpatient visit in Kenyan shillings, among those who paid"
+cost_met_cash,sh305a,Amount of that cost met in cash
+cost_met_nhif,sh305b,Amount of that cost met by NHIF
+cost_met_private,sh305c,Amount of that cost met by private insurance
+cost_met_inkind,sh305d,Amount of that cost met in kind
+cost_met_other,sh305e,Amount of that cost met by other means
+nhif_met_any,sh305b,NHIF met any part of the cost of the last outpatient visit
+insurer_met_any,sh305b/sh305c,NHIF or private insurance met any part of that cost
+cash_share_of_cost,sh305a-sh305e,Share of the reported amounts met in cash
+domain_burden,hdis2/hdis4/hdis5/hdis6/hdis7/hdis8,"Count of WG domains at or above threshold: none, one, two or more"
+uninsured_incl_dk,sh27,Uninsured with don't-know responses grouped as uninsured (sensitivity coding)

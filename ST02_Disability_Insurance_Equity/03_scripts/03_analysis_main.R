@@ -184,13 +184,11 @@ model_payment <- survey::svyglm(
   family = quasipoisson(link = "log")
 )
 
-tidy_apr <- function(model) {
-  broom::tidy(model) %>%
-    dplyr::mutate(
-      apr = exp(estimate),
-      ci_low = exp(estimate - 1.96 * std.error),
-      ci_high = exp(estimate + 1.96 * std.error)
-    ) %>%
+# Confidence limits use the survey degrees of freedom, matching the reference
+# distribution the accompanying p values already use. The earlier fixed 1.96
+# multiplier was a normal approximation sitting next to t-based p values.
+tidy_apr <- function(model, design) {
+  tidy_apr_design(model, design) %>%
     dplyr::select(term, apr, ci_low, ci_high, p.value)
 }
 
@@ -200,8 +198,8 @@ readr::write_csv(outpatient_by_disability, file.path(paths$logs_dir, "st02_outpa
 readr::write_csv(payment_by_disability, file.path(paths$logs_dir, "st02_payment_by_disability.csv"))
 readr::write_csv(severity_coverage, file.path(paths$logs_dir, "st02_insurance_by_severity.csv"))
 readr::write_csv(domain_coverage, file.path(paths$logs_dir, "st02_insurance_by_domain.csv"))
-readr::write_csv(tidy_apr(model_uninsured), file.path(paths$logs_dir, "st02_model_uninsured_disabled.csv"))
-readr::write_csv(tidy_apr(model_payment), file.path(paths$logs_dir, "st02_model_paid_outpatient_disabled.csv"))
+readr::write_csv(tidy_apr(model_uninsured, design_uninsured), file.path(paths$logs_dir, "st02_model_uninsured_disabled.csv"))
+readr::write_csv(tidy_apr(model_payment, design_payment), file.path(paths$logs_dir, "st02_model_paid_outpatient_disabled.csv"))
 
 append_log("Initial descriptive outputs and adjusted models saved for ST02.")
 

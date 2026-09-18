@@ -1,0 +1,76 @@
+---
+title: ""
+output-file: Additional_file_2_Supplementary_Tables.docx
+format:
+  docx:
+    reference-doc: ../../_TEMPLATES/reference_doc.docx
+editor: source
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+source(file.path("..", "03_scripts", "00_setup.R"), local = knitr::knit_global())
+analysis_object <- readRDS(file.path("..", "07_derived_data", "st02_analysis_outputs.rds"))
+table_s1 <- analysis_object$table_s1
+table_s2 <- analysis_object$table_s2
+table_s3 <- analysis_object$table_s3
+table_specs <- analysis_object$table_specs
+
+supplementary_flextable <- function(data, footer_lines, header_labels) {
+  build_publication_flextable(
+    data = data,
+    footer_lines = footer_lines,
+    header_labels = header_labels
+  ) %>%
+    flextable::paginate(init = TRUE, hdr_ftr = TRUE) %>%
+    knitr::knit_print()
+}
+```
+
+# Additional file 2: Supplementary tables
+
+Insurance coverage, service use, and payment at outpatient contact among adults with disability in Kenya before the SHA transition: a secondary analysis of KDHS 2022.
+
+```{r}
+#| label: tbl-s1
+#| tbl-cap: "Table S1. Participant flow from the KDHS 2022 person recode file to the analytic base and to each outcome-specific denominator."
+supplementary_flextable(
+  table_s1,
+  footer_lines = c(
+    "Source: Kenya DHS 2022, person recode file. Unweighted counts.",
+    "Indented rows are subsets of the row above them. The analytic base is adults in long-questionnaire households with complete six-domain WG-SS data."
+  ),
+  header_labels = table_specs$table_s1$header_labels
+)
+```
+
+```{r}
+#| label: tbl-s2
+#| tbl-cap: "Table S2. Missing values for each outcome and adjustment variable within the analytic base."
+supplementary_flextable(
+  table_s2,
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Unweighted counts within the analytic base.",
+    "Analyses are complete-case within each model. Adults excluded from the fully adjusted insurance model for missing covariates are compared with those included in the Results."
+  ),
+  header_labels = table_specs$table_s2$header_labels
+)
+```
+
+```{r}
+#| label: tbl-s3
+#| tbl-cap: "Table S3. Prespecified contrasts between adjacent Washington Group severity categories for uninsured status."
+supplementary_flextable(
+  table_s3,
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Survey-weighted quasi-Poisson models with a log link; contrasts estimated on the linear predictor and exponentiated, with confidence limits on the survey degrees of freedom.",
+    "Design-based global Wald tests of the severity term are reported in the Results."
+  ),
+  header_labels = table_specs$table_s3$header_labels
+)
+```
