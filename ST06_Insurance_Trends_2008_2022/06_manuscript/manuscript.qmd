@@ -20,11 +20,6 @@ author:
     email: japhth.ogol@ejooust.ac.ke
     affiliations:
       - ref: aff1
-      - id: aff2
-        name: University of Antwerp
-        department: Department of Family Medicine & Population Health (FAMPOP)
-        city: Wilrijk
-        country: Belgium
 
 keywords:
   - health insurance
@@ -200,10 +195,9 @@ table3_display <- table3 %>%
   mutate(`p-value` = vapply(`p-value`, fmt_p, character(1)))
 ```
 
-Nichodemus Werre Amollo^1,\*^, Japheth Ogol^1,2^
+Nichodemus Werre Amollo^1,\*^, Japheth Ogol^1^
 
 ^1^ School of Health Sciences, Jaramogi Oginga Odinga University of Science and Technology, Bondo, Kenya\
-^2^ Department of Family Medicine & Population Health (FAMPOP), University of Antwerp, Wilrijk, Belgium
 
 \*Correspondence: Nichodemus Werre Amollo, nwere@ejooust.ac.ke
 
@@ -283,7 +277,7 @@ publication_flextable(
 
 ```{r}
 #| label: fig-1
-#| fig-cap: "Figure 1. Survey-weighted insurance coverage trends among women aged 15–49 in Kenya, KDHS 2008, 2014, and 2022. Points and lines show any insurance prevalence; error bars indicate 95% confidence intervals."
+#| fig-cap: "Survey-weighted insurance coverage trends among women aged 15–49 in Kenya, KDHS 2008, 2014, and 2022. Points and lines show any insurance prevalence; error bars indicate 95% confidence intervals."
 knitr::include_graphics(file.path("..", "05_figures", "Figure1_ST06_National_Trend.png"))
 ```
 
@@ -314,7 +308,7 @@ publication_flextable(
 
 ```{r}
 #| label: fig-2
-#| fig-cap: "Figure 2. Wealth gradient in any insurance coverage across survey waves among women aged 15–49 in Kenya, KDHS 2008, 2014, and 2022. Survey-weighted prevalence by wealth quintile; error bars indicate 95% confidence intervals."
+#| fig-cap: "Wealth gradient in any insurance coverage across survey waves among women aged 15–49 in Kenya, KDHS 2008, 2014, and 2022. Survey-weighted prevalence by wealth quintile; error bars indicate 95% confidence intervals."
 knitr::include_graphics(file.path("..", "05_figures", "Figure2_ST06_Wealth_Gradient_Trend.png"))
 ```
 
@@ -360,13 +354,13 @@ publication_flextable(
 
 ```{r}
 #| label: fig-3
-#| fig-cap: "Figure 3. Trend in wealth-related concentration index for any insurance coverage among women aged 15–49 in Kenya, KDHS 2008, 2014, and 2022. Error bars indicate 95% bootstrap confidence intervals. A dashed line at zero indicates perfectly equal distribution."
+#| fig-cap: "Trend in wealth-related concentration index for any insurance coverage among women aged 15–49 in Kenya, KDHS 2008, 2014, and 2022. Error bars indicate 95% bootstrap confidence intervals. A dashed line at zero indicates perfectly equal distribution."
 knitr::include_graphics(file.path("..", "05_figures", "Figure3_ST06_Inequality_Trend.png"))
 ```
 
 ```{r}
 #| label: fig-4
-#| fig-cap: "Figure 4. Insurance type composition across survey waves among women aged 15–49 in Kenya, KDHS 2008, 2014, and 2022. Survey-weighted estimates. Note: 2022 type estimates are conditional on being insured (sh28a–x asked only of insured respondents); 2008 and 2014 type estimates are unconditional population proportions."
+#| fig-cap: "Insurance type composition across survey waves among women aged 15–49 in Kenya, KDHS 2008, 2014, and 2022. Survey-weighted estimates. Note: 2022 type estimates are conditional on being insured (sh28a–x asked only of insured respondents); 2008 and 2014 type estimates are unconditional population proportions."
 knitr::include_graphics(file.path("..", "05_figures", "Figure4_ST06_Insurance_Composition.png"))
 ```
 

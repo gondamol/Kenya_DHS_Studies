@@ -20,11 +20,6 @@ author:
     email: japhth.ogol@ejooust.ac.ke
     affiliations:
       - ref: aff1
-      - id: aff2
-        name: University of Antwerp
-        department: Department of Family Medicine & Population Health (FAMPOP)
-        city: Wilrijk
-        country: Belgium
 
 keywords:
   - disability
@@ -157,10 +152,9 @@ lowest_domain_prevalence <- key_results$domain_threshold_prevalence %>%
 if (knitr::pandoc_to() == "docx") {
   cat(
     paste(
-      r"(Nichodemus Werre Amollo^1,\*^, Japheth Ogol^1,2^)",
+      r"(Nichodemus Werre Amollo^1,\*^, Japheth Ogol^1^)",
       "",
-      "^1^ School of Health Sciences, Jaramogi Oginga Odinga University of Science and Technology, Bondo, Kenya\\",
-      "^2^ Department of Family Medicine & Population Health (FAMPOP), University of Antwerp, Wilrijk, Belgium",
+      "^1^ School of Health Sciences, Jaramogi Oginga Odinga University of Science and Technology, Bondo, Kenya",
       "",
       paste0("*Correspondence: Nichodemus Werre Amollo, ", rmarkdown::metadata$author[[1]]$email),
       sep = "\n"

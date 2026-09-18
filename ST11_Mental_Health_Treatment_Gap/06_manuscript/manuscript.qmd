@@ -18,11 +18,6 @@ author:
     email: japhth.ogol@ejooust.ac.ke
     affiliations:
       - ref: aff1
-      - id: aff2
-        name: University of Antwerp
-        department: Department of Family Medicine & Population Health (FAMPOP)
-        city: Wilrijk
-        country: Belgium
 
 keywords:
   - depression
@@ -104,9 +99,8 @@ publication_flextable <- function(data, footer_lines = c("Source: Kenya DHS 2022
 #| echo: false
 if (knitr::pandoc_to() == "docx") {
   cat(paste(
-    r"(Nichodemus Werre Amollo^1,\*^, Japheth Ogol^1,2^)", "",
-    "^1^ School of Health Sciences, Jaramogi Oginga Odinga University of Science and Technology, Bondo, Kenya\\",
-    "^2^ Department of Family Medicine & Population Health (FAMPOP), University of Antwerp, Wilrijk, Belgium", "",
+    r"(Nichodemus Werre Amollo^1,\*^, Japheth Ogol^1^)", "",
+    "^1^ School of Health Sciences, Jaramogi Oginga Odinga University of Science and Technology, Bondo, Kenya",
     "*Correspondence: Nichodemus Werre Amollo, nwere@ejooust.ac.ke", sep = "\n"))
 }
 ```
@@ -173,7 +167,7 @@ The pooled module sample comprised `r ncomma(k$n_module)` adults (Table 1). The 
 
 ```{r}
 #| label: tbl-1
-#| tbl-cap: "Table 1. Weighted characteristics of adults asked the KDHS 2022 mental-health module, by sex."
+#| tbl-cap: "Weighted characteristics of adults asked the KDHS 2022 mental-health module, by sex."
 publication_flextable(ao$table1,
   footer_lines = c("Source: Kenya DHS 2022. Survey-weighted estimates with 95% CIs.",
                    "Module sample = adults with a non-missing depression/anxiety classification."))
@@ -185,7 +179,7 @@ Diagnosed depression affected `r pcc(k$prev_depression)` of adults and diagnosed
 
 ```{r}
 #| label: tbl-2
-#| tbl-cap: "Table 2. Weighted prevalence of self-reported diagnosed depression and anxiety by subgroup, KDHS 2022."
+#| tbl-cap: "Weighted prevalence of self-reported diagnosed depression and anxiety by subgroup, KDHS 2022."
 publication_flextable(ao$table2,
   footer_lines = c("Source: Kenya DHS 2022. Survey-weighted estimates with 95% CIs.",
                    "Diagnosis = ever told by a health worker. n is the subgroup denominator for the 'either' column."))
@@ -197,7 +191,7 @@ Among the `r ncomma(k$n_diagnosed)` adults reporting a diagnosis of depression o
 
 ```{r}
 #| label: tbl-3
-#| tbl-cap: "Table 3. Weighted depression/anxiety treatment gap (diagnosed but untreated) by subgroup, KDHS 2022."
+#| tbl-cap: "Weighted depression/anxiety treatment gap (diagnosed but untreated) by subgroup, KDHS 2022."
 publication_flextable(ao$table3,
   footer_lines = c("Source: Kenya DHS 2022. Survey-weighted estimates with 95% CIs.",
                    "Restricted to adults reporting a diagnosis of depression or anxiety with a non-missing treatment response."))
@@ -205,7 +199,7 @@ publication_flextable(ao$table3,
 
 ```{r}
 #| label: fig-1
-#| fig-cap: "Figure 1. Wealth gradient in (A) diagnosed depression or anxiety among all adults and (B) being untreated among the diagnosed, KDHS 2022. Bars are survey-weighted prevalence with 95% confidence intervals. Diagnosis shows a modest gradient concentrated in the wealthiest quintile, whereas the treatment gap is approximately flat across the wealth distribution."
+#| fig-cap: "Wealth gradient in (A) diagnosed depression or anxiety among all adults and (B) being untreated among the diagnosed, KDHS 2022. Bars are survey-weighted prevalence with 95% confidence intervals. Diagnosis shows a modest gradient concentrated in the wealthiest quintile, whereas the treatment gap is approximately flat across the wealth distribution."
 #| fig-width: 9
 #| fig-height: 4.6
 knitr::include_graphics(file.path("..", "05_figures", "Figure1_Diagnosis_vs_Gap_By_Wealth.png"))
@@ -217,7 +211,7 @@ In adjusted models (Table 4), the correlates of *diagnosis* mirrored the descrip
 
 ```{r}
 #| label: tbl-4
-#| tbl-cap: "Table 4. Survey-weighted adjusted prevalence ratios (APR) for being diagnosed with depression or anxiety, and — among the diagnosed — for being untreated, KDHS 2022."
+#| tbl-cap: "Survey-weighted adjusted prevalence ratios (APR) for being diagnosed with depression or anxiety, and — among the diagnosed — for being untreated, KDHS 2022."
 publication_flextable(ao$table4,
   footer_lines = c("Source: Kenya DHS 2022. Quasi-Poisson (log-link) APRs with 95% CIs. * p < 0.05.",
                    "Diagnosis model: all module adults. Untreated model: adults reporting a diagnosis."))
@@ -225,7 +219,7 @@ publication_flextable(ao$table4,
 
 ```{r}
 #| label: fig-2
-#| fig-cap: "Figure 2. Adjusted prevalence ratios (log scale) for being untreated among adults with diagnosed depression or anxiety, KDHS 2022. Points are survey-weighted quasi-Poisson estimates with 95% confidence intervals; the dashed line marks no association. No covariate is a strong predictor of being untreated."
+#| fig-cap: "Adjusted prevalence ratios (log scale) for being untreated among adults with diagnosed depression or anxiety, KDHS 2022. Points are survey-weighted quasi-Poisson estimates with 95% confidence intervals; the dashed line marks no association. No covariate is a strong predictor of being untreated."
 #| fig-width: 8
 #| fig-height: 5.2
 knitr::include_graphics(file.path("..", "05_figures", "Figure2_Untreated_Forest.png"))
@@ -237,7 +231,7 @@ The two concentration indices tell opposite stories (Table 5). Diagnosis was cle
 
 ```{r}
 #| label: tbl-5
-#| tbl-cap: "Table 5. Wealth-related concentration indices for diagnosis and for the treatment gap, overall and by sex, KDHS 2022."
+#| tbl-cap: "Wealth-related concentration indices for diagnosis and for the treatment gap, overall and by sex, KDHS 2022."
 publication_flextable(ao$table5,
   footer_lines = c("Source: Kenya DHS 2022. Standard (Wagstaff) and Erreygers-corrected concentration indices.",
                    "Positive values indicate concentration among wealthier adults; 95% CIs from a 200-replication PSU bootstrap."))

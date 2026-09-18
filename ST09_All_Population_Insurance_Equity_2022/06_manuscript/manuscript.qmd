@@ -20,11 +20,6 @@ author:
     email: japhth.ogol@ejooust.ac.ke
     affiliations:
       - ref: aff1
-      - id: aff2
-        name: University of Antwerp
-        department: Department of Family Medicine & Population Health (FAMPOP)
-        city: Wilrijk
-        country: Belgium
 
 keywords:
   - health insurance
@@ -296,10 +291,9 @@ publication_flextable <- function(data,
 }
 ```
 
-Nichodemus Werre Amollo^1,\*^, Japheth Ogol^1,2^
+Nichodemus Werre Amollo^1,\*^, Japheth Ogol^1^
 
 ^1^ School of Health Sciences, Jaramogi Oginga Odinga University of Science and Technology, Bondo, Kenya\
-^2^ Department of Family Medicine & Population Health (FAMPOP), University of Antwerp, Wilrijk, Belgium
 
 *Correspondence: Nichodemus Werre Amollo, nwere@ejooust.ac.ke
 

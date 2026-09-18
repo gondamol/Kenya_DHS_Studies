@@ -1,7 +1,6 @@
 ---
-title: "Beyond the diagnosed: underdiagnosis, care cascades, and dual-survey estimation of population unmet need for hypertension and diabetes care in Kenya"
-shorttitle: "Dual-survey NCD unmet need in Kenya"
-
+title: "Questionnaire and biomarker NCD surveillance in Kenya across three national surveys from 2014 to 2022"
+shorttitle: "Triangulating NCD surveillance in Kenya"
 author:
   - name: Nichodemus Werre Amollo
     corresponding: true
@@ -18,23 +17,7 @@ author:
     orcid: "0009-0004-2431-7501"
     affiliations:
       - ref: aff1
-      - id: aff2
-        name: University of Antwerp
-        department: Department of Family Medicine & Population Health (FAMPOP)
-        city: Wilrijk
-        country: Belgium
-
-keywords:
-  - hypertension
-  - diabetes
-  - care cascade
-  - underdiagnosis
-  - STEPS
-  - Demographic and Health Survey
-  - dual-survey methods
-  - Kenya
-  - Social Health Authority
-
+keywords: [hypertension, diabetes, surveillance, self-report, STEPS, Demographic and Health Survey, triangulation, Kenya]
 bibliography: references.bib
 csl: ../../_TEMPLATES/vancouver.csl
 format:
@@ -48,251 +31,225 @@ format:
     embed-resources: true
 execute:
   echo: false
+  warning: false
 ---
+
+```{r}
+#| label: setup
+#| include: false
+options(stringsAsFactors = FALSE)
+tab_dir <- "../04_tables"
+t1 <- read.csv(file.path(tab_dir, "Table1_Harmonised_Estimates.csv"), check.names = FALSE)
+t2 <- read.csv(file.path(tab_dir, "Table2_SelfReport_Trends.csv"), check.names = FALSE)
+t3 <- read.csv(file.path(tab_dir, "Table3_STEPS_Comparable_Cascade.csv"), check.names = FALSE)
+t4 <- read.csv(file.path(tab_dir, "Table4_KDHS2022_Treatment_Insurance.csv"), check.names = FALSE)
+t5 <- read.csv(file.path(tab_dir, "Table5_Independent_Survey_Contrasts.csv"), check.names = FALSE)
+ts1 <- read.csv(file.path(tab_dir, "TableS1_DHS_Questionnaire_Domains.csv"), check.names = FALSE)
+fmt <- function(x) sprintf("%.1f%% (95%% CI %.1f to %.1f)", x$pct[1], x$pct_low[1], x$pct_high[1])
+pick <- function(d, survey_name, disease, indicator_name, sex_name = "All") {
+  d[d$survey == survey_name & d$condition == disease & d$indicator == indicator_name &
+      d$sex == sex_name, , drop = FALSE]
+}
+htn14 <- fmt(pick(t2, "KDHS 2014", "Hypertension", "Self-reported diagnosis"))
+htn15sr <- fmt(pick(t2, "STEPS 2015", "Hypertension", "Self-reported diagnosis"))
+htn22 <- fmt(pick(t2, "KDHS 2022", "Hypertension", "Self-reported diagnosis"))
+dm14 <- fmt(pick(t2, "KDHS 2014", "Diabetes", "Self-reported diagnosis"))
+dm15sr <- fmt(pick(t2, "STEPS 2015", "Diabetes", "Self-reported diagnosis"))
+dm22 <- fmt(pick(t2, "KDHS 2022", "Diabetes", "Self-reported diagnosis"))
+htn15m <- fmt(pick(t3, "STEPS 2015", "Hypertension", "Measured prevalence"))
+dm15m <- fmt(pick(t3, "STEPS 2015", "Diabetes", "Measured prevalence"))
+htnaware <- fmt(pick(t3, "STEPS 2015", "Hypertension", "Aware among measured disease"))
+htntreat <- fmt(pick(t3, "STEPS 2015", "Hypertension", "Treated among measured disease"))
+htncontrol <- fmt(pick(t3, "STEPS 2015", "Hypertension", "Controlled among measured disease"))
+htn22treat <- fmt(pick(t4, "KDHS 2022", "Hypertension", "Treated among diagnosed"))
+htn22insured <- fmt(pick(t4, "KDHS 2022", "Hypertension", "Insured among diagnosed"))
+```
 
 # Abstract
 
 **Background**  
-STEPS measures biological NCD burden; DHS captures self-reported diagnosis and insurance. We estimated Kenya STEPS 2015 care cascades, compared them with KDHS 2022 self-report, and validated a dual-survey estimator of population unmet need before the Social Health Authority (SHA) transition.
+Questionnaire surveys measure previously diagnosed non-communicable disease (NCD), whereas examination surveys also detect disease in people who have never been diagnosed. We assessed whether questionnaire-based hypertension and diabetes indicators were comparable across Kenyan surveys and quantified the burden invisible to self-report.
 
 **Methods**  
-Design-based analysis of STEPS 2015 (n=4,500; ages 18–69) for measured hypertension (BP ≥140/90 mmHg or on medication) and diabetes (fasting glucose ≥7.0 mmol/L or on medication), with awareness, treatment, and control among those with disease. KDHS 2022 adults (n=40,636; women ≤49, men ≤54) provided self-reported diagnosis, treatment among the diagnosed, and insurance (PR `sh27`). A detection ratio and hybrid estimator (STEPS awareness × DHS treatment|diagnosed) were compared with STEPS-direct treatment. STROBE reporting.
+We analysed nationally representative cross-sectional data from the 2014 Kenya Demographic and Health Survey (KDHS), Kenya STEPS 2015, and KDHS 2022. Analyses were restricted to adults aged 18--49 years. Estimates were standardised to the STEPS 2015 sex-by-age distribution and incorporated weights, strata and primary sampling units. We compared self-reported professional diagnosis across surveys, estimated measured disease and care cascades within STEPS, and described treatment and insurance among diagnosed adults in KDHS 2022. Independent-survey differences used Taylor-linearised standard errors. No individual records or cascade stages were combined across surveys.
 
 **Results**  
-Measured hypertension prevalence was 24.2% (95% CI 21.8–26.7) and diabetes 2.0% (1.3–2.6). Among hypertensives, 23.7% (19.7–27.7) were aware, 7.8% (5.7–9.8) treated, and 2.7% (0.9–4.5) controlled. Men were less aware (16.0% vs 31.8%) and treated (3.8% vs 11.8%) than women. Only 0.6% of all adults had controlled hypertension. KDHS self-reported hypertension was 4.4% (4.1–4.7; detection ratio 0.18); 34.0% (30.4–37.5) of diagnosed adults were treated and 48.1% (44.7–51.4) insured. Hybrid treatment among measured hypertension was 8.0%, matching STEPS-direct 7.8%.
+Standardised self-reported hypertension was `r htn14` in KDHS 2014, `r htn15sr` in STEPS 2015, and `r htn22` in KDHS 2022. The 2014 KDHS--2015 STEPS difference was 0.35 percentage points (95% CI -0.98 to 1.69), supporting comparability of the hypertension self-report item. In STEPS, measured hypertension was `r htn15m`, but only `r htnaware` of affected adults were aware, `r htntreat` were treated, and `r htncontrol` were controlled. Self-reported diabetes varied more across instruments (`r dm14`, `r dm15sr`, and `r dm22`, respectively), while measured diabetes in STEPS was `r dm15m`. In KDHS 2022, `r htn22treat` of diagnosed adults used antihypertensive medication and `r htn22insured` were insured.
 
 **Conclusions**  
-Most hypertension was undiagnosed or uncontrolled. DHS self-report sees a minority of measured disease; treatment gaps among the diagnosed describe a visible subset only. SHA monitoring should track detection and control, not enrolment alone.
-
-**Keywords:** hypertension; diabetes; care cascade; underdiagnosis; STEPS; Demographic and Health Survey; Kenya; Social Health Authority
-
+Repeated questionnaire surveys consistently captured diagnosed hypertension but represented only a minority of biologically measured hypertension. Questionnaire indicators should therefore monitor contact and diagnosis, not population disease prevalence. Kenya needs surveillance that jointly measures biomarkers, diagnosis, treatment, control and financial protection.
 
 # Background
 
-Hypertension and diabetes drive a growing share of premature death and disability in sub-Saharan Africa, yet health systems still detect and control only a minority of cases [@zhou2021global; @gesesew2020cascade; @manne2019diabetes; @atun2017diabetes]. Kenya's last nationally measured non-communicable disease (NCD) risk-factor survey—the 2015 WHO STEPwise survey—documented high blood pressure, low awareness, and incomplete treatment [@kenyaSTEPS2015; @mohamed2018prevalence; @mohamed2018diabetes; @wamai2014kenya]. The 2022 Kenya Demographic and Health Survey (KDHS) added self-reported NCD diagnosis and treatment items and, in the Person Recode, health insurance status on the eve of the National Health Insurance Fund (NHIF) transition to the Social Health Authority (SHA) in October 2024 [@kdhs2022; @sha2024kenya].
+Hypertension and diabetes are major contributors to cardiovascular and renal disease, yet many affected adults in low- and middle-income countries remain undiagnosed or untreated [@zhou2021global; @geldsetzer2019state; @mannegoehler2016diabetes]. Monitoring this continuum requires distinguishing biological need from health-system contact. A survey that measures blood pressure or glucose can estimate disease regardless of prior contact with care. A questionnaire asking whether a clinician has ever communicated a diagnosis measures a different construct: the cumulative result of access to testing, clinical recognition, and communication to the patient.
 
-These two survey systems are complementary but rarely analysed jointly with an explicit measurement model. STEPS measures blood pressure and fasting glucose and therefore can construct a biological care cascade from disease to control [@whoSTEPS; @vardeny2019care]. DHS asks whether respondents were ever told they have a condition and whether they take medication, and can link diagnosis to insurance—but it does not measure blood pressure or glucose in the adult sample. Analyses restricted to self-reported diagnosis, including our related KDHS 2022 study of insurance and treatment gaps among diagnosed adults [@amollo2026st03], necessarily condition on the people who have already been detected by the health system. That conditioning can make population unmet need look smaller than it is.
+Kenya has two complementary national surveillance systems. The World Health Organization STEPwise approach to NCD risk-factor surveillance (STEPS) combines an interview with physical and biochemical measurements [@whoSTEPS; @kenyaSTEPS2015]. The Kenya Demographic and Health Survey (KDHS) collects extensive demographic, service-use and financial-protection information but does not measure adult blood pressure or glucose. Both KDHS 2014 and KDHS 2022 asked adults whether a health professional had told them that they had hypertension or diabetes [@kdhs2014; @kdhs2022]. The 2014 KDHS report explicitly cautioned that these indicators did not estimate biological prevalence because they depended on examination and prior notification [@kdhs2014].
 
-Cross-country STEPS analyses show large leakages at every cascade step in low- and middle-income countries [@gesesew2020cascade; @manne2019diabetes]. Kenyan facility and household studies document cost barriers and incomplete coverage for chronic care [@amollo2026kisumu; @barasa2018extending; @kazungu2017examining]. What remains under-used is a transparent dual-survey design that: (i) re-estimates the measured cascade with equity stratification; (ii) quantifies how much of measured disease self-report surveys can see; and (iii) tests whether a simple transportability estimator—STEPS awareness times DHS treatment among the diagnosed—recovers the STEPS-measured treatment rate. If it does, the same framework can be used when only one survey type is available, and it reframes insurance-linked gaps among the diagnosed as the tip of a population iceberg.
+Previous analyses of Kenya STEPS 2015 established a substantial hypertension burden and large losses from diagnosis to control [@mohamed2018prevalence]. Diabetes prevalence, prediabetes and associated factors have also been reported [@mohamed2018diabetes], and a later analysis evaluated modified Finnish diabetes risk scores in the same dataset [@mugume2023findrisc]. Those studies did not formally harmonise questionnaire indicators from the two KDHS rounds with the corresponding STEPS interview items. Consequently, it remains unclear whether differences between DHS self-report and STEPS measurement primarily reflect incompatible questionnaires or the expected visibility gap between diagnosed and measured disease.
 
-We therefore had three objectives. First, to estimate survey-weighted measured hypertension and diabetes care cascades in Kenya STEPS 2015, including population-level treatment and control coverage and sex, residence, and education differences. Second, to estimate self-reported diagnosis prevalence, treatment among the diagnosed, and insurance among the diagnosed in KDHS 2022 for adults in the STEPS age window, insofar as DHS age ceilings allow. Third, to define and validate dual-survey estimators of detection and hybrid population treatment coverage, and to discuss implications for SHA-era monitoring.
+We used surveillance triangulation rather than statistical record linkage or data fusion. Our objectives were to: (1) assess the comparability of self-reported hypertension and diabetes diagnosis across KDHS 2014, STEPS 2015 and KDHS 2022 in a common age range; (2) quantify measured disease and losses across the awareness, treatment and control cascade within STEPS 2015; and (3) place KDHS 2022 treatment and insurance indicators among diagnosed adults alongside, but not mathematically combine them with, the measured STEPS burden. The study provides a pre-Social Health Authority baseline for interpreting future questionnaire and biomarker surveillance.
 
 # Methods
 
-## Study design and reporting
+## Study design
 
-We conducted a dual-survey secondary analysis of two nationally representative cross-sectional household surveys. The study is reported according to STROBE guidance for observational studies [@vonelm2007strobe]. No individual-level record linkage was possible or attempted; synthesis is at the estimator level.
+We conducted a secondary analysis of three nationally representative cross-sectional household surveys. Reporting follows the Strengthening the Reporting of Observational Studies in Epidemiology guidance [@vonelm2007strobe]. The unit of analysis was the individual respondent. The surveys sampled different people; no record linkage was possible or attempted.
 
-## Data sources
+## Data sources and study population
+
+### KDHS 2014
+
+KDHS 2014 used a stratified, two-stage cluster design based on the national sampling frame. Women aged 15--49 and men aged 15--54 were interviewed. Hypertension and diabetes items asked whether a doctor or health worker had ever told the respondent that they had raised blood pressure/hypertension or raised blood sugar/diabetes [@kdhs2014]. The women's survey used long and short questionnaires; NCD questions were available only in the applicable questionnaire domain. Respondents without an administered NCD item were excluded from that indicator rather than classified as disease-free.
 
 ### Kenya STEPS 2015
 
-STEPS 2015 used a three-step WHO instrument: interview (Step 1), physical measurements including blood pressure, height, and weight (Step 2), and biochemistry including fasting blood glucose and total cholesterol (Step 3) [@kenyaSTEPS2015; @whoSTEPS]. The public-use file contains 4,500 adults aged 18–69 years with design variables `psu`, `stratum`, and analysis weights `wstep1`, `wstep2`, and `wstep3` for the three steps.
+Kenya STEPS 2015 selected one adult aged 18--69 years per sampled household through a multistage cluster design. Step 1 collected sociodemographic characteristics, risk behaviours and histories of raised blood pressure and glucose. Step 2 included three blood-pressure measurements and anthropometry. Step 3 included fasting capillary glucose and lipids [@kenyaSTEPS2015]. We used the supplied interview, physical-measurement and biochemical weights (`wstep1`, `wstep2`, and `wstep3`) for their corresponding indicators.
 
-### Kenya DHS 2022
+### KDHS 2022
 
-We used the women's recode (IR; ages 15–49), men's recode (MR; ages 15–54), and Person Recode (PR) for insurance (`sh27`, `sh28a`). Adults were restricted to ages 18–69 to approximate the STEPS range, noting that DHS still truncates women at 49 and men at 54 years. Insurance was merged on cluster, household, and line number (`hv001`/`v001`, `hv002`/`v002`, `hvidx`/`v003`), following the KDHS 2022 architecture in which standard individual insurance fields are empty and coverage is carried in PR [@kdhs2022; @amollo2026st03]. Men's weights were adjusted by a strata-specific male subsample factor derived from PR eligibility, as in our prior pooled analyses [@amollo2026st03].
+KDHS 2022 interviewed women aged 15--49 and men aged 15--54 using a stratified, two-stage design [@kdhs2022]. The NCD module recorded prior professional diagnosis and current medication. Insurance was obtained from the Person Recode variable `sh27` and linked to women and men through cluster, household and household-line identifiers. As in 2014, women outside the administered NCD questionnaire domain were excluded, not coded as negative.
 
-## Outcome definitions
+For direct comparability, all analyses were restricted to women and men aged 18--49 years. This avoids the unequal female and male upper-age limits in DHS and the substantially older STEPS population.
 
-### STEPS measured disease and cascade
+## Indicators
 
-Systolic and diastolic blood pressure were the averages of the second and third readings. **Measured hypertension** was systolic pressure ≥140 mmHg, diastolic pressure ≥90 mmHg, or current blood-pressure medication. **Measured diabetes** was fasting glucose ≥7.0 mmol/L or current glucose-lowering medication. Among people with measured disease:
+Self-reported hypertension and diabetes diagnosis were defined in each survey as having ever been told by a doctor or other health worker that the respondent had the condition. In STEPS, systolic and diastolic pressure were the means of the second and third readings. Measured hypertension was systolic pressure at least 140 mmHg, diastolic pressure at least 90 mmHg, or reported use of blood-pressure medication during the preceding two weeks. Measured diabetes was fasting capillary glucose at least 7.0 mmol/L or current glucose-lowering medication.
 
-- **Aware:** ever told of raised blood pressure (or glucose) by a health worker, or currently on medication  
-- **Treated:** currently on medication  
-- **Controlled:** on medication and below clinical thresholds (blood pressure <140/90 mmHg; glucose <7.0 mmol/L)
+Among adults with measured hypertension, awareness was previous professional diagnosis or medication use; treatment was medication use during the preceding two weeks; and control was treatment with systolic pressure below 140 mmHg and diastolic pressure below 90 mmHg. Analogous awareness and medication indicators were calculated for measured diabetes, although diabetes estimates were treated as secondary because of the small numerator.
 
-**Population treatment coverage** was prevalence × treatment among those with disease; **population control coverage** was prevalence × control among those with disease. Body-mass index used measured height and weight; overweight or obesity was BMI ≥25 kg/m² and obesity BMI ≥30 kg/m².
+In KDHS 2022, treatment was current medication among respondents reporting the corresponding diagnosis. Insurance was any coverage (`sh27`) among diagnosed respondents. These indicators retain diagnosed adults as their denominator and were not rescaled to measured disease using information from another survey.
 
-### DHS self-report
+## Standardisation and statistical analysis
 
-**Diagnosed hypertension** and **diagnosed diabetes** were self-report of ever being told by a health professional (KDHS NCD module). **Treated among diagnosed** was current medication among those who reported a diagnosis. **Any insurance** was PR `sh27`.
+Each survey was analysed separately using its sampling weights, primary sampling units and strata. We formed six standardisation cells from sex and age (women and men, each aged 18--29, 30--39 and 40--49). Estimates were directly standardised to the weighted distribution of these cells in the STEPS 2015 interview sample. The standard distribution was treated as fixed and applied to all three surveys. This made pooled estimates comparable without ad hoc multiplication of male and female survey weights.
 
-### Dual-survey estimators
+Percentages are presented with 95% confidence intervals from Taylor-linearised variances. Differences between independent survey estimates used the square root of the sum of their variances. We treated the near-contemporaneous KDHS 2014--STEPS 2015 comparison of identically worded self-report constructs as an assessment of instrument-level convergence. The measured-versus-aware comparison within STEPS quantified the surveillance visibility gap directly in the same respondents. We did not interpret differences between STEPS 2015 and KDHS 2022 as biological disease trends.
 
-We defined a **detection ratio** DR = p̂_dx,DHS / p̂_measured,STEPS and an **underdiagnosis index** UDI = max(0, 1 − DR). These quantities compare measurement systems and calendar years; they are not time-trend estimators and are not interpreted as change from 2015 to 2022.
-
-We defined a **hybrid treated-among-measured** estimator under a transportability assumption: τ̂_hybrid = â_STEPS × t̂_DHS, where â_STEPS is awareness among measured disease and t̂_DHS is treatment among self-reported diagnosed disease. Population hybrid treatment coverage is p̂_measured × τ̂_hybrid. We compared τ̂_hybrid with STEPS-direct treatment among measured disease. Sensitivity analyses multiplied â and t̂ by 0.8 and 1.2 (capped at 1).
-
-## Statistical analysis
-
-All prevalence and cascade estimates used sampling weights with design-based standard errors from the ultimate-cluster (linearised) variance estimator, treating primary sampling units as clusters and survey strata as strata [@lumley2004]. STEPS analyses used the weight matching the measurement step (`wstep2` for blood pressure and anthropometry; `wstep3` for glucose and cholesterol). DHS analyses used individual weights with the male subsample correction. We report percentages with 95% confidence intervals and unweighted denominators.
-
-Socioeconomic patterning of STEPS hypertension outcomes used education as an ordinal rank (no formal schooling through postgraduate) and the Erreygers-corrected concentration index for binary outcomes, with percentile intervals from a 200-replicate cluster bootstrap [@erreygers2009; @odonnell2008]. Stratified cascade estimates were produced by sex, urban–rural residence, and collapsed education groups.
-
-Analyses were implemented in Python 3 with design-based estimators; scripts and table outputs are archived with the study package. Item non-response was handled by domain restriction with complete cases for each estimator. We make no causal claims.
+Analyses were conducted in R using `survey`, `haven` and `data.table`. The complete workflow is implemented in `03_scripts/06_triangulation_analysis.R`; tables and figures are generated programmatically.
 
 ## Ethical considerations
 
-STEPS and KDHS are de-identified public-use datasets collected under national ethical approvals. This secondary analysis used DHS data under authorisation reference 220623 (granted 20 October 2025) and STEPS microdata under authorised research access. No additional participant contact occurred.
+The original surveys obtained national ethical approvals and participant consent. This study used de-identified secondary data under authorised DHS and STEPS access. No participant contact occurred. Planned dissemination will follow the data custodians' acknowledgement and publication-review requirements.
 
 # Results
 
-## STEPS sample and risk-factor context
+## Questionnaire domains and analytic samples
 
-Among 4,500 STEPS participants, design-weighted composition was approximately half women (51.1%) and about three-fifths urban (62.1%). Primary education was the modal group (45.6%). Weighted overweight or obesity was 27.6 (24.5–30.7)% and obesity 9.0 (7.5–10.4)%. Only 44.2 (40.2–48.1)% of adults reported ever having had blood pressure measured, and 11.9 (9.5–14.3)% ever having had blood glucose measured.
+The harmonised NCD domains contained 23,199 KDHS 2014 respondents, 3,527 STEPS respondents with a non-missing hypertension self-report item, and 26,487 KDHS 2022 respondents aged 18--49. The smaller female DHS domains reflect assignment of the NCD questions to the applicable questionnaire, not outcome non-response (Supplementary Table S1). Treating those structurally missing records as negative would have substantially underestimated diagnosed disease.
 
-## Measured hypertension cascade
+## Convergence of self-reported diagnosis indicators
 
-Measured hypertension affected 24.2 (21.8–26.7)% of adults (unweighted n with Step 2 measures = 4441). Among 1,227 adults with measured hypertension, awareness was 23.7 (19.7–27.7)%, medication use 7.8 (5.7–9.8)%, and control 2.7 (0.9–4.5)% (Table 1; Figure 1). Among the minority on treatment, control was 34.4 (16.4–52.5)%. Thus more than three-quarters of people with hypertension did not know their status, more than nine in ten were not on medication, and about 97.3% remained uncontrolled.
+Age-sex-standardised self-reported hypertension was `r htn14` in KDHS 2014, `r htn15sr` in STEPS 2015, and `r htn22` in KDHS 2022 (Table 1; Figure 1). KDHS 2014 exceeded STEPS 2015 by only 0.35 percentage points (95% CI -0.98 to 1.69). The KDHS 2022 estimate was 0.58 percentage points lower than KDHS 2014 (95% CI -1.20 to 0.05), providing little evidence of a material change in diagnosed hypertension prevalence after standardisation.
 
-At population level, antihypertensive medication covered only 1.9% of all adults, and controlled hypertension only 0.6% (Figure 4). The population fraction with uncontrolled measured hypertension was 23.6%—almost equal to the prevalence itself, because control was rare.
+Women consistently reported more diagnosed hypertension than men. Estimates for women were 10.0%, 9.4%, and 8.9% in KDHS 2014, STEPS 2015 and KDHS 2022, respectively; corresponding estimates for men were 3.3%, 3.2%, and 3.3%. This stable sex contrast across three independent samples supports reproducibility of the questionnaire indicator while also reflecting sex differences in screening, care contact, true disease, or all three.
 
-Sex differences were large (Figure 2). Hypertension prevalence was similar in men (25.3 (22.0–28.6)%) and women (23.2 (20.6–25.9)%), but awareness among those with disease was 16.0 (10.6–21.3)% in men versus 31.8 (26.9–36.6)% in women, and treatment 3.8 (1.9–5.8)% versus 11.8 (7.8–15.9)%. Control among men with hypertension was about 1%.
+Self-reported diabetes was `r dm14` in KDHS 2014, `r dm15sr` in STEPS 2015, and `r dm22` in KDHS 2022 (Table 2). KDHS 2014 exceeded STEPS 2015 by 0.58 percentage points (95% CI 0.24 to 0.92). Thus the hypertension items converged more closely than the diabetes items.
 
-Education-related inequality in prevalence and cascade stages was modest: Erreygers indices were close to zero with bootstrap intervals spanning zero for prevalence, treatment, and control (Table 2). Absolute cascade failure was therefore a population-wide problem rather than a narrow pro-rich or pro-poor pattern by education.
+```{r}
+#| label: tbl-self-report
+#| tbl-cap: "Age-sex-standardised self-reported hypertension diagnosis among Kenyan adults aged 18-49 years"
+show <- t2[t2$condition == "Hypertension", c("survey", "sex", "formatted", "n", "events")]
+names(show) <- c("Survey", "Sex", "% (95% CI)", "n", "Events")
+knitr::kable(show, align = c("l", "l", "r", "r", "r"), row.names = FALSE)
+```
 
-## Measured diabetes cascade
+```{r}
+#| label: tbl-self-report-dm
+#| tbl-cap: "Age-sex-standardised self-reported diabetes diagnosis among Kenyan adults aged 18-49 years"
+show <- t2[t2$condition == "Diabetes", c("survey", "sex", "formatted", "n", "events")]
+names(show) <- c("Survey", "Sex", "% (95% CI)", "n", "Events")
+knitr::kable(show, align = c("l", "l", "r", "r", "r"), row.names = FALSE)
+```
 
-Measured diabetes prevalence was 2.0 (1.3–2.6)% (n = 4178 in the Step 3 domain). Among people with measured diabetes (n = 117), awareness was 28.0 (13.6–42.4)%, treatment 22.7 (9.1–36.2)%, and control 6.6 (2.0–11.3)% (Table 1; Figure 1). Confidence intervals were wide because the diabetes numerator was small, but the qualitative pattern matched hypertension: most disease was not controlled. Combined measured hypertension or diabetes affected about one-quarter of adults with both measurements available.
+![Harmonised self-reported diagnosis and measured prevalence in Kenyan adults aged 18--49 years. Estimates are standardised to the STEPS 2015 sex-by-age distribution.](../05_figures/Figure1_Harmonised_Triangulation.png){#fig-triangulation width=90%}
 
-## KDHS 2022 self-report, treatment, and insurance
+## Measured disease and care cascades in STEPS 2015
 
-In KDHS 2022 adults in the restricted age window (n = 40,636), self-reported hypertension diagnosis was 4.4 (4.1–4.7)% and diabetes diagnosis 0.8 (0.7–0.9)% (Table 3). Among those with diagnosed hypertension, 34.0 (30.4–37.5)% reported current medication (treatment gap about 66.0%). Among those with diagnosed diabetes, medication use was higher (70.2 (62.6–77.7)%). Any health insurance covered 48.1 (44.7–51.4)% of adults with diagnosed hypertension and 47.7 (44.4–50.9)% of adults with either diagnosis—figures aligned with our prior diagnosed-adult analysis [@amollo2026st03]. Treatment among diagnosed hypertension was higher in the insured (39.7% [33.6–45.9]) than the uninsured (28.4% [24.7–32.1]), but even insured diagnosed adults fell far short of universal treatment.
+Measured hypertension prevalence in adults aged 18--49 was `r htn15m`, approximately three times the contemporaneous STEPS self-reported diagnosis prevalence (Table 3). Among adults with measured hypertension, `r htnaware` were aware, `r htntreat` were taking medication, and `r htncontrol` were treated and controlled. Expressed across the full population, 3.8% had aware hypertension, 1.2% had treated hypertension, and 0.6% had controlled hypertension.
 
-## Dual-survey synthesis
+Measured diabetes prevalence was `r dm15m`. Awareness and treatment among the 59 unweighted measured cases were 9.6% and 8.9%, respectively, with wide confidence intervals. These estimates should be interpreted cautiously because a single fasting capillary measurement is a surveillance definition rather than a clinical diagnosis and because the number of measured cases was small.
 
-The hypertension detection ratio (DHS self-report over STEPS measured prevalence) was **0.18**, corresponding to an underdiagnosis index of **82%** of measured disease not represented in self-report prevalence (Figure 3; Table 4). For diabetes the detection ratio was **0.41** (underdiagnosis index 59%). These ratios mix measurement modality, survey year, and age-structure differences and must not be read as a seven-year trend.
+```{r}
+#| label: tbl-steps-cascade
+#| tbl-cap: "Measured disease and care-cascade indicators in Kenya STEPS 2015, ages 18-49"
+show <- t3[t3$sex == "All", c("condition", "indicator", "formatted", "n", "events")]
+show$indicator <- c("HTN measured", "HTN aware among cases",
+                    "HTN treated among cases", "HTN controlled among cases",
+                    "HTN aware population", "HTN treated population",
+                    "HTN controlled population", "Diabetes measured",
+                    "Diabetes aware among cases", "Diabetes treated among cases")
+show <- show[, c("indicator", "formatted", "n", "events")]
+names(show) <- c("Indicator", "Estimate", "N", "Cases")
+knitr::kable(show, align = c("l", "r", "r", "r"), row.names = FALSE)
+```
 
-The hybrid estimator for hypertension—STEPS awareness × DHS treatment among the diagnosed—yielded **8.0%** treated among measured disease, compared with the STEPS-direct estimate of **7.8 (5.7–9.8)%**. Agreement within one percentage point supports transportability of treatment-conditional-on-diagnosis from DHS to the STEPS awareness structure for hypertension. For diabetes, hybrid treatment among measured disease was 19.6% versus STEPS-direct 22.7 (9.1–36.2)%, with wider uncertainty.
+## Treatment and insurance among diagnosed adults in KDHS 2022
 
-Sensitivity analyses for hypertension (Table 5) kept population untreated disease between about 21% and 23% of adults across ±20% relative shifts in awareness and treatment-among-diagnosed, because prevalence is high and both cascade steps are low. Conclusions about large population unmet need are robust to moderate misspecification of the hybrid components.
+Among adults reporting diagnosed hypertension in KDHS 2022, `r htn22treat` reported current medication and `r htn22insured` had any health insurance (Table 4). Diagnosed and treated hypertension represented 1.9% of the standardised adult population. Among respondents reporting diagnosed diabetes, 59.8% were treated and 37.0% were insured, although the diagnosed diabetes domain was much smaller.
+
+```{r}
+#| label: tbl-kdhs-care
+#| tbl-cap: "Treatment and insurance among adults with self-reported diagnosis in KDHS 2022, ages 18-49"
+show <- t4[t4$sex == "All", c("condition", "indicator", "formatted", "n", "events")]
+show$indicator <- c("HTN treatment", "HTN insurance", "HTN treated prevalence",
+                    "Diabetes treatment", "Diabetes insurance", "Diabetes treated prevalence")
+show <- show[, c("indicator", "formatted", "n", "events")]
+names(show) <- c("Indicator", "Estimate", "N", "Cases")
+knitr::kable(show, align = c("l", "r", "r", "r"), row.names = FALSE)
+```
 
 # Discussion
 
 ## Principal findings
 
-Three findings structure the dual-survey picture. First, measured hypertension was common in Kenya STEPS 2015 (24.2%), but control among those with disease was rare (2.7%), so nearly a quarter of all adults carried uncontrolled hypertension. Second, men and women had similar measured prevalence, yet men were systematically less aware and less treated—an engagement gap that pure prevalence studies understate. Third, KDHS 2022 self-report prevalence was several-fold lower than STEPS-measured prevalence, while treatment among the diagnosed remained incomplete and only partly aligned with insurance. A hybrid estimator linking STEPS awareness to DHS treatment recovered the STEPS-measured treatment rate for hypertension, validating a practical dual-survey identity: **population treatment ≈ measured prevalence × awareness × treatment among the diagnosed**.
+Three findings emerge. First, questionnaire-based hypertension diagnosis was highly reproducible across KDHS 2014, STEPS 2015 and KDHS 2022 after restricting the surveys to the same ages and applying a common sex-by-age standard. The close 2014--2015 agreement indicates that the large difference between questionnaire diagnosis and measured hypertension cannot be dismissed as a DHS-versus-STEPS wording artefact.
 
-## Relation to prior work
+Second, questionnaire surveillance saw only the diagnosed portion of the burden. In STEPS, approximately one in five adults aged 18--49 met the surveillance definition for hypertension, but fewer than one in five of those affected were aware and only about one in eighteen were treated. The policy denominator therefore matters. Treatment among people already diagnosed describes continuity of care after detection; it does not describe effective coverage among everyone needing treatment.
 
-Our measured hypertension prevalence (24.2%) is close to the published STEPS-based national estimate of about 24.5% [@mohamed2018prevalence], supporting definitional fidelity. We intentionally move beyond prevalence replication to cascade control, sex-specific leakage, population-level coverage, and dual-survey methods. Global multi-country cascades report similarly severe drop-offs from disease to control in low-resource settings [@gesesew2020cascade; @manne2019diabetes; @jorgensen2020zanzibar]. Our related KDHS analysis showed that among diagnosed adults, insurance coverage was incomplete and treatment gaps exceeded 60% for combined hypertension or diabetes [@amollo2026st03]. The present study shows why that finding, while policy-relevant for people already labelled with disease, understates population unmet need: most people with measured hypertension never enter the diagnosed denominator.
+Third, the repeated DHS indicator did not show convincing improvement in diagnosed hypertension prevalence between 2014 and 2022. A stable diagnosis proportion cannot distinguish stable disease burden from simultaneous changes in disease incidence and detection. It should not be read as evidence that hypertension prevalence was unchanged. The consistent female--male contrast may reflect both biological differences and women's greater contact with health services, particularly through reproductive and maternal care.
 
-## Methods contribution
+## Relation to previous research
 
-The dual-survey framework formalises what analysts often do informally. Detection ratios quantify how much biological burden self-report surveys miss. Hybrid estimators allow DHS-based health-financing variables—insurance, payment barriers—to be discussed against a STEPS-informed disease base when simultaneous measurement of insurance and biomarkers is unavailable. Validation against STEPS-direct treatment is essential; without it, hybrid products can hide incompatible definitions. We recommend that future Kenyan NCD monitoring either (i) restore periodic STEPS-like measurement with insurance and care modules in the same questionnaire, or (ii) publish dual-survey dashboards that report diagnosed-adult indicators and population cascade indicators side by side under explicit assumptions.
+The hypertension cascade observed here is directionally consistent with the previously published all-age Kenya STEPS analysis, which reported high prevalence and low awareness, treatment and control [@mohamed2018prevalence]. Our estimates differ because we restricted the population to ages 18--49, directly standardised all surveys to one distribution, and used the medication item associated with the physical-measurement module. The purpose was comparability with DHS rather than replacement of the official all-age estimate.
 
-## Policy implications for the SHA era
+International pooled analyses have shown that hypertension and diabetes cascades lose patients at each step, with particularly poor diagnosis and control in sub-Saharan Africa [@geldsetzer2019state; @mannegoehler2016diabetes]. Those analyses harmonised surveys that contained biomarkers and care indicators in the same respondents. Our findings show why cascade stages should not be multiplied across independent surveys when the age ranges, years and instruments differ. Triangulation is more defensible when each source retains its own estimand and agreement is assessed on genuinely shared indicators.
 
-SHA reforms that expand enrolment without measuring detection and control will appear successful on administrative dashboards while population blood-pressure control remains near zero. Our population control coverage of about 0.6% of adults is a stark pre-SHA biological baseline. Priority implications include: opportunistic and community blood-pressure screening that reaches men; reliable antihypertensive supply and adherence support after diagnosis; and SHA benefit design that links membership to chronic-care continuity, not only acute visit coverage [@amollo2026kisumu; @barasa2018extending]. Diabetes absolute numbers are smaller but control remains poor among those with disease, and self-report still under-captures measured hyperglycaemia.
+The diabetes findings deserve greater caution. The difference between KDHS 2014 and STEPS 2015 self-report suggests weaker cross-instrument comparability, while the measured diabetes numerator was small. A prior Kenya analysis evaluated FINDRISC using the same STEPS data [@mugume2023findrisc]. Our study does not derive another risk score; it instead demonstrates that diabetes surveillance conclusions are more sensitive than hypertension conclusions to instrument and sampling choices.
+
+## Implications for surveillance and policy
+
+Kenya's transition from the National Health Insurance Fund to the Social Health Authority creates a need for indicators spanning need, contact, quality and financial protection. DHS can monitor diagnosis, treatment among diagnosed people and insurance. It cannot determine how many adults have undiagnosed hypertension or diabetes without biomarkers. Conversely, STEPS measures biological risk but contains less detail about financing and service use.
+
+Future national surveillance should place blood pressure, glucose, prior diagnosis, medication, control and insurance in the same respondents. At minimum, a periodic STEPS round should include insurance and care-access modules, or a future KDHS biomarker subsample should measure adult blood pressure and glucose. Until then, dashboards should present measured prevalence from examination surveys and diagnosed-adult indicators from questionnaire surveys side by side, with explicit denominators and survey years.
+
+The low treatment coverage among measured hypertension indicates that insurance expansion alone is insufficient. Screening must be connected to confirmatory diagnosis, reliable medicine supply, longitudinal follow-up and control monitoring. The male awareness deficit warrants screening routes beyond routine facility attendance, including workplaces, community outreach and opportunistic blood-pressure measurement.
 
 ## Strengths and limitations
 
-Strengths include nationally representative microdata for both surveys, design-based variance estimation, pre-specified cascade definitions aligned with WHO STEPS practice, equity indices, and a hybrid estimator validated against measured treatment. Limitations are substantial and must frame interpretation. STEPS and DHS are seven years apart; detection ratios are structural comparisons, not trends. DHS age ceilings exclude older women and men who carry high NCD burden, which likely **inflates** underdiagnosis indices relative to a true 18–69 self-report census. Self-report and measured disease use different constructs; medication questions and skip patterns are not identical across surveys. STEPS lacks insurance variables, so insurance findings remain DHS-only. Diabetes numerators in STEPS are small, widening intervals. Education is an imperfect SES proxy compared with DHS wealth quintiles. Cross-sectional design precludes causal claims about insurance or sex.
+This study used three national probability samples, preserved each complex survey design, enforced a common age range, standardised estimates to one sex-by-age distribution and explicitly respected questionnaire domains. The near-contemporaneous KDHS 2014--STEPS 2015 comparison separated instrument convergence from the measured-versus-self-report gap. All outputs are generated through a reproducible R workflow.
+
+Several limitations remain. First, the surveys are repeated cross-sections rather than a cohort; individual transitions between cascade stages cannot be observed. Second, only the 2015 survey measured biomarkers, so biological changes through 2022 cannot be estimated. Third, blood pressure and glucose measured on one survey occasion are surveillance classifications and may misclassify clinical disease. Fourth, self-report depends on recall, access and clinician communication. Fifth, diabetes case numbers in STEPS were small. Sixth, the standard population was estimated from STEPS and treated as fixed, so uncertainty in the standardisation distribution was not propagated. Finally, treatment and insurance in KDHS 2022 apply only to diagnosed adults and cannot identify treatment or financial protection among all adults with biological disease.
 
 # Conclusions
 
-In Kenya STEPS 2015, about one in four adults had measured hypertension, yet only about one in forty people with hypertension had controlled blood pressure, and only about 0.6% of all adults were controlled. KDHS 2022 self-report saw a fraction of that burden, and even among the diagnosed, treatment and insurance were incomplete. A dual-survey hybrid estimator recovered STEPS-measured treatment rates for hypertension and shows how financing analyses among the diagnosed can be rescaled to population unmet need. As Kenya implements SHA, monitoring should track not only enrolment but detection, treatment, and control—especially for men and for people who never appear in self-report denominators.
+Self-reported hypertension diagnosis was consistent across three Kenyan national surveys when age, sex and questionnaire domains were harmonised. That consistency strengthens the interpretation of the larger STEPS measured-versus-aware gap: questionnaire-only surveillance reliably describes known disease but misses most adults with hypertension. Diabetes comparisons were less stable and require more cautious interpretation. Kenya should not use DHS diagnosis prevalence as a substitute for measured NCD prevalence, nor combine cascade stages from different surveys as if they came from one population. Integrated biomarker, care and insurance measurement is necessary to monitor effective NCD coverage during the Social Health Authority era.
 
 # List of abbreviations
 
 | Abbreviation | Definition |
-|--------------|------------|
-| BMI | body mass index |
+|---|---|
+| CI | confidence interval |
 | DHS / KDHS | (Kenya) Demographic and Health Survey |
-| DR | detection ratio |
-| HTN | hypertension |
-| NHIF | National Health Insurance Fund |
 | NCD | non-communicable disease |
-| PR | Person Recode |
+| PSU | primary sampling unit |
 | SHA | Social Health Authority |
-| STEPS | STEPwise approach to NCD risk factor surveillance |
-| STROBE | Strengthening the Reporting of Observational Studies in Epidemiology |
-| UDI | underdiagnosis index |
-
-# Tables
-
-**Table 1. Survey-weighted measured disease and care-cascade stages, Kenya STEPS 2015**
-
-| Estimate | Weighted % (95% CI) | Unweighted n |
-|---|---:|---:|
-| Measured hypertension prevalence | 24.2 (21.8–26.7) | 4441 |
-| Overweight or obese (BMI>=25) | 27.6 (24.5–30.7) | 4265 |
-| Obesity (BMI>=30) | 9.0 (7.5–10.4) | 4265 |
-| Ever had blood pressure measured | 44.2 (40.2–48.1) | 4438 |
-| HTN: aware (told or on meds) | 23.7 (19.7–27.7) | 1227 |
-| HTN: on medication | 7.8 (5.7–9.8) | 1227 |
-| HTN: controlled (among all HTN) | 2.7 (0.9–4.5) | 1227 |
-| HTN: controlled among treated | 34.4 (16.4–52.5) | 116 |
-| Measured diabetes prevalence | 2.0 (1.3–2.6) | 4178 |
-| Ever had blood glucose measured | 11.9 (9.5–14.3) | 4174 |
-| Raised total cholesterol (>=5.0 mmol/L) | 10.1 (8.1–12.0) | 4169 |
-| DM: aware | 28.0 (13.6–42.4) | 117 |
-| DM: on medication | 22.7 (9.1–36.2) | 117 |
-| DM: controlled (among all DM) | 6.6 (2.0–11.3) | 117 |
-| HTN or DM (measured) | 25.0 (22.5–27.6) | 4161 |
-| HTN and DM (measured multimorbidity) | 1.2 (0.6–1.8) | 4161 |
-| Ever BP measured (Step1 weight) | 44.2 (40.2–48.2) | 4493 |
-| Ever glucose measured (Step1 weight) | 12.2 (10.0–14.5) | 4492 |
-
-**Table 2. Erreygers concentration indices for hypertension outcomes by education rank, STEPS 2015**
-
-| Outcome | Erreygers | Bootstrap 95% interval | n |
-|---|---:|---|---:|
-| HTN prevalence | 0.030 | -0.014 to 0.085 | 4441 |
-| HTN awareness among HTN | 0.074 | -0.003 to 0.192 | 1227 |
-| HTN treatment among HTN | -0.003 | -0.043 to 0.051 | 1227 |
-| HTN control among HTN | 0.016 | -0.024 to 0.065 | 1227 |
-
-**Table 3. KDHS 2022 self-report, treatment among the diagnosed, and insurance (adults 18–69; women ≤49, men ≤54)**
-
-| Estimate | Weighted % (95% CI) | Unweighted n |
-|---|---:|---:|
-| Self-reported HTN diagnosis prevalence | 4.4 (4.1–4.7) | 40636 |
-| Self-reported DM diagnosis prevalence | 0.8 (0.7–0.9) | 40636 |
-| Self-reported HTN or DM diagnosis | 4.9 (4.6–5.2) | 40636 |
-| Treated among diagnosed HTN | 34.0 (30.4–37.5) | 1770 |
-| Treated among diagnosed DM | 70.2 (62.6–77.7) | 265 |
-| Treated among any diagnosed | 37.9 (34.4–41.4) | 1944 |
-| Insured among diagnosed HTN | 48.1 (44.7–51.4) | 1760 |
-| Insured among diagnosed DM | 54.8 (45.5–64.1) | 262 |
-| Insured among any diagnosed | 47.7 (44.4–50.9) | 1932 |
-
-**Table 4. Dual-survey comparison and hybrid estimators**
-
-| Field | Hypertension | Diabetes |
-|---|---|---|
-| Measured prevalence STEPS 2015 % (95% CI) | 24.2 (21.8–26.7) | 2.0 (1.3–2.6) |
-| Self-reported diagnosis KDHS 2022 % (95% CI) | 4.4 (4.1–4.7) | 0.8 (0.7–0.9) |
-| Detection ratio | 0.18 | 0.41 |
-| Aware among measured STEPS % | 23.7 (19.7–27.7) | 28.0 (13.6–42.4) |
-| Treated among measured STEPS % | 7.8 (5.7–9.8) | 22.7 (9.1–36.2) |
-| Controlled among measured STEPS % | 2.7 (0.9–4.5) | 6.6 (2.0–11.3) |
-| Treated among diagnosed KDHS % | 34.0 (30.4–37.5) | 70.2 (62.6–77.7) |
-| Insured among diagnosed KDHS % | 48.1 (44.7–51.4) | 54.8 (45.5–64.1) |
-| Hybrid treated among measured % | 8.0 | 19.6 |
-| Population unmet need (not controlled) STEPS % | 23.6 | 1.8 |
-
-**Table 5. Sensitivity of hybrid hypertension population metrics to ±20% shifts in awareness and treatment-among-diagnosed**
-
-| Awareness × | Treatment|dx × | Treated among measured % | Pop. treatment coverage % | Pop. untreated disease % |
-|---:|---:|---:|---:|---:|
-| 0.8 | 0.8 | 5.2 | 1.2 | 23.0 |
-| 0.8 | 1.0 | 6.4 | 1.6 | 22.7 |
-| 0.8 | 1.2 | 7.7 | 1.9 | 22.4 |
-| 1.0 | 0.8 | 6.4 | 1.6 | 22.7 |
-| 1.0 | 1.0 | 8.0 | 2.0 | 22.3 |
-| 1.0 | 1.2 | 9.7 | 2.3 | 21.9 |
-| 1.2 | 0.8 | 7.7 | 1.9 | 22.4 |
-| 1.2 | 1.0 | 9.7 | 2.3 | 21.9 |
-| 1.2 | 1.2 | 11.6 | 2.8 | 21.4 |
-
-# Figures
-
-![Figure 1. Measured care cascades for hypertension and diabetes among adults with disease, Kenya STEPS 2015.](../05_figures/Figure1_STEPS_Cascade.png)
-
-![Figure 2. Hypertension cascade by sex, Kenya STEPS 2015.](../05_figures/Figure2_HTN_Cascade_BySex.png)
-
-![Figure 3. Dual-survey detection comparison: STEPS measured prevalence versus KDHS self-reported diagnosis.](../05_figures/Figure3_DualSurvey_Detection.png)
-
-![Figure 4. Population-level hypertension cascade as a percentage of all adults aged 18–69, Kenya STEPS 2015.](../05_figures/Figure4_Population_HTN_Cascade.png)
+| STEPS | WHO STEPwise approach to NCD risk-factor surveillance |
 
 # Declarations
 
 ## Ethics approval and consent to participate
 
-This study is a secondary analysis of de-identified public survey microdata. The original Kenya STEPS 2015 and KDHS 2022 surveys received ethical approval from the relevant national and institutional review boards. DHS data were accessed under project authorisation reference 220623 (20 October 2025). No new consent was required.
+The original surveys received ethical approval from the relevant national and institutional review bodies and obtained participant consent. This secondary analysis used de-identified microdata. DHS data were accessed under project authorisation reference 220623, granted 20 October 2025. No new participant consent was required.
 
 ## Consent for publication
 
@@ -300,22 +257,32 @@ Not applicable.
 
 ## Availability of data and materials
 
-Kenya STEPS 2015 microdata are available through authorised WHO/Ministry of Health data-access procedures. KDHS 2022 microdata are available from The DHS Program (https://dhsprogram.com/data/) following registration and approval. Analysis scripts and derived non-identifiable summary tables for this study are available in the study package; raw microdata are not redistributed.
+Kenya STEPS 2015 microdata are available through authorised WHO and Ministry of Health access procedures. KDHS 2014 and 2022 microdata are available from The DHS Program following registration and approval. Analysis scripts and aggregate outputs are contained in the study package; restricted microdata are not redistributed.
 
 ## Competing interests
 
-The authors declare that they have no competing interests.
+The authors declare no competing interests.
 
 ## Funding
 
-This research received no specific grant from any funding agency in the public, commercial, or not-for-profit sectors.
+This research received no specific grant from any funding agency in the public, commercial or not-for-profit sectors.
 
 ## Authors' contributions
 
-**NWA** conceptualised the dual-survey design, conducted the statistical analysis, and drafted the manuscript. **JO** contributed to study design, interpretation, and critical revision. Both authors approved the final manuscript.
+NWA conceptualised the study, conducted the analysis and drafted the manuscript. JO contributed to study design, interpretation and critical revision. Both authors approved the submitted manuscript.
 
 ## Acknowledgements
 
-The authors thank the Kenya Ministry of Health, Kenya National Bureau of Statistics, WHO, and The DHS Program for access to survey microdata, and the respondents who participated in STEPS 2015 and KDHS 2022.
+The authors thank the Kenya Ministry of Health, Kenya National Bureau of Statistics, WHO, The DHS Program and all survey participants. Dissemination and authorship procedures required by the STEPS data-use agreement will be completed before submission.
+
+# Supplementary material
+
+```{r}
+#| label: tbl-domain-audit
+#| tbl-cap: "Supplementary Table S1. DHS NCD questionnaire domains after restriction to ages 18-49"
+show <- ts1
+names(show) <- c("Survey", "Sex", "All interviewed", "NCD indicator domain")
+knitr::kable(show, align = c("l", "l", "r", "r"), row.names = FALSE)
+```
 
 # References
