@@ -431,6 +431,7 @@ figure1_data <- insurance_base %>%
   dplyr::group_modify(~{
     stat <- weighted_binary(.x, "value")
     tibble::tibble(
+      n = stat$unweighted_n,
       est = stat$est,
       ci_low = stat$ci_low,
       ci_high = stat$ci_high
@@ -462,32 +463,46 @@ figure1 <- ggplot2::ggplot(
   ) +
   ggplot2::scale_fill_manual(values = c("Any insurance" = "#0f6e8c", "NHIF coverage" = "#5c7cfa")) +
   ggplot2::scale_y_continuous(limits = c(0, 40), expand = ggplot2::expansion(mult = c(0, 0.04))) +
+  ggplot2::geom_text(
+    ggplot2::aes(y = 100 * ci_high, label = paste0("n=", format(n, big.mark = ","))),
+    position = ggplot2::position_dodge(width = 0.72),
+    vjust = -0.6, size = 2.5, colour = "grey30"
+  ) +
   ggplot2::labs(
-    title = "Any insurance and NHIF coverage by disability severity among adults",
-    subtitle = "Source: Kenya DHS 2022. Survey-weighted estimates.",
+    title = "Insurance coverage by disability severity, Kenyan adults aged 18 and above",
+    subtitle = "Kenya DHS 2022, survey-weighted prevalence with 95% confidence intervals",
     x = NULL,
     y = "Weighted prevalence (%)",
-    fill = NULL
+    fill = NULL,
+    caption = paste(
+      "Disability measured with the Washington Group Short Set. Coverage at mild difficulty is",
+      "statistically indistinguishable from
+no difficulty; the coverage penalty begins at moderate",
+      "difficulty. NHIF tracks any insurance closely at every severity level,
+so other schemes do",
+      "not offset the gradient. Intervals are logit-transformed and n is the unweighted denominator."
+    )
   ) +
   ggplot2::theme_minimal(base_size = 11) +
   ggplot2::theme(
     legend.position = "top",
     axis.text.x = ggplot2::element_text(angle = 12, hjust = 1),
-    plot.title = ggplot2::element_text(face = "bold"),
-    plot.subtitle = ggplot2::element_text(size = 9)
+    plot.title = ggplot2::element_text(face = "bold", size = 11.5),
+    plot.subtitle = ggplot2::element_text(size = 9),
+    plot.caption = ggplot2::element_text(size = 7.5, colour = "grey30", hjust = 0)
   )
 
 ggplot2::ggsave(
   file.path(paths$figures_dir, "Figure1_Insurance_By_Disability_Severity.png"),
   figure1,
-  width = 9,
+  width = 9.5,
   height = 5,
   dpi = 300
 )
 ggplot2::ggsave(
   file.path(paths$figures_dir, "Figure1_Insurance_By_Disability_Severity.tiff"),
   figure1,
-  width = 9,
+  width = 9.5,
   height = 5,
   dpi = 300,
   compression = "lzw"
@@ -526,32 +541,46 @@ figure2 <- ggplot2::ggplot(
   ) +
   ggplot2::scale_fill_manual(values = c("Insured" = "#0f6e8c", "Uninsured" = "#cf5c36")) +
   ggplot2::scale_y_continuous(limits = c(0, 100), expand = ggplot2::expansion(mult = c(0, 0.05))) +
+  ggplot2::geom_text(
+    ggplot2::aes(y = 100 * ci_high, label = paste0("n=", n)),
+    position = ggplot2::position_dodge(width = 0.72),
+    vjust = -0.6, size = 2.5, colour = "grey30"
+  ) +
   ggplot2::labs(
-    title = "Payment at last outpatient visit among adults with disability by severity and insurance status",
-    subtitle = "Source: Kenya DHS 2022. Survey-weighted estimates.",
+    title = "Payment at the last outpatient visit, by disability severity and insurance",
+    subtitle = "Kenya DHS 2022, adults with disability who used outpatient care in the previous four weeks",
     x = NULL,
     y = "Paid at last outpatient visit (%)",
-    fill = NULL
+    fill = NULL,
+    caption = paste(
+      "Holding insurance is not associated with a lower probability of paying, at either severity",
+      "level: the four estimates lie
+within about one percentage point of each other. The",
+      "severe-and-insured cell rests on 19 respondents, so its interval
+is wide; intervals are",
+      "logit-transformed and bounded at 100%. n is the unweighted denominator."
+    )
   ) +
   ggplot2::theme_minimal(base_size = 11) +
   ggplot2::theme(
     legend.position = "top",
-    plot.title = ggplot2::element_text(face = "bold"),
-    plot.subtitle = ggplot2::element_text(size = 9)
+    plot.title = ggplot2::element_text(face = "bold", size = 11.5),
+    plot.subtitle = ggplot2::element_text(size = 9),
+    plot.caption = ggplot2::element_text(size = 7.5, colour = "grey30", hjust = 0)
   )
 
 ggplot2::ggsave(
   file.path(paths$figures_dir, "Figure2_Outpatient_Payment_By_Severity_Insurance.png"),
   figure2,
-  width = 8,
-  height = 5,
+  width = 9,
+  height = 5.6,
   dpi = 300
 )
 ggplot2::ggsave(
   file.path(paths$figures_dir, "Figure2_Outpatient_Payment_By_Severity_Insurance.tiff"),
   figure2,
-  width = 8,
-  height = 5,
+  width = 9,
+  height = 5.6,
   dpi = 300,
   compression = "lzw"
 )

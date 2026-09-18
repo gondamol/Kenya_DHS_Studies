@@ -243,7 +243,7 @@ The main analytic sample comprised `r format(key_results$sample_long_questionnai
 
 ```{r}
 #| label: tbl-1
-#| tbl-cap: "Table 1. Weighted sociodemographic characteristics of adults aged 18 years and above by Washington Group Short Set disability status, KDHS 2022."
+#| tbl-cap: "Weighted sociodemographic characteristics of adults aged 18 years and above by Washington Group Short Set disability status, KDHS 2022."
 publication_flextable(
   table1,
   footer_lines = c(
@@ -264,7 +264,7 @@ Among adults meeting the WG disability threshold, insurance coverage also varied
 
 ```{r}
 #| label: tbl-2
-#| tbl-cap: "Table 2. Weighted insurance coverage by Washington Group Short Set disability severity and functional domain, adults aged 18 years and above, KDHS 2022."
+#| tbl-cap: "Weighted insurance coverage by Washington Group Short Set disability severity and functional domain, adults aged 18 years and above, KDHS 2022."
 publication_flextable(
   table2,
   footer_lines = c(
@@ -275,9 +275,25 @@ publication_flextable(
 )
 ```
 
+
+The severity gradient in @tbl-2 is not linear, and Figure 1 makes the shape of it explicit. Coverage
+among adults with mild functional difficulty is statistically indistinguishable from coverage among
+adults with no difficulty, and the confidence intervals for the two groups overlap almost entirely.
+The coverage penalty appears only from moderate difficulty onward, and deepens at severe difficulty,
+where roughly one adult in five holds any cover. The practical implication is that a severity
+threshold, rather than the presence of any functional difficulty, marks the point at which the
+financing system begins to fail this population.
+
+Figure 1 also shows that the NHIF series tracks the any-insurance series closely at every severity
+level, with the two never separating by more than a few percentage points. Because NHIF accounted for
+the large majority of cover in this period, private and community schemes did not compensate for the
+gradient at any level of severity: adults with more severe functional difficulty were not offsetting
+lower NHIF enrolment by purchasing cover elsewhere. Falling NHIF enrolment is therefore the mechanism
+behind the whole gradient, which is directly relevant to the exemption pathway SHA inherits.
+
 ```{r}
 #| label: fig-1
-#| fig-cap: "Figure 1. Insurance coverage by Washington Group Short Set disability severity among adults aged 18 years and above in Kenya, KDHS 2022. Bars show survey-weighted prevalence and error bars indicate 95% confidence intervals."
+#| fig-cap: "Insurance coverage by Washington Group Short Set disability severity among adults aged 18 years and above in Kenya, KDHS 2022. Bars show survey-weighted prevalence and error bars indicate 95% confidence intervals."
 #| fig-width: 7
 #| fig-height: 4
 knitr::include_graphics(file.path("..", "05_figures", "Figure1_Insurance_By_Disability_Severity.png"))
@@ -291,7 +307,7 @@ Among recent outpatient users, payment for the most recent visit was reported by
 
 ```{r}
 #| label: tbl-3
-#| tbl-cap: "Table 3. Weighted service utilisation and payment at the last outpatient visit by Washington Group Short Set disability status and insurance coverage, adults aged 18 years and above, KDHS 2022."
+#| tbl-cap: "Weighted service utilisation and payment at the last outpatient visit by Washington Group Short Set disability status and insurance coverage, adults aged 18 years and above, KDHS 2022."
 publication_flextable(
   table3,
   footer_lines = c(
@@ -302,9 +318,23 @@ publication_flextable(
 )
 ```
 
+
+Figure 2 decomposes the payment result in @tbl-3 by severity, and its most informative feature is how
+little movement there is. Across both moderate and severe functional difficulty, and across insured and
+uninsured users alike, the proportion paying at the last outpatient visit sits within about one
+percentage point of 90%. Insurance status does not shift payment at either severity level, and neither
+does severity shift it within insurance categories. Whatever the insured members of this population
+obtained from their cover, it was not protection from paying at the point of outpatient contact.
+
+The estimate for insured adults with severe functional difficulty rests on 19 respondents and its
+confidence interval is correspondingly wide, so that cell should not be read as a precise estimate. It
+is retained because it is the only direct observation of the group the SHA exemption pathway is
+designed for, and because its point estimate is consistent with the three better-measured cells rather
+than in tension with them. The flatness of the pattern, not the value of any single bar, is the finding.
+
 ```{r}
 #| label: fig-2
-#| fig-cap: "Figure 2. Payment at the last outpatient visit by disability severity and insurance status among adult outpatient users with disability in Kenya, KDHS 2022. Bars show survey-weighted proportions and error bars indicate 95% confidence intervals."
+#| fig-cap: "Payment at the last outpatient visit by disability severity and insurance status among adult outpatient users with disability in Kenya, KDHS 2022. Bars show survey-weighted proportions and error bars indicate 95% confidence intervals."
 #| fig-width: 7
 #| fig-height: 5
 knitr::include_graphics(file.path("..", "05_figures", "Figure2_Outpatient_Payment_By_Severity_Insurance.png"))
@@ -320,7 +350,7 @@ In the outpatient-payment model among recent outpatient users with disability (`
 
 ```{r}
 #| label: tbl-4
-#| tbl-cap: "Table 4. Survey-weighted adjusted prevalence ratios for uninsured status and outpatient payment among adults meeting the Washington Group Short Set disability threshold, KDHS 2022."
+#| tbl-cap: "Survey-weighted adjusted prevalence ratios for uninsured status and outpatient payment among adults meeting the Washington Group Short Set disability threshold, KDHS 2022."
 publication_flextable(
   table4,
   footer_lines = c(
@@ -333,13 +363,37 @@ publication_flextable(
 
 # Discussion
 
-This study provides a nationally representative pre-SHA baseline on disability, insurance coverage, service use, and payment at outpatient contact in Kenya using the Washington Group Short Set embedded in KDHS 2022. Three findings matter most. First, insurance coverage was lower among adults with disability than among adults without disability and declined across the disability-severity gradient. Second, adults with disability reported higher outpatient use and hospitalisation, indicating greater healthcare need. Third, payment at outpatient contact remained very common even among insured adults with disability, so nominal coverage was not accompanied by meaningful point-of-care financial protection.
+## Principal findings
+
+This study provides a nationally representative pre-SHA baseline on disability, insurance coverage, service use, and payment at outpatient contact in Kenya, using the Washington Group Short Set embedded in KDHS 2022. Four findings matter most.
+
+First, insurance coverage was lower among adults with disability than among adults without disability, and declined across the disability-severity gradient. Second, that gradient has a threshold rather than a slope: coverage at mild functional difficulty was indistinguishable from coverage at no difficulty, and the deficit emerged only from moderate difficulty onward. Third, adults with disability reported higher outpatient use and hospitalisation, indicating greater healthcare need alongside lower coverage. Fourth, payment at outpatient contact remained very common even among insured adults with disability, so nominal coverage was not accompanied by meaningful financial protection at the point of care.
+
+A fifth observation cuts across these. The descriptive severity gradient and the adjusted model tell different stories, and both are true. Severity predicts coverage when nothing else is held constant, but once age, education, residence, and wealth are accounted for, socioeconomic position rather than severity carries the association. Disability in Kenya is therefore not an independent axis of insurance exclusion so much as an amplifier of the existing socioeconomic one, layered on top of higher need.
+
+## What this study adds
+
+Kenyan analyses of insurance coverage have repeatedly established that cover is socially patterned and pro-rich [@kimani2014; @kazungu2017; @barasa2021], and cross-country work has shown the same for contributory schemes across sub-Saharan Africa. What has been missing is a nationally representative account in which disability is the primary equity dimension rather than a covariate, and in which coverage, service use, and payment are observed within a single consistent adult sample.
+
+This study supplies that account for the period immediately before Kenya's largest health-financing reform in decades. Three of its results are not derivable from the existing literature. The severity threshold shows that policy attention belongs at moderate difficulty and above, not at any reported functional difficulty. The parallel tracking of NHIF and any-insurance coverage across every severity level shows that private and community schemes did not absorb adults whom NHIF did not reach, so the gradient is an NHIF gradient and will be inherited as such. And the absence of any association between holding insurance and paying at the last outpatient visit, within the disability subpopulation, identifies a failure of benefit realisation rather than of enrolment.
+
+Because SHA began operating on 1 October 2024, KDHS 2022 is the last nationally representative measurement before the transition. These estimates are therefore not only new but unrepeatable: the counterfactual baseline against which the SHA exemption pathway will have to be judged can no longer be collected.
+
+## Exclusion runs through socioeconomic position, not severity alone
 
 The insurance results are consistent with earlier Kenya and sub-Saharan African evidence showing that contributory insurance systems tend to favour older, wealthier, and more socioeconomically advantaged groups [@kimani2014; @kazungu2017; @barasa2021]. In the adjusted model, the strongest predictor of being uninsured within the disability subpopulation was not severity itself but socioeconomic position. Once age, education, residence, and severity were taken into account, the richest-poorest gradient remained steep, while severe versus moderate disability was not independently associated with higher uninsured prevalence. That pattern suggests that pre-SHA insurance exclusion among adults with disability was driven largely through the same structural channels seen in the wider population, but with higher healthcare need layered on top.
 
+## Implications for the SHA exemption pathway
+
 The SHA reform is therefore relevant but not automatically sufficient. The Social Health Insurance Act 2023 created an exemption pathway for some persons with severe disability, which directly addresses a clear coverage problem [@kenya2023sha; @nungo2024]. However, our results suggest that implementation should pay close attention to socioeconomic targeting and enrolment reach, because the largest adjusted coverage deficits were concentrated among poorer households. The descriptive severity gradient still matters for policy, but the adjusted findings indicate that severity alone does not explain who remained uninsured before SHA.
 
+## Enrolment is not financial protection
+
 The service-use and payment results point to an equally important gap between enrolment and financial protection. Adults with disability sought care more often, yet payment at the last outpatient visit exceeded 90% among both insured and uninsured outpatient users with disability. That finding aligns with broader Kenyan evidence that NHIF membership did not always translate into reliable financial protection or comprehensive service access [@barasa2018; @mbau2020; @oyando2023]. It also fits facility-level evidence that chronic-care readiness and medicine access remain uneven in Kenya [@otieno2023]. In practical terms, expanding enrolment without improving benefits, medicine availability, and provider payment arrangements would be unlikely to eliminate the financial burden experienced by adults with disability.
+
+The distinction matters for how the exemption pathway should be evaluated. An exemption that waives premiums addresses the enrolment margin, which our adjusted model suggests is principally a question of household resources. It does not by itself address the payment margin, where we observe no difference between insured and uninsured users. If benefit packages, medicine supply, and provider reimbursement remain unchanged, an adult with severe disability moved from uninsured to exempt-and-enrolled would, on this evidence, still expect to pay at the next outpatient visit. Monitoring that counts enrolments alone would record that transition as a success. A monitoring framework that also tracks payment at the point of care would not.
+
+Two features of our results suggest where such monitoring should concentrate. The severity threshold implies that adults with moderate difficulty, who fall outside a severe-disability exemption but already show a measurable coverage deficit, are the group most likely to be missed by a narrowly drawn eligibility rule. And because the coverage gradient is carried almost entirely by NHIF, the administrative systems SHA inherits are the same ones that produced the gradient, which argues for auditing enrolment reach directly rather than assuming that a change of scheme resolves it.
 
 ## Strengths and limitations
 

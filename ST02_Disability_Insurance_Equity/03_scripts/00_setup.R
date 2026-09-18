@@ -153,6 +153,39 @@ make_design <- function(data, weight_var = "weight") {
   )
 }
 
+# Logit-transformed confidence interval for a survey proportion.
+#
+# The Wald interval returned by confint(svymean()) is computed on the proportion
+# scale and is unbounded, so in small domains it can run outside [0, 1]. In this
+# study the severe-disability insured payment cell (p = 0.91, n = 19) produced an
+# upper limit of 103.1%, which clipped when plotted and left a stray error bar.
+# svyciprop(method = "logit") respects the unit interval and is the standard
+# choice for survey proportions; in large domains it is numerically almost
+# identical to Wald, so headline estimates are essentially unchanged and only
+# small-n cells move.
+svy_prop_ci <- function(design, formula_txt) {
+  prop <- try(
+    suppressWarnings(
+      survey::svyciprop(stats::as.formula(formula_txt), design,
+                        method = "logit", level = 0.95)
+    ),
+    silent = TRUE
+  )
+  if (!inherits(prop, "try-error")) {
+    ci_vec <- as.numeric(attr(prop, "ci"))
+    return(list(est = as.numeric(prop)[1],
+                ci_low = max(0, min(1, ci_vec[1])),
+                ci_high = max(0, min(1, ci_vec[2]))))
+  }
+  # Degenerate domain: fall back to Wald, truncated to the unit interval so that
+  # downstream plots cannot break.
+  est <- survey::svymean(stats::as.formula(formula_txt), design, na.rm = TRUE)
+  ci_w <- suppressWarnings(stats::confint(est))
+  list(est = as.numeric(stats::coef(est)[1]),
+       ci_low = max(0, min(1, ci_w[1, 1])),
+       ci_high = max(0, min(1, ci_w[1, 2])))
+}
+
 weighted_binary <- function(data, var, weight_var = "weight") {
   data_use <- data %>%
     dplyr::filter(!is.na(.data[[var]]), !is.na(.data[[weight_var]]), !is.na(psu), !is.na(strata))
@@ -167,14 +200,13 @@ weighted_binary <- function(data, var, weight_var = "weight") {
   }
 
   design <- make_design(data_use, weight_var = weight_var)
-  estimate <- survey::svymean(stats::as.formula(paste0("~", var)), design, na.rm = TRUE)
-  ci <- suppressWarnings(stats::confint(estimate))
+  r <- svy_prop_ci(design, paste0("~ I(", var, " == 1)"))
 
   tibble::tibble(
     unweighted_n = nrow(data_use),
-    est = as.numeric(stats::coef(estimate)[1]),
-    ci_low = ci[1, 1],
-    ci_high = ci[1, 2]
+    est = r$est,
+    ci_low = r$ci_low,
+    ci_high = r$ci_high
   )
 }
 
@@ -247,14 +279,13 @@ weighted_level <- function(data, var, level_value, weight_var = "weight") {
   }
 
   design <- make_design(data_use, weight_var = weight_var)
-  estimate <- survey::svymean(~.indicator, design, na.rm = TRUE)
-  ci <- suppressWarnings(stats::confint(estimate))
+  r <- svy_prop_ci(design, "~ I(.indicator == 1)")
 
   tibble::tibble(
     unweighted_n = nrow(data_use),
-    est = as.numeric(stats::coef(estimate)[1]),
-    ci_low = ci[1, 1],
-    ci_high = ci[1, 2]
+    est = r$est,
+    ci_low = r$ci_low,
+    ci_high = r$ci_high
   )
 }
 
