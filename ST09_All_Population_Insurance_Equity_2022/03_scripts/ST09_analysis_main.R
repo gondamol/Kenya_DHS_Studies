@@ -345,9 +345,6 @@ build_publication_flextable <- function(data,
   }
 
   ft <- ft %>%
-    set_table_properties(layout = "autofit", opts_word = list(split = TRUE)) %>%
-    autofit() %>%
-    fit_to_width(max_width = 7.1) %>%
     theme_booktabs() %>%
     font(fontname = "Times New Roman", part = "all") %>%
     fontsize(size = font_size, part = "all") %>%
@@ -365,6 +362,23 @@ build_publication_flextable <- function(data,
       fontsize(size = 8, part = "footer") %>%
       align(align = "left", part = "footer")
   }
+
+
+  # Sizing must come last: a later theme or autofit call discards it.
+  #
+  # set_table_properties(layout = "autofit") makes flextable emit no <w:gridCol>
+  # entries at all, so Word is free to collapse the columns -- that is what
+  # wrapped headers one character per line. autofit() alone sizes to content with
+  # no page awareness and can run well past the text width. So autofit for the
+  # column proportions, then rescale those proportions to fill the page exactly.
+  ft <- flextable::autofit(ft)
+  .w <- dim(ft)$widths
+  if (length(.w) > 0 && is.finite(sum(.w)) && sum(.w) > 0) {
+    ft <- flextable::width(ft, width = .w * (6.27 / sum(.w)))
+  }
+  ft <- flextable::set_table_properties(
+    ft, layout = "fixed", opts_word = list(split = FALSE, keep_with_next = TRUE)
+  )
 
   ft
 }

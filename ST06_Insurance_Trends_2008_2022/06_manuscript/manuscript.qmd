@@ -141,8 +141,6 @@ fmt_ci_row <- function(wave_val) {
 publication_flextable <- function(data, caption_text,
                                   footer_lines = c("Source: Kenya DHS 2008, 2014, 2022. Survey-weighted estimates.")) {
   ft <- flextable(data) %>%
-    set_table_properties(layout = "autofit", opts_word = list(split = TRUE)) %>%
-    autofit() %>%
     theme_booktabs() %>%
     font(fontname = "Times New Roman", part = "all") %>%
     fontsize(size = 9, part = "all") %>%
@@ -158,6 +156,19 @@ publication_flextable <- function(data, caption_text,
       fontsize(size = 8, part = "footer") %>%
       align(align = "left", part = "footer")
   }
+  # Sizing last: a later theme or autofit call discards it.
+  # set_table_properties(layout = "autofit") makes flextable emit no <w:gridCol>
+  # at all, so Word collapses the columns; autofit() alone ignores the page width.
+  # Autofit for the proportions, then rescale them to fill the text width.
+  ft <- flextable::autofit(ft)
+  .w <- dim(ft)$widths
+  if (length(.w) > 0 && is.finite(sum(.w)) && sum(.w) > 0) {
+    ft <- flextable::width(ft, width = .w * (6.27 / sum(.w)))
+  }
+  ft <- flextable::set_table_properties(
+    ft, layout = "fixed", opts_word = list(split = FALSE, keep_with_next = TRUE)
+  )
+
   ft %>%
     paginate(init = TRUE, hdr_ftr = TRUE) %>%
     knitr::knit_print()

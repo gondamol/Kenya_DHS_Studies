@@ -294,7 +294,10 @@ build_publication_flextable <- function(data,
                                         font_size = 9,
                                         header_labels = NULL,
                                         spanner_values = NULL,
-                                        spanner_widths = NULL) {
+                                        spanner_widths = NULL,
+                                        # A4 (11906 twips) less the 1-inch margins of the
+                                        # reference document = 9026 twips = 6.27 in.
+                                        page_width_in = 6.27) {
   ft <- flextable::flextable(data)
 
   if (!is.null(header_labels)) {
@@ -311,8 +314,6 @@ build_publication_flextable <- function(data,
   }
 
   ft <- ft %>%
-    flextable::set_table_properties(layout = "autofit", opts_word = list(split = TRUE)) %>%
-    flextable::autofit() %>%
     flextable::theme_booktabs() %>%
     flextable::font(fontname = "Times New Roman", part = "all") %>%
     flextable::fontsize(size = font_size, part = "all") %>%
@@ -322,6 +323,39 @@ build_publication_flextable <- function(data,
     flextable::align(j = 1, align = "left", part = "header") %>%
     flextable::valign(valign = "top", part = "all") %>%
     flextable::padding(padding = 3, part = "all")
+
+  # Numeric-looking columns centre; the label column stays left.
+  if (ncol(data) > 1) {
+    ft <- flextable::align(ft, j = seq(2, ncol(data)), align = "center", part = "body")
+  }
+
+  # Sizing, and it has to come last because any later theme or autofit call
+  # discards it.
+  #
+  # Two traps here, both of which produced unreadable tables.
+  #
+  # set_table_properties(layout = "autofit") makes flextable emit NO <w:gridCol>
+  # entries at all. Word is then free to size columns however it likes and
+  # collapses them to their minimum, which is what wrapped headers one character
+  # per line. The fixed layout is required so that real column widths are written.
+  #
+  # autofit() on its own sizes columns to their content with no page awareness.
+  # For a seven-column table like Table 1 that came to roughly 14,800 twips
+  # against an A4 text width of about 9,000, so Word squeezed it back down.
+  #
+  # So: autofit for the relative proportions, then rescale to exactly fill the
+  # available width. Narrow tables widen, over-wide tables shrink, and the
+  # content-derived column proportions are preserved either way.
+  ft <- flextable::autofit(ft)
+  w <- dim(ft)$widths
+  if (length(w) > 0 && is.finite(sum(w)) && sum(w) > 0) {
+    ft <- flextable::width(ft, width = w * (page_width_in / sum(w)))
+  }
+  ft <- flextable::set_table_properties(
+    ft,
+    layout = "fixed",
+    opts_word = list(split = FALSE, keep_with_next = TRUE)
+  )
 
   if (length(footer_lines) > 0) {
     ft <- flextable::add_footer_lines(ft, values = footer_lines) %>%
