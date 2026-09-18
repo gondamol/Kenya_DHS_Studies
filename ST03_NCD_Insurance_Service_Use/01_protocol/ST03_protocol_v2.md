@@ -1,7 +1,7 @@
 # ST03 Analysis Protocol v2
 
 ## Working Title
-Insurance coverage and treatment gaps among adults with diagnosed hypertension or diabetes before Kenya's Social Health Authority transition: a sex-stratified secondary analysis of the 2022 Kenya Demographic and Health Survey
+Health insurance coverage, affordability barriers, and treatment gaps among Kenyan adults with diagnosed hypertension or diabetes before the Social Health Authority transition: a sex-stratified analysis of the 2022 Kenya Demographic and Health Survey
 
 ## Version
 2.0  

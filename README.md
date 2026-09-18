@@ -7,13 +7,15 @@ The current public study packages are:
 - `ST02_Disability_Insurance_Equity/`
   - Insurance coverage, service use, and payment at outpatient contact among adults with disability before Kenya's Social Health Authority transition
 - `ST03_NCD_Insurance_Service_Use/`
-  - Insurance coverage and treatment gaps among adults with diagnosed hypertension or diabetes before Kenya's Social Health Authority transition
+  - Health insurance coverage, affordability barriers, and treatment gaps among Kenyan adults with diagnosed hypertension or diabetes before the Social Health Authority transition
 - `ST09_All_Population_Insurance_Equity_2022/`
   - All-population, life-course baseline of health insurance coverage, wealth-related inequality, and payment at outpatient contact before Kenya's Social Health Authority transition
 - `ST10_Remision_study/`
   - Systematic review and meta-analysis: lifestyle modification for type 2 diabetes remission and drug-free hypertension normalisation in low- and middle-income countries (PROSPERO CRD420261409919). Uses no DHS microdata.
 - `ST11_Mental_Health_Treatment_Gap/`
-  - The national depression and anxiety treatment gap (diagnosed but untreated) and its socioeconomic and insurance patterning, KDHS 2022
+  - The national depression and anxiety treatment gap
+- `ST12_STEPS_DHS_DualSurvey_NCD/`
+  - Dual-survey underdiagnosis and population unmet need for hypertension/diabetes (STEPS 2015 × KDHS 2022) (diagnosed but untreated) and its socioeconomic and insurance patterning, KDHS 2022
 
 ## Repository contents
 

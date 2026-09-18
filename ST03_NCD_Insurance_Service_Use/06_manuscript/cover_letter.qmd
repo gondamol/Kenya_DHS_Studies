@@ -1,0 +1,33 @@
+---
+title: ""
+format:
+  docx: default
+editor: source
+---
+
+5 April 2026
+
+Editor-in-Chief  
+BMC Health Services Research
+
+Dear Editor,
+
+Please consider our manuscript, *Health insurance coverage, affordability barriers, and treatment gaps among Kenyan adults with diagnosed hypertension or diabetes before the Social Health Authority transition: a sex-stratified analysis of the 2022 Kenya Demographic and Health Survey*, for publication as a Research Article in *BMC Health Services Research*.
+
+This study uses the 2022 Kenya Demographic and Health Survey, the last nationally representative household survey conducted before Kenya replaced the National Health Insurance Fund with the Social Health Authority on 1 October 2024. We examine whether adults who had already been diagnosed with hypertension or diabetes were insured and whether they remained on treatment. The findings show that insurance coverage among diagnosed adults remained incomplete, treatment gaps were large, and wealth-related inequality in insurance coverage persisted even in this clinically relevant subgroup. The manuscript also shows that insurance enrolment alone was not strongly associated with lower treatment gaps after adjustment, highlighting the gap between nominal enrolment and effective chronic-care access.
+
+We believe the manuscript is a strong fit for *BMC Health Services Research* because it addresses healthcare financing, access to care, and health-system performance using nationally representative evidence from a policy transition period. The paper offers a pre-SHA baseline that can inform evaluation of Kenya's ongoing health financing reforms and contributes evidence relevant to wider debates on universal health coverage and chronic disease management in low- and middle-income settings.
+
+This manuscript is original, has not been published previously, and is not under consideration by any other journal. All authors have approved the submitted version. The study used de-identified secondary DHS data obtained through an approved access application. There are no competing interests to declare.
+
+Thank you for your consideration.
+
+Sincerely,
+
+Nichodemus Werre Amollo  
+Jaramogi Oginga Odinga University of Science and Technology  
+Bondo, Kenya  
+nwere@ejooust.ac.ke
+
+
+
