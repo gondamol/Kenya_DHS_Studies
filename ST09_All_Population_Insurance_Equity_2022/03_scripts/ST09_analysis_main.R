@@ -380,6 +380,13 @@ build_publication_flextable <- function(data,
     ft, layout = "fixed", opts_word = list(split = FALSE, keep_with_next = TRUE)
   )
 
+  # Repeat the header on every page a long table spills onto, and keep the
+  # caption with the table. The manuscript wrapper also calls paginate(); doing
+  # it here as well is idempotent and means the standalone table exports under
+  # 04_tables/ get repeating headers too, which they previously did not.
+  ft <- flextable::paginate(ft, init = TRUE, hdr_ftr = TRUE)
+
+
   ft
 }
 
