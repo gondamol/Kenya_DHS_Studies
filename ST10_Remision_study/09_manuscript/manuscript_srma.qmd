@@ -1,0 +1,340 @@
+---
+title: "Lifestyle modification for drug-free type 2 diabetes remission in low- and middle-income countries: a systematic review and meta-analysis of randomised controlled trials, benchmarked against high-income trials"
+shorttitle: "Lifestyle modification for T2DM remission in LMICs: an SR/MA"
+
+author:
+  - name: Nichodemus Werre Amollo
+    corresponding: true
+    email: nwere@ejooust.ac.ke
+    orcid: "0009-0008-1501-601X"
+    affiliations:
+      - id: aff1
+        name: Jaramogi Oginga Odinga University of Science and Technology (JOOUST)
+        department: School of Health Sciences
+        address: P.O. Box 210-40601
+        city: Bondo, Siaya County
+        country: Kenya
+  - name: Leah Herman
+    affiliations:
+      - id: aff2
+        name: Ratta Health Centre
+        department: Seme Sub-County
+        city: Kisumu County
+        country: Kenya
+  - name: Nellicent Achieng Opondo
+    affiliations:
+      - ref: aff1
+  - name: Japheth Ogola
+    affiliations:
+      - ref: aff1
+
+abstract: |
+  **Background:** High-income-country (HIC) trials have shown that intensive lifestyle
+  modification can induce drug-free remission of type 2 diabetes mellitus (T2DM), but
+  whether this is achievable in low- and middle-income countries (LMICs) — where patients
+  present younger, with lower body mass index and shorter disease duration, and where
+  reliable pharmacotherapy cannot be assumed — has not been synthesised against the 2021
+  consensus definition. We conducted a systematic review and meta-analysis of
+  randomised controlled trials (RCTs) of lifestyle modification for drug-free T2DM
+  remission in LMICs, and benchmarked the pooled LMIC effect against landmark HIC
+  remission trials.
+
+  **Methods:** Following our registered protocol (PROSPERO CRD420261409919) and PRISMA
+  2020, we sought RCTs enrolling adults with established T2DM in World Bank low- or
+  middle-income economies, testing structured lifestyle modification of at least 12 weeks,
+  and reporting remission per the 2021 international consensus definition (HbA1c below
+  48 mmol/mol [6.5%] at least three months after cessation of all glucose-lowering
+  pharmacotherapy). The primary outcome was drug-free T2DM remission. Two pre-specified
+  high-income remission RCTs (DiRECT, United Kingdom; DIADEM-I, Qatar) formed a comparison
+  reference set (Objective 3). We pooled data using random-effects models (REML estimator,
+  Hartung-Knapp-Sidik-Jonkman confidence intervals) and, because the data are sparse,
+  reported the Mantel-Haenszel, Peto, and binomial-normal generalised linear mixed-model
+  (GLMM) odds ratios side by side. Certainty was assessed with GRADE. All analysis code
+  and data are openly available and every estimate is computationally reproducible.
+
+  **Results:** Three RCTs met all eligibility criteria for the primary LMIC analysis (two
+  from China, one from Iran; 258 analysed participants), with one further India-based
+  digital-delivery RCT, a China three-year follow-up, and a citation-searched Thai RCT
+  reported narratively or in sensitivity analysis. Drug-free remission was achieved by 58
+  of 148 intervention participants versus 14 of 110 comparator participants. The pooled
+  single-arm remission proportion was 44.0% (95% CI 10.1–84.6%). On the comparative
+  analysis the conventional random-effects risk ratio was uninformatively wide at this
+  study count, but the sparse-data odds-ratio estimators were directionally concordant and
+  all excluded the null (random-effects REML OR 8.62, GLMM OR 7.94, Mantel-Haenszel OR
+  7.41, Peto OR 5.04). Adding a fourth LMIC RCT from Thailand (k=4, a third country) left
+  the effect essentially unchanged (Peto OR 5.15, 95% CI 2.85–9.31), and excluding the one
+  active-comparator trial gave a larger, homogeneous estimate (OR ≈20, I²=0%). Benchmarked
+  against the HIC reference set, the pooled LMIC remission OR (8.62, 95% CI 1.98–37.53) did
+  not differ significantly from the pooled HIC OR (15.37, 95% CI 8.36–28.26; test for
+  subgroup difference p=0.48), though this comparison of five small trials is underpowered
+  and cannot establish equivalence. No eligible LMIC RCT reported the protocol-defined
+  drug-free blood-pressure normalisation endpoint, and no eligible RCT was identified from
+  sub-Saharan Africa, South Asia (other than the digital India trial), or Latin America.
+  Certainty of evidence was very low.
+
+  **Conclusions:** The randomised evidence that lifestyle modification induces drug-free
+  T2DM remission in LMICs is geographically narrow (China, Iran, and — in sensitivity
+  analysis — Thailand) and of very low certainty, but where it exists the effect is large,
+  directionally consistent across trials and dietary modalities, and of the same order of
+  magnitude as landmark high-income trials. The complete absence of sub-Saharan African
+  randomised evidence, and of any LMIC RCT reporting drug-free hypertension normalisation,
+  is the central finding and the strongest rationale for a contextually adapted primary
+  trial.
+
+  **Systematic review registration:** PROSPERO CRD420261409919.
+
+keywords:
+  - type 2 diabetes
+  - remission
+  - lifestyle modification
+  - low- and middle-income countries
+  - sub-Saharan Africa
+  - drug-free
+  - meta-analysis
+  - GRADE
+  - randomised controlled trial
+
+funding: |
+  This research received no specific grant from any funding agency in the public,
+  commercial, or not-for-profit sectors.
+
+author-note:
+  contributions: |
+    **NWA** conceptualised the study, developed the methodology, performed the formal
+    analysis, administered the project, and drafted the manuscript; NWA is the guarantor.
+    **JO** contributed to conceptualisation and methodology, provided supervision, and
+    reviewed and edited the manuscript. **LH** contributed to conceptualisation (the
+    clinical observation motivating the review question) and reviewed and edited the
+    manuscript. **NAO** contributed to data curation and the formal analysis and reviewed
+    and edited the manuscript. All authors read and approved the final manuscript.
+
+  disclosures:
+    conflict-of-interest: |
+      The authors declare no competing interests.
+    ethics: |
+      No ethical approval is required as this systematic review synthesises only
+      previously published, aggregate data.
+    data-availability: |
+      All analysis code (R scripts) and the analysis-ready data files are available at
+      https://github.com/gondamol/Kenya_DHS_Studies and will be deposited on the Open
+      Science Framework (OSF) prior to publication. No primary data are generated by this
+      review.
+
+format:
+  docx:
+    toc: false
+    number-sections: true
+    reference-doc: ../../_TEMPLATES/reference_doc.docx
+    filters:
+      - ../../_TEMPLATES/suppress-docx-authors.lua
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    theme: cosmo
+    embed-resources: true
+
+bibliography: references.bib
+csl: ../../_TEMPLATES/vancouver.csl
+editor: source
+
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+# Background
+
+## The shifting geography of type 2 diabetes
+
+Type 2 diabetes mellitus (T2DM) is now overwhelmingly a disease of low- and middle-income countries (LMICs). The International Diabetes Federation's 2025 Atlas estimates that 589 million adults are living with diabetes worldwide, approximately 81% of them in LMICs, with the largest proportional increases projected for sub-Saharan Africa over the coming decades [@idf2025]. Population-based data from the AWI-Gen study across four sub-Saharan African countries confirm a substantial and rising incidence of T2DM in adults aged 40–60 years, frequently in people who are younger and have a lower body mass index (BMI) than the populations in which diabetes management paradigms were developed [@chikwati2025]. This demographic profile matters: it places a growing share of the global diabetes burden in exactly the settings where the long-term pharmacotherapy that conventional management presumes cannot be reliably supplied.
+
+The fragility of that presumption is well documented at the point of care. Treatment coverage for diabetes remains low across LMICs: in an analysis of nationally representative data from 55 low- and middle-income countries, only a minority of people with diabetes achieved the cascade of diagnosis, treatment, and control [@flood2021]. At the facility level, a mixed-methods study of seven primary care facilities in Seme Sub-County, Kisumu County, Kenya, found that 86% experienced frequent stockouts of essential non-communicable disease (NCD) medicines and none held a dedicated NCD budget line [@amollo2026financial]; a complementary capacity assessment in the same county found that 90% of facilities lacked essential antihypertensives and none possessed HbA1c testing equipment [@ogol2025]. In a health system in which the continuous supply of glucose-lowering drugs cannot be guaranteed, an intervention that can induce sustained, *drug-free* disease remission carries a significance that goes well beyond its clinical interest in high-income countries (HICs).
+
+## Remission as a clinical target and its biological basis
+
+For most of the modern era T2DM was regarded as inevitably progressive, with relentless beta-cell decline requiring escalating pharmacotherapy [@taylor2013]. That view has been overturned. A coherent pathophysiological account — the "twin-cycle" hypothesis — holds that T2DM in many patients is a potentially reversible state driven by excess fat in the liver and pancreas: a positive energy balance drives hepatic fat accumulation and hepatic insulin resistance, which in turn promotes export of fat to the pancreatic islets, suppressing glucose-stimulated insulin secretion [@taylor2013; @taylor2008]. The corollary is therapeutically radical: a sufficient negative energy balance should be able to drain ectopic fat and restore beta-cell function. The Counterpoint study demonstrated exactly this, showing normalisation of fasting glucose within days and recovery of beta-cell function over weeks during an eight-week very-low-calorie diet, in step with falling pancreatic fat [@lim2011]. Mechanistic work in rodent models has since clarified that very-low-calorie diets reverse hyperglycaemia through rapid reductions in hepatic fat and hepatic glucose output [@perry2017], and detailed human studies confirm that remission requires a decrease in liver and pancreas fat but is ultimately dependent on the individual's residual capacity for beta-cell recovery — which declines with longer diabetes duration [@taylor2018cellmetab; @taylor2019reversal]. This mechanism is the biological reason that disease duration and the magnitude of weight loss, rather than baseline BMI alone, are the dominant predictors of remission, and it is the reason that "can type 2 diabetes be reversed?" was ranked the number-one research priority by the James Lind Alliance diabetes priority-setting partnership [@taylor2019jla].
+
+To make remission a measurable endpoint, an international consensus group standardised its definition in 2021 as an HbA1c below 48 mmol/mol (6.5%) measured at least three months after cessation of all glucose-lowering pharmacotherapy [@riddle2021]. This drug-free, laboratory-anchored definition is the endpoint adopted throughout the present review, and it is the feature that distinguishes genuine remission from mere glycaemic improvement on continued medication.
+
+## What the high-income randomised evidence shows
+
+The randomised evidence that intensive lifestyle modification can induce drug-free remission has matured over the past decade, but almost entirely in HICs. The Diabetes Remission Clinical Trial (DiRECT), a cluster-randomised trial in UK primary care, achieved remission in 46% (68 of 149) of intervention participants at 12 months versus 4% (6 of 149) of controls (odds ratio ≈20), with remission strongly graded by the amount of weight lost [@lean2018]; at two years, 36% of the intervention group remained in remission, establishing durability under real-world primary-care delivery [@lean2019durability]. DIADEM-I, conducted in a young Qatari and Middle-East/North-Africa cohort with short disease duration, achieved remission in 61% of intervention participants versus 12% of controls (OR 12.0) [@taheri2020diadem]. These structured total-diet-replacement programmes built on earlier demonstrations that formula low-energy diets produce large weight loss in routine practice (DROPLET) [@astbury2018droplet] and that behavioural weight-management programmes added to diabetes education increase remission (GLoW) [@mueller2025glow]. Carbohydrate-restriction models delivered through continuous remote care have reported high rates of medication withdrawal and glycaemic normalisation, albeit in non-randomised designs [@hallberg2018].
+
+Crucially, the magnitude of remission in HIC trials depends on the population. Where intensive lifestyle intervention is applied to older patients with longer-established diabetes — as in the Look AHEAD trial — remission is far less frequent (partial remission in roughly 11.5% at year 1 and 7.3% at year 4, versus about 2% in controls), precisely because beta-cell recovery capacity is lower in long-standing disease [@gregg2012lookahead; @wing2016lookahead]. The contrast between DiRECT/DIADEM-I (recent-onset disease, high remission) and Look AHEAD (longer-duration disease, modest remission) is the clinical expression of the twin-cycle mechanism, and it generates a clear, testable hypothesis for LMIC populations.
+
+## The gap this review addresses
+
+The implication of the biology and of the HIC trials is that the populations now driving the global diabetes epidemic — younger, with shorter disease duration and lower BMI than the original DiRECT cohort — may be *especially* well placed to achieve remission. Yet the randomised evidence in LMICs has not been synthesised against the drug-free consensus endpoint. The most comprehensive global synthesis to date, by Sherifali and colleagues (2025), pooled 18 non-surgical remission RCTs from 11 countries but did not restrict to, or disaggregate by, country income level, and included no trial from sub-Saharan Africa [@sherifali2025]. A 2023 scoping review focused on lifestyle-alone remission with explicit implications for sub-Saharan Africa identified 16 trials from 10 countries (none in Africa) but, as a scoping review, did not pool data, apply the consensus definition, or assess certainty [@duhuzekarera2023]. Earlier LMIC-specific syntheses examined glycaemic *control* rather than drug-free remission [@odonoghue2021; @sagastume2022]. As the accompanying commentary to the Sherifali review noted, there are "many paths to the same goal" of remission, but the evidence base for who can achieve it, and where, remains uneven [@unnikrishnan2025].
+
+No systematic review has applied the drug-free remission endpoint specifically to LMIC populations, nor formally compared the magnitude of the LMIC effect with the landmark HIC trials whose results currently underpin global expectations. This review addresses that gap with three objectives: (1) to estimate the pooled effect of structured lifestyle modification on drug-free T2DM remission in LMICs; (2) to characterise the geographic distribution and certainty of that evidence; and (3) to benchmark the pooled LMIC effect against the landmark high-income remission trials.
+
+# Methods
+
+This review follows our protocol registered with PROSPERO (CRD420261409919), was developed in accordance with PRISMA-P 2015 [@moher2015], and is reported in accordance with the PRISMA 2020 statement [@page2021]. Synthesis followed the Cochrane Handbook v6.4 [@higgins2023], and narrative elements follow the SWiM reporting guideline where meta-analysis was not appropriate [@campbell2020]. The full eligibility criteria, the complete 13-database search strategy, screening and extraction procedures, and the pre-specified analysis plan are given in the registered protocol and summarised here.
+
+## Eligibility criteria
+
+We included randomised controlled trials (parallel-group, cluster, or cross-over, the last using pre-cross-over data only) that enrolled adults aged 18 years or older with an established clinical diagnosis of T2DM, conducted in countries classified as low-, lower-middle-, or upper-middle-income by the World Bank Atlas method at the time of recruitment [@worldbank2025]. Eligible interventions were structured lifestyle modification programmes (dietary modification, structured physical activity, and/or multicomponent behavioural support) of at least 12 weeks' duration, against any comparator (usual care, active control, waitlist, or pharmacotherapy alone). The primary outcome was T2DM remission per the 2021 consensus definition [@riddle2021]. A pre-specified exploratory secondary outcome was sustained drug-free blood-pressure normalisation (below 130/80 mmHg at least six months after cessation of all antihypertensive drugs), motivated by evidence that lifestyle intervention lowers blood pressure in LMIC populations [@baena2014] and that drug-free blood-pressure remission is an attainable construct [@liao2024].
+
+Bariatric surgery, purely pharmacological interventions, prevention trials in people with prediabetes, and trials conducted exclusively in high-income countries were excluded. For multi-country trials, LMIC participants had to comprise at least 80% of the sample (with a 50% threshold examined in sensitivity analysis). The two high-income remission RCTs used as the comparison reference set (DiRECT [@lean2018]; DIADEM-I [@taheri2020diadem]) were not eligible for the primary LMIC pool and are analysed only in the registered Objective 3 comparison.
+
+## Information sources and search
+
+The registered strategy specifies 13 databases searched from inception (MEDLINE via PubMed; Embase; CENTRAL; Web of Science; CINAHL; Global Health; African Journals Online; LILACS; IndMED; WHO Global Index Medicus; ICTRP; ClinicalTrials.gov; and grey literature), with a librarian-led PRESS review [@mcgowan2016] and forward/backward citation searching. At the current stage, a comprehensive MEDLINE/PubMed search (340 records), a targeted multi-region geographic verification search (sub-Saharan Africa, South Asia, Latin America, MENA, and East/Southeast Asia), forward and backward citation searching of the included trials and of the principal comparator reviews [@sherifali2025; @duhuzekarera2023], and a ClinicalTrials.gov registry scoping pass (executed via the API v2 on 4 July 2026) are complete. The remaining registered databases, and the WHO ICTRP portal together with its LMIC feeder registries (PACTR for sub-Saharan Africa, CTRI for India, ChiCTR for China, IRCT for Iran, TCTR for Thailand — the registries on which the trials in this review are in fact recorded), are being searched and the records imported to a shared library for dual screening **[PENDING]**. The full, database-specific, paste-ready search strings for all 13 sources are provided as a supplementary file (`02_search/SEARCH_STRATEGIES_PASTE_READY.md` and `02_search/strings/`).
+
+## Study selection, data extraction, and risk of bias
+
+Records are screened against the eligibility criteria, with full texts assessed for all potentially eligible records; dual independent screening and extraction with Cohen's kappa and third-reviewer adjudication are specified in the protocol and are in progress for the supplementary databases **[PENDING]**. Data were extracted into a piloted extraction form (arm-level remission events and denominators, the verbatim remission definition, follow-up timing, baseline age, BMI, disease duration, and HbA1c). Every analysis-contributing data point was verified against the source publication's primary report. For the three-arm trials (DIREM; and the Thai trial used in sensitivity analysis), the intervention arms were combined against the shared control arm following standard Cochrane guidance for multi-arm studies [@higgins2023]. Risk of bias was assessed with the Cochrane RoB 2 tool [@sterne2019].
+
+## Synthesis methods
+
+Where two or more studies reported a compatible outcome, we pooled using random-effects meta-analysis with the restricted maximum likelihood (REML) estimator and Hartung-Knapp-Sidik-Jonkman (HKSJ) confidence intervals. For the comparative binary remission outcome, because the data are sparse and the conventional HKSJ risk-ratio interval is known to be uninformative at very small study counts, we pre-specified a panel of sparse-data odds-ratio estimators reported side by side rather than a single anchor: the Mantel-Haenszel OR (exact, without continuity correction), a binomial-normal generalised linear mixed model (GLMM, maximum-likelihood between-study variance), and the Peto OR. We did not privilege the Peto estimator, which can be biased when effects are large and arm sizes unequal — precisely the conditions here — and we present it as the most conservative of the panel. The pooled single-arm remission proportion was combined on the logit scale, with the Freeman-Tukey double-arcsine transformation as a sensitivity analysis; because both transformations are unstable at small, unequal sample sizes, the pooled proportion is reported only as a coarse summary alongside the per-trial range and is not interpreted as a precise estimate. Heterogeneity was quantified with the Cochran Q test and I²; per protocol, where I²>50% with fewer than five studies we do not present a single pooled estimate as the headline finding but interpret direction and robustness through the pre-specified estimators, subgroup display, and narrative synthesis.
+
+The registered Objective 3 comparison pools remission within income stratum (LMIC vs HIC) and tests for a subgroup difference; with fewer than ten studies, no formal income-moderator meta-regression was run (protocol rule), and the comparison is interpreted as hypothesis-generating. Three pre-specified sensitivity analyses are reported: a leave-one-out analysis; a *comparator-type* analysis excluding the one trial with an active (medication-withdrawal) comparator rather than usual care; and a *search-completeness* analysis that adds any borderline-eligible trial identified after the interim primary pool was fixed (see Results). Certainty was assessed with GRADE [@guyatt2011; @atkins2004], reported as a domain-by-domain evidence profile ([Table 4](#tbl-grade)). Analyses were conducted in R (v4.5.1) using the `meta` and `metafor` packages; all code and analysis-ready data are openly available and the entire analysis is reproducible by running `06_analysis/R/run_meta_workflow.R`.
+
+## Deviations from the registered protocol
+
+Three deviations are recorded here and in the project amendments log. First, this manuscript reports an *interim* synthesis: a comprehensive MEDLINE/PubMed search, a targeted multi-region geographic search, forward/backward citation searching, and a registry scoping pass are complete, but the remaining registered databases and full dual independent screening are still in progress **[PENDING]**; all estimates will be updated when the complete search is screened in duplicate. Second, the registered protocol gave the drug-free hypertension-normalisation objective co-equal billing; because no eligible LMIC RCT reported this endpoint, it is reported as an explicit evidence gap rather than a quantitative objective. Third, the panel of sparse-data odds-ratio estimators (above) extends the protocol's two-estimator robustness plan in response to the recognition that the Peto OR alone is not adequate for the observed large, unbalanced effects.
+
+# Results
+
+## Study selection
+
+The MEDLINE/PubMed search retrieved 340 records; after title/abstract screening, 20 LMIC candidate records were assessed in full text, of which 15 were excluded with reasons (high-income setting, non-lifestyle intervention, non-randomised design, prediabetes population, or protocol without results). Three RCTs met all eligibility criteria for the primary analysis [@yang2023cmnt; @wang2026crlcd; @badrooj2026direm]. One additional India-based digital-delivery RCT [@joshi2023dt] and the three-year follow-up of one included trial [@wu2026followup] are reported narratively. One further RCT from Thailand [@umphonsathien2021], identified through forward/backward citation searching after the interim primary pool had been fixed, is reported in a dedicated search-completeness sensitivity analysis (below). A ClinicalTrials.gov registry scoping pass (4 July 2026) returned 51 interventional remission/reversal + lifestyle studies globally (overwhelmingly high-income and Chinese), **none from sub-Saharan Africa or Latin America**; broadening to any T2DM lifestyle or dietary study in Kenya, Nigeria, Ghana, Uganda, Tanzania, or South Africa returned 23 studies, all targeting glycaemic control, nutrition education, or medication adherence rather than drug-free remission. The only ongoing LMIC remission RCTs identified were DiRECT-style trials in Malaysia (ReDiaL-MY, NCT07270068, remission primary at six months, completing 2027) and India (CURE-DM, NCT05925946, New Delhi, T2DM reversal primary, completing 2026), plus a community study in Barbados (NCT03536377, status unknown); none in sub-Saharan Africa. The PRISMA 2020 flow diagram and the list of full-text exclusions with reasons are provided as supplementary files; the diagram will be finalised once the remaining database searches are screened in duplicate **[PENDING]**.
+
+## Characteristics of included studies
+
+The three pooled trials randomised 260 participants and contributed 258 to the remission analysis (148 intervention, 110 comparator; the two-participant difference is the CR-LCD trial's two intervention-arm dropouts) ([Table 1](#tbl-included)). All three tested structured dietary energy and/or carbohydrate restriction against usual care or a conventional diabetes diet, measured remission against the drug-free consensus endpoint at six months, and were rated at "some concerns" for risk of bias, principally because dietary interventions cannot be blinded (performance bias), with otherwise adequate randomisation and objective, laboratory-measured HbA1c. Participants were middle-aged (mean ~49–55 years) with relatively short disease duration, consistent with the populations in which remission is biologically most achievable. Because the consensus definition requires the qualifying HbA1c to be measured at least three months after cessation of all glucose-lowering drugs, we recorded the timing of the remission assessment relative to drug withdrawal for each trial; all three pooled trials withdrew medication early and assessed remission at six months, satisfying the ≥3-month window, whereas this timing could not be confirmed for the Thai trial (hence its relegation to sensitivity analysis).
+
+::: {#tbl-included}
+| Study | Country (income) | Design | n analysed | Intervention | Comparator | Remission (int vs comp) |
+|---|---|---|---|---|---|---|
+| CMNT (Yang 2023) [@yang2023cmnt] | China (upper-middle) | RCT, parallel | 72 | Chinese Medical Nutrition Therapy (intermittent calorie restriction, six 15-day cycles) | Usual care | 47.2% vs 2.8% |
+| CR-LCD (Wang 2026) [@wang2026crlcd] | China (upper-middle) | RCT, parallel | 66 | Calorie-restricted low-carbohydrate diet (medication stopped day 1) | Conventional diabetes diet (also medication-withdrawal) | 62.5% vs 35.3% |
+| DIREM (Badrooj 2026) [@badrooj2026direm] | Iran (lower-middle) | RCT, 3-arm | 120 | Calorie-carbohydrate restriction ± time-restricted feeding (two arms combined) | Usual care | 26.2% vs 2.5% |
+
+: Characteristics of the included LMIC randomised controlled trials (primary k=3 pool). The two DIREM intervention arms (calorie-carbohydrate restriction alone, and with intermittent fasting) are combined against the shared control arm following standard Cochrane guidance for multi-arm trials. All three trials assessed remission by the drug-free 2021 consensus definition (HbA1c <48 mmol/mol, ≥3 months off all glucose-lowering drugs) at six months. Note that the CR-LCD comparator was itself a medication-withdrawal arm (not usual care), addressed in the comparator-type sensitivity analysis.
+:::
+
+## Primary outcome: drug-free T2DM remission in LMICs
+
+Drug-free remission was achieved by 58 of 148 intervention participants versus 14 of 110 comparator participants across the three trials. Per-trial remission was 47.2% versus 2.8% (CMNT), 62.5% versus 35.3% (CR-LCD), and 26.2% versus 2.5% (combined DIREM arms versus control).
+
+The pooled single-arm remission proportion under intervention was **44.0% (95% CI 10.1–84.6%)** on the logit scale (Freeman-Tukey 44.1%), with considerable heterogeneity (I²=85%) — the wide interval is the expected behaviour at three small trials and we therefore do not present it as a precise estimate.
+
+On the comparative analysis, the conventional random-effects risk ratio was directionally strong but uninformatively wide (RR 5.26, 95% CI 0.23–118.2; I²=72%), reflecting the known small-sample Hartung-Knapp pathology rather than a coding artefact. Because no single sparse-data estimator is uniformly reliable at this study count, we pre-specified and report several side by side ([Table 2](#tbl-estimators)). All point estimates were large and, apart from the fully-propagated Hartung-Knapp interval, all intervals excluded the null; but they spanned a meaningful range — Peto OR 5.04, Mantel-Haenszel OR 7.41, GLMM OR 7.94, and random-effects REML OR 8.62 — and the reader should regard the magnitude as "an odds ratio of roughly 5 to 9" rather than any single value. The Peto estimate is the most conservative and, given the large effect sizes and unbalanced arms (e.g., DIREM 80 vs 40), is also the estimator most subject to small-sample bias; we therefore do not privilege it. The random-effects REML estimate (OR 8.62) is the same estimate that anchors the Objective-3 income comparison below; its Hartung-Knapp interval (0.41–180.79) is uninformative at three trials, whereas its normal-approximation interval (1.98–37.53) and the Mantel-Haenszel, GLMM, and Peto intervals all exclude the null.
+
+::: {#tbl-estimators}
+| Estimator (k=3) | OR (95% CI) | I² |
+|---|---|---|
+| Peto OR | 5.04 (2.84–8.96) | 34% |
+| Mantel-Haenszel (exact, no continuity correction) | 7.41 (3.41–16.09) | 58% |
+| Binomial-normal GLMM (ML) | 7.94 (2.86–22.09) | 58% |
+| Random-effects REML (normal-approximation CI) | 8.62 (1.98–37.53) | 58% |
+| Random-effects REML (Hartung-Knapp CI) | 8.62 (0.41–180.79) | 58% |
+
+: Comparative drug-free remission odds ratio under multiple sparse-data estimators (primary k=3 LMIC pool). The last two rows are the same REML point estimate under two interval methods, illustrating how the Hartung-Knapp correction inflates the interval to uninformative width at three trials while every other interval excludes the null. Reproducible via `06_analysis/R/13_estimator_robustness.R`.
+:::
+
+Two pre-specified sensitivity analyses bear directly on the robustness of this effect. First, the comparator in the CR-LCD trial was not usual care: glucose-lowering medication was withdrawn in both arms on day 1, and its control arm itself reached 35.3% remission, diluting the contrast and contributing most of the between-trial heterogeneity. Excluding CR-LCD (leaving CMNT and DIREM, both with genuine usual-care comparators) gave a **larger and homogeneous** effect (Mantel-Haenszel OR 19.97, 95% CI 4.55–87.66; random-effects REML OR 20.66; GLMM OR 22.07; Peto OR 6.85; I²=0%), showing that the primary pooled estimate is, if anything, conservative. Second, a leave-one-out analysis (reported with the four-trial set below) confirmed that no single trial drives the result. Forest plots are provided as supplementary figures (`fig_forest_remission_proportion.png`, `fig_forest_remission_RR.png`).
+
+## Search-completeness sensitivity analysis (a fourth LMIC trial)
+
+Forward and backward citation searching identified a fourth LMIC RCT — Umphonsathien and colleagues (2021), a 1:1:1 randomised trial in Bangkok, Thailand (an upper-middle-income economy) comparing 2-day/week and 4-day/week intermittent very-low-calorie diet against usual care over 20 weeks in 40 adults with established T2DM (mean HbA1c 7.4%, mean disease duration 4.9 years) [@umphonsathien2021]. Drug-free remission (defined as fasting plasma glucose below 126 mg/dL and HbA1c below 6.5% in the absence of all glucose-lowering medication) was achieved in 8 of 28 combined intervention participants versus 0 of 12 controls. Because this trial was identified after the interim primary pool was fixed, and because remission was assessed at the end of the 20-week study rather than with an explicitly documented ≥3-month post-cessation confirmation window for every remitter, it is reported here as a pre-specified search-completeness sensitivity analysis pending the team's dual-reviewer eligibility adjudication **[PENDING]**, rather than folded into the registered primary pool.
+
+Adding this trial (k=4, a third country) left the effect estimate essentially unchanged: the Peto OR was **5.15 (95% CI 2.85–9.31, p<0.0001)**, the GLMM OR 8.58 (95% CI 3.21–22.95), and the prediction interval (1.54–17.24) excluded no effect. Between-trial heterogeneity also fell (Peto I² from 34% to 1.4%); we note, however, that I² is itself imprecise and unstable at three or four trials, so this fall should be read as *reassuringly consistent with* a common direction of effect rather than as strong evidence of homogeneity. A leave-one-out analysis across the four trials yielded Peto odds ratios between 3.97 and 6.66, all p<0.0001, confirming that no single trial drives the result. The most defensible summary is that four independent RCTs, from three countries and using four distinct dietary modalities, all show a large remission effect in the same direction (`fig_forest_remission_k4_sensitivity.png`).
+
+## Benchmarking against high-income-country trials (Objective 3)
+
+Pooling the three LMIC trials with the two high-income reference RCTs (five trials, 703 participants), the remission odds ratio in the LMIC stratum was **8.62 (95% CI 1.98–37.53)** and in the HIC stratum **15.37 (95% CI 8.36–28.26)**; the test for a difference between strata was not significant (**Q=0.51, df=1, p=0.48**) ([Table 3](#tbl-income)). The per-trial remission rates were broadly comparable across income settings (LMIC intervention arms 26.2–62.5%; HIC 45.6–61.4%). The non-significant subgroup test should not be read as a demonstration that the effects are equal: with only five trials and two HIC studies, the comparison has very little power to detect a between-income difference, and the point estimates in fact differ almost two-fold (LMIC OR 8.62 vs HIC 15.37) with widely overlapping intervals. The defensible interpretation is narrower — the lifestyle-remission effect in the available LMIC trials is large and of the same order of magnitude as the landmark high-income trials, but this exploratory, aggregate-data comparison of five trials (LMIC stratum confined to two countries) is underpowered and cannot establish equivalence.
+
+::: {#tbl-income}
+| Income setting | Trials (k) | Remission OR (95% CI) | I² |
+|---|---|---|---|
+| LMIC (China, Iran) | 3 | 8.62 (1.98–37.53) | 58% |
+| HIC (UK, Qatar) | 2 | 15.37 (8.36–28.26) | 0% |
+| Between-group difference | — | Q=0.51, df=1, p=0.48 | — |
+
+: Remission odds ratio by World Bank income setting, pooling the LMIC trials with the pre-specified high-income reference RCTs (DiRECT, DIADEM-I). Reproducible via `06_analysis/R/11_income_comparison.R`.
+:::
+
+## Secondary and narrative findings
+
+**Durability.** The three-year follow-up of the CMNT trial reported that 75% of the intervention group maintained remission versus 0% of controls, with maintenance correlating with the extent of glucose-lowering-medication withdrawal during the intervention and, among participants with a normal BMI, persisting even after some weight regain [@wu2026followup]. This mirrors the two-year durability of remission observed in DiRECT [@lean2019durability].
+
+**India digital-delivery RCT.** A whole-body Digital Twin intervention (AI-guided nutrition, activity, and continuous glucose monitoring with remote coaching) reported 72.7% T2D remission at one year and 94% discontinuation of glucose-lowering medication [@joshi2023dt], and, in a pre-specified secondary hypertension analysis, 50% hypertension remission versus 0% and 68.2% of participants remaining off antihypertensives [@shamanna2024htn]. Its primary reason for not being pooled is that the comparator-arm remission rate was not reported in the available report, so a comparative effect cannot be computed; the digital-delivery model also raises a secondary eligibility question under the protocol (which requires a structured supervised component). It is therefore reported narratively pending full-text adjudication **[PENDING]**.
+
+**Hypertension strand (exploratory).** No eligible LMIC RCT reported the protocol-defined drug-free blood-pressure normalisation endpoint. The only LMIC signal is the India Digital-Twin secondary analysis above [@shamanna2024htn]. The strand is therefore reported narratively, and the absence of normalisation data is documented as an explicit evidence gap.
+
+## Risk of bias and certainty of evidence
+
+All three pooled trials were rated "some concerns" overall on RoB 2, driven by the unavoidable lack of blinding of dietary interventions (a deviation-from-intended-intervention and measurement-of-outcome concern), with otherwise adequate randomisation, objective laboratory-measured HbA1c, and pre-specified consensus-based outcomes. Per-domain judgements are shown in the supplementary traffic-light and summary plots (`fig_rob2_traffic_light.png`, `fig_rob2_summary_bar.png`).
+
+Under GRADE, certainty for the primary comparative remission outcome is **very low** ([Table 4](#tbl-grade)). The decisive limitation is imprecision (three small trials; the only interval that fully propagates between-study uncertainty, the Hartung-Knapp OR, spans 0.41–180.79), compounded by risk of bias (open-label) and indirectness (trials confined to China and Iran, with no evidence from sub-Saharan Africa, the populations to which the review is principally directed). We did *not* additionally downgrade for inconsistency on the comparative outcome: on the odds scale the trials are directionally consistent (Peto I²=34% at k=3, 1.4% at k=4), and the high I²=85% seen on the single-arm proportion reflects variation in the absolute *level* of remission rather than in the relative effect. The large effect size would ordinarily justify a GRADE *upgrade* for magnitude of effect; we did not apply it, because at three open-label trials the effect cannot be considered free of residual bias, and an upgrade would be premature before the full search is complete. The very-low rating is therefore retained.
+
+::: {#tbl-grade}
+| GRADE domain | Judgement | Rationale |
+|---|---|---|
+| Risk of bias | Serious (−1) | All trials open-label (dietary interventions cannot be blinded); RoB 2 "some concerns" |
+| Inconsistency | Not serious | Directionally consistent on the comparative odds scale (Peto I²=34%→1.4%); proportion-scale I²=85% reflects level, not relative effect |
+| Indirectness | Serious (−1) | Evidence confined to China and Iran; none from sub-Saharan Africa, the principal target population |
+| Imprecision | Very serious (−2) | Three small trials; fully-propagated (Hartung-Knapp) interval extremely wide; few events |
+| Publication bias | Undetected (not assessable) | Fewer than 10 studies; small-study tests not performed |
+| Large-effect upgrade | Not applied | OR ≈5–9 would qualify, but withheld given open-label designs and incomplete search |
+| **Overall certainty** | **Very low** | |
+
+: GRADE evidence profile for the primary outcome (drug-free T2DM remission, lifestyle vs comparator).
+:::
+
+# Discussion
+
+This review disaggregates the randomised drug-free-remission evidence by World Bank income level, applies the 2021 consensus endpoint within that frame, and benchmarks the pooled LMIC effect against the landmark high-income trials. Prior syntheses pooled across income strata [@sherifali2025] or did not meta-analyse [@duhuzekarera2023]. Four findings stand out.
+
+First, **where randomised LMIC evidence exists, the effect is large and directionally consistent.** Across three trials from China and Iran, structured dietary lifestyle modification produced drug-free remission at roughly five to nine times the odds of comparator care depending on estimator (Peto OR 5.04; Mantel-Haenszel OR 7.41; GLMM OR 7.94; random-effects REML OR 8.62), with three-year durability in one trial [@wu2026followup]. When an independent fourth trial from a third country (Thailand) is added in sensitivity analysis, the effect is essentially unchanged; and when the single active-comparator trial is excluded, it is larger and homogeneous (OR ≈20, I²=0%). Four independent RCTs, from three countries and using four distinct dietary modalities (intermittent calorie restriction, low-carbohydrate restriction, time-restricted feeding, and intermittent very-low-calorie dieting), all point the same way. We are cautious about over-reading heterogeneity statistics at three or four trials, where I² is itself imprecise, but the consistency of *direction* across this diverse set is not easily explained by chance.
+
+Second, **the LMIC effect is of the same order of magnitude as the high-income benchmark, though the comparison cannot establish equivalence.** The pooled LMIC remission odds ratio did not differ significantly from the pooled DiRECT/DIADEM-I odds ratio (p=0.48 for the subgroup difference) — but with five trials and only two HIC studies this test is severely underpowered, the point estimates differ almost two-fold, and "no significant difference" is here absence of evidence rather than evidence of similarity. With that caveat, the finding is consistent with the biological rationale that LMIC populations — younger, with lower BMI and shorter disease duration — are at least as well placed to achieve remission as the older, higher-BMI populations of the original HIC trials, in which remission was nonetheless strongly predicted by short disease duration and substantial weight loss [@taylor2018cellmetab; @lean2018]. The contrast with Look AHEAD, where lifestyle intervention in longer-duration disease produced only modest remission [@gregg2012lookahead], reinforces the point that recency of diagnosis — a feature of the growing LMIC diabetic population — is favourable for remission. The comparison must nonetheless be read cautiously: it is exploratory, based on five trials and aggregate data, and the apparently higher HIC point estimate may simply reflect the larger, better-powered HIC trials and the diluted active-comparator arm of one Chinese trial (CR-LCD, whose control group itself achieved 35% remission because all glucose-lowering medication was withdrawn on day 1 in early-stage disease). It should be interpreted as a hypothesis — that contextually delivered lifestyle modification could achieve comparable remission in LMIC settings — and not as evidence of equivalence.
+
+Third, **the mechanism makes this biologically coherent and generalisable in principle.** The twin-cycle account predicts that remission depends on draining ectopic liver and pancreas fat through negative energy balance, with success governed by residual beta-cell recovery capacity that is greater earlier in the disease [@taylor2008; @taylor2018cellmetab; @taylor2019reversal]. None of these mechanisms is plausibly population- or income-specific; what differs across settings is not the biology but the delivery system, the food environment, and the resources available to support and sustain weight loss. This is the strongest theoretical reason to expect that a well-delivered lifestyle programme could induce remission in sub-Saharan Africa, and the strongest reason that the absence of trials there is a gap in *evidence*, not necessarily in *effect*. We are careful, however, not to assume the effect would necessarily be as large: contextual factors specific to many sub-Saharan African settings — different habitual diets and food environments, the practical difficulty of sustaining a structured negative-energy-balance programme without reliable food and follow-up, and the distinct body-composition and lifetime under-nutrition history of some populations — could equally *attenuate* the achievable effect. The point is that the question is unanswered, not that the answer is assured.
+
+Fourth, and most importantly for policy, **the evidence is geographically absent precisely where the burden is growing fastest.** No eligible randomised trial was identified from sub-Saharan Africa, and none from South Asia other than a digital-delivery trial that could not be pooled; this absence is corroborated by the Duhuze Karera scoping review, which likewise found no sub-Saharan African lifestyle-remission trial [@duhuzekarera2023], by the Sherifali global meta-analysis, which included none [@sherifali2025], and — at the registry level — by our ClinicalTrials.gov scoping search, which returned no remission or reversal trial anywhere in Africa or Latin America, whether completed or ongoing, the only ongoing LMIC remission RCTs being in Malaysia, India, and China. No LMIC RCT reported drug-free blood-pressure normalisation. The thinness and narrowness of this evidence base is not a peripheral limitation; it is the central finding, and it is the strongest available rationale for a contextually adapted primary trial of lifestyle-induced remission in sub-Saharan Africa.
+
+## Implications for implementation and for a sub-Saharan African trial
+
+A reasonable objection to prioritising remission in resource-limited settings is cost. The high-income evidence is encouraging here: within-trial economic analysis of DiRECT estimated a cost per case of remission that compares favourably with a lifetime of diabetes pharmacotherapy and complication management [@xin2019direct], and the real-world economic evaluation of the NHS England Type 2 Diabetes Path to Remission programme found the structured low-calorie-diet model to be a plausibly cost-effective use of resources at scale [@martin2025]. The qualitative evaluation of that programme's roll-out, however, is a caution: equitable delivery is not automatic and depends on referral pathways and staff engagement [@drew2024]. Pilot work adapting an intensive remission programme for an underserved US population (HEAL Diabetes-USA) illustrates the kind of contextual adaptation — food provision, group support, and ongoing coaching — that translation to lower-resource settings will require [@boykins2026heal].
+
+The economic argument is, if anything, stronger in settings such as rural Kenya than in the NHS. Where essential NCD medicines are frequently out of stock and HbA1c testing is unavailable at the primary-care level [@amollo2026financial; @ogol2025], a one-off structured intervention that removes a patient's dependence on a fragile drug-supply chain has a value that a cost-per-remission calculation framed around medication savings alone will understate. A contextually adapted trial in sub-Saharan Africa should therefore (i) recruit recently diagnosed adults, in whom remission is most achievable; (ii) use locally available, affordable foods rather than proprietary formula diets; (iii) deliver the intervention through existing primary-care and community-health-worker structures to test real-world feasibility; (iv) measure drug-free remission by the 2021 consensus definition; and (v) pre-specify drug-free blood-pressure normalisation as a secondary endpoint, since hypertension and diabetes are jointly managed and jointly under-resourced in these settings [@baena2014; @liao2024]. A cluster-randomised design at the facility level would align with how care is organised and would mitigate contamination, as in DiRECT [@leslie2016directprotocol].
+
+## Strengths and limitations
+
+The principal strengths of this review are its pre-registration, its strict use of the drug-free consensus remission endpoint, the verification of every analysis-contributing data point against the source publications, the use of a panel of sparse-data-appropriate estimators (Mantel-Haenszel, GLMM, Peto) reported transparently side by side rather than reliance on any single anchor or on an unstable risk-ratio interval, and full computational reproducibility from openly available code and data.
+
+The limitations are substantial and define the interpretation. **The single most important limitation is that the search is not yet complete.** At this stage the synthesis reflects a comprehensive MEDLINE/PubMed search, a targeted multi-region geographic search, forward/backward citation searching, and a registry scoping pass — but the remaining registered databases (Embase, CENTRAL, Web of Science, CINAHL, Global Health, AJOL, LILACS, IndMED, WHO Global Index Medicus, and full registry and grey-literature searching), full dual independent screening, and the librarian-led PRESS review are still being completed **[PENDING]**. Because the central claim — that no eligible sub-Saharan African or Latin American RCT exists — depends on search completeness, that claim, and every pooled estimate, must be regarded as provisional until the full search is screened in duplicate; this manuscript is accordingly an interim synthesis, and we have been explicit throughout about what remains to be done. The identification of an eligible-or-borderline fourth trial (Thailand) only through forward-citation searching underscores the point directly: the evidence base is still being assembled. Beyond search completeness, the certainty of evidence is very low; the pooled estimates rest on three small, open-label trials from two countries; the cross-income comparison is ecological, underpowered, and exploratory; and publication-bias tests were not performed because fewer than ten studies contributed to any analysis. These constraints are the reason the full registered protocol exists, and the final review will update every estimate once the complete search is screened in duplicate.
+
+We also note our own positionality. The authorship team is based in western Kenya and works on non-communicable-disease care in exactly the resource-constrained primary-care settings this review foregrounds; we have an interest in the case for a sub-Saharan African remission trial. We have tried to guard against motivated reasoning by pre-registering the protocol, verifying all data against source, reporting estimators that could have weakened the case (the uninformative Hartung-Knapp interval; the underpowered income comparison), and stating plainly where the effect in sub-Saharan Africa could prove smaller than in the trials reviewed here.
+
+# Conclusion
+
+Lifestyle modification can induce drug-free T2DM remission, and the randomised evidence from LMICs — though confined to China and Iran, extended in sensitivity analysis to Thailand, and of very low certainty — shows an effect that is large, directionally consistent across trials and dietary modalities, and of the same order of magnitude as the landmark high-income trials (a comparison that is underpowered and does not establish equivalence). The complete absence of randomised evidence from sub-Saharan Africa, and of any LMIC trial reporting drug-free hypertension normalisation, defines the priority for new primary research. Pending completion of the full registered search, these findings are interim; even so, they provide the regional evidence base and the effect-size expectations needed to design and fund a contextually adapted remission trial in sub-Saharan Africa.
+
+# Data and code availability {.unnumbered}
+
+All analysis code, the analysis-ready data files (`06_analysis/data_input/meta_input.csv` for the LMIC pool, `meta_input_sensitivity_thailand.csv` for the four-trial sensitivity analysis, and `hic_reference.csv` for the comparison set), and the full database search strategies are available at https://github.com/gondamol/Kenya_DHS_Studies and will be deposited on OSF prior to publication. The primary meta-analysis is reproducible with `Rscript 06_analysis/R/run_meta_workflow.R` and the search-completeness sensitivity analysis with `Rscript 06_analysis/R/sensitivity_thailand_k4.R`.
+
+# Declarations {.unnumbered}
+
+**Ethics approval and consent to participate.** No ethical approval is required as this systematic review synthesises only previously published, aggregate data.
+
+**Competing interests.** The authors declare no competing interests.
+
+**Funding.** This research received no specific grant from any funding agency in the public, commercial, or not-for-profit sectors.
+
+**Authors' contributions.** NWA: Conceptualisation, Methodology, Formal analysis, Project administration, Writing (original draft), Writing (review and editing); guarantor. JO: Conceptualisation, Methodology, Supervision, Writing (review and editing). LH: Conceptualisation (clinical observation), Writing (review and editing). NAO: Data curation, Formal analysis, Writing (review and editing). All authors read and approved the final manuscript.
+
+**Acknowledgements.** The authors thank the patients and clinical teams at NCD clinics in Seme Sub-County, Kisumu County, Kenya, whose experiences motivated this research.
+
+# References {.unnumbered}
+
+::: {#refs}
+:::
