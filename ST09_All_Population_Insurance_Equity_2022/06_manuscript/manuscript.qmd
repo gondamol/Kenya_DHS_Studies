@@ -228,12 +228,19 @@ richest_insured_paid <- fig4_df %>%
   transmute(value = sprintf("%.1f%% (95%% CI %.1f%% to %.1f%%)", est, lo, hi)) %>%
   pull(value)
 
+# Text width of the page the table sits on, in inches.
+# A4 portrait  (11906 twips) less 1-inch margins = 6.27 in
+# A4 landscape (16838 twips) less 1-inch margins = 9.69 in
+PORTRAIT_TEXT_IN  <- 6.27
+LANDSCAPE_TEXT_IN <- 9.69
+
 build_publication_flextable <- function(data,
                                         footer_lines = c("Source: Kenya DHS 2022. Survey-weighted estimates."),
                                         font_size = 9,
                                         header_labels = NULL,
                                         spanner_values = NULL,
-                                        spanner_widths = NULL) {
+                                        spanner_widths = NULL,
+                                        page_width_in = PORTRAIT_TEXT_IN) {
   ft <- flextable::flextable(data)
 
   if (!is.null(header_labels)) {
@@ -279,7 +286,7 @@ build_publication_flextable <- function(data,
   ft <- flextable::autofit(ft)
   .w <- dim(ft)$widths
   if (length(.w) > 0 && is.finite(sum(.w)) && sum(.w) > 0) {
-    ft <- flextable::width(ft, width = .w * (6.27 / sum(.w)))
+    ft <- flextable::width(ft, width = .w * (page_width_in / sum(.w)))
   }
   ft <- flextable::set_table_properties(
     ft, layout = "fixed", opts_word = list(split = FALSE, keep_with_next = TRUE)
@@ -299,17 +306,51 @@ publication_flextable <- function(data,
                                   footer_lines = c("Source: Kenya DHS 2022. Survey-weighted estimates."),
                                   header_labels = NULL,
                                   spanner_values = NULL,
-                                  spanner_widths = NULL) {
+                                  spanner_widths = NULL,
+                                  page_width_in = PORTRAIT_TEXT_IN) {
   build_publication_flextable(
     data = data,
     footer_lines = footer_lines,
     header_labels = header_labels,
     spanner_values = spanner_values,
-    spanner_widths = spanner_widths
+    spanner_widths = spanner_widths,
+    page_width_in = page_width_in
   ) %>%
     flextable::paginate(init = TRUE, hdr_ftr = TRUE) %>%
     knitr::knit_print()
 }
+
+# Landscape sections for the widest tables.
+#
+# In OOXML a <w:sectPr> inside a paragraph's <w:pPr> describes the section that
+# ENDS at that paragraph. So to put a table on its own landscape page we close
+# the preceding portrait section, let the table fall into the next section, and
+# then close that one as landscape. Everything after returns to the document's
+# body-level portrait section.
+sect_pr <- function(landscape = FALSE) {
+  pg <- if (landscape) {
+    '<w:pgSz w:w="16838" w:h="11906" w:orient="landscape"/>'
+  } else {
+    '<w:pgSz w:w="11906" w:h="16838"/>'
+  }
+  # Both the fence and the newline are built at run time. Three literal
+  # backticks here would close the enclosing chunk, and an escaped newline has
+  # a habit of being flattened by whatever edits this file.
+  fence <- strrep("`", 3)
+  nl <- intToUtf8(10)
+  paste0(
+    nl, fence, "{=openxml}", nl,
+    "<w:p><w:pPr><w:sectPr>", pg,
+    '<w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"',
+    ' w:header="720" w:footer="720" w:gutter="0"/>',
+    "</w:sectPr></w:pPr></w:p>", nl, fence, nl
+  )
+}
+# Close the portrait run: what follows is landscape.
+begin_landscape <- function() cat(sect_pr(landscape = FALSE))
+# Close the landscape run: what follows returns to portrait.
+end_landscape   <- function() cat(sect_pr(landscape = TRUE))
+
 ```
 
 Nichodemus Werre Amollo^1,\*^, Japheth Ogol^1^
@@ -494,12 +535,20 @@ Predictions were masked to grid cells within 50 km of a sampled cluster, so that
 
 The analytic sample included `r analysis_object$overall_n` de-facto household members with valid insurance data. Weighted any-insurance coverage was `r fmt_pct_string(get_t1("All household members", "Any insurance % (95% CI)"))`, while `r fmt_pct_string(get_t1("All household members", "Uninsured % (95% CI)"))` remained uninsured. Among insured household members, NHIF was the dominant form of coverage at `r fmt_pct_string(get_t1("All household members", "NHIF % of insured (95% CI)"))`, whereas community-based cover was minimal. Outpatient use in the previous 4 weeks was `r fmt_pct_string(get_t1("All household members", "Outpatient use % (95% CI)"))`, and `r fmt_pct_string(get_t1("All household members", "Paid for OPD % (95% CI)"))` of outpatient users reported paying at their last outpatient visit. Women had similar coverage to men but higher recent outpatient use and higher hospital admission.
 
+```{r}
+#| label: land-begin-1
+#| echo: false
+#| results: asis
+begin_landscape()
+```
+
 Table 1. National health insurance coverage, service use, and payment at outpatient contact by sex, all de-facto household members, KDHS 2022.
 
 ```{r}
 #| label: table-1-display
 #| results: asis
 publication_flextable(
+  page_width_in = LANDSCAPE_TEXT_IN,
   table1_display,
   footer_lines = c(
     "Source: Kenya DHS 2022. Survey-weighted estimates with 95% confidence intervals.",
@@ -519,9 +568,24 @@ publication_flextable(
 )
 ```
 
+```{r}
+#| label: land-end-1
+#| echo: false
+#| results: asis
+end_landscape()
+```
+
+
 ## Life-course coverage patterns
 
 Coverage followed a marked life-course pattern rather than a simple age gradient (Table 2, Figure 1). Young adults aged 18-24 had the lowest coverage of any age group at `r fmt_pct_string(get_t2("18-24", "All: insured % (95% CI)"))`. Coverage in all three child age bands was also low: `r fmt_pct_string(get_t2("Under 5", "All: insured % (95% CI)"))` among children under 5, `r fmt_pct_string(get_t2("5-14", "All: insured % (95% CI)"))` among ages 5-14, and `r fmt_pct_string(get_t2("15-17", "All: insured % (95% CI)"))` among ages 15-17. Coverage rose sharply in the core working-age groups, peaking at `r fmt_pct_string(get_t2("45-59", "All: insured % (95% CI)"))` among ages 45-59 before falling to `r fmt_pct_string(get_t2("60+", "All: insured % (95% CI)"))` among adults aged 60 years and above. Sex differences were modest within most age bands. The heaviest recent outpatient use was observed among adults aged 60 years and above (`r fmt_pct_string(get_t2("60+", "Outpatient % (95% CI)"))`) and among children under 5 (`r fmt_pct_string(get_t2("Under 5", "Outpatient % (95% CI)"))`).
+
+```{r}
+#| label: land-begin-2
+#| echo: false
+#| results: asis
+begin_landscape()
+```
 
 Table 2. Health insurance coverage across the life course by sex, KDHS 2022.
 
@@ -529,6 +593,7 @@ Table 2. Health insurance coverage across the life course by sex, KDHS 2022.
 #| label: table-2-display
 #| results: asis
 publication_flextable(
+  page_width_in = LANDSCAPE_TEXT_IN,
   table2_display,
   footer_lines = c(
     "Source: Kenya DHS 2022. Survey-weighted estimates with 95% confidence intervals.",
@@ -551,6 +616,14 @@ publication_flextable(
   spanner_widths = c(1, 1, 2, 2, 2, 2)
 )
 ```
+
+```{r}
+#| label: land-end-2
+#| echo: false
+#| results: asis
+end_landscape()
+```
+
 
 ```{r}
 #| label: fig-1
@@ -654,12 +727,20 @@ Full concentration-index estimates are provided in Additional file 2, Table S3, 
 
 The binary payment indicator understated how little financial protection insurance provided (Table 4). Among all recent outpatient users, the median cash payment at the last visit was `r cost_val("opd_overall_cost", "Median cash OOP, KES")` KES, cash met `r cost_val("opd_overall_cost", "Cash share of cost, %")`% of total outpatient cost, and NHIF met only `r cost_val("opd_overall_cost", "NHIF share of cost, %")`%. The cash burden was only modestly smaller among the insured (cash share `r cost_val("opd_insured_cost", "Cash share of cost, %")`%, NHIF share `r cost_val("opd_insured_cost", "NHIF share of cost, %")`%) than among the uninsured (cash share `r cost_val("opd_uninsured_cost", "Cash share of cost, %")`%), showing that NHIF financed only a small fraction of routine outpatient spending even for its own members. Inpatient costs were far larger, with a median total cost of `r cost_val("hosp_overall_cost", "Median total cost, KES")` KES; NHIF covered a larger but still incomplete share among the insured (`r cost_val("hosp_insured_cost", "NHIF share of cost, %")`% of inpatient cost), consistent with NHIF's historical orientation toward inpatient cover. The cash share of outpatient cost stayed high across the wealth distribution for both insured and uninsured users (Figure 7).
 
+```{r}
+#| label: land-begin-9
+#| echo: false
+#| results: asis
+begin_landscape()
+```
+
 Table 4. Depth of out-of-pocket payment at the last outpatient visit and last inpatient admission, by insurance status and wealth quintile, KDHS 2022.
 
 ```{r}
 #| label: table-9-display
 #| results: asis
 publication_flextable(
+  page_width_in = LANDSCAPE_TEXT_IN,
   table9,
   footer_lines = c(
     "Source: Kenya DHS 2022. Survey-weighted estimates; n values are unweighted.",
@@ -669,6 +750,14 @@ publication_flextable(
   )
 )
 ```
+
+```{r}
+#| label: land-end-9
+#| echo: false
+#| results: asis
+end_landscape()
+```
+
 
 ```{r}
 #| label: fig-7
