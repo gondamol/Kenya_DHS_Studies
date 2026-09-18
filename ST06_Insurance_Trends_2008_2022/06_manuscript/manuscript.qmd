@@ -1,0 +1,446 @@
+---
+title: "Fourteen years of expanding but unequal health insurance coverage among Kenyan women of reproductive age: a multi-wave analysis of Kenya Demographic and Health Surveys 2008, 2014, and 2022"
+shorttitle: "Fourteen Years of Insurance Coverage Trends in Kenya"
+
+author:
+  - name: Nichodemus Werre Amollo
+    corresponding: true
+    email: "nwere@ejooust.ac.ke"
+    orcid: "0009-0008-1501-601X"
+    affiliations:
+      - id: aff1
+        name: Jaramogi Oginga Odinga University of Science and Technology
+        department: School of Health Sciences
+        address: Main Campus
+        city: Bondo
+        country: Kenya
+
+  - name: Japheth Ogol
+    email: japhth.ogol@ejooust.ac.ke
+    affiliations:
+      - ref: aff1
+      - id: aff2
+        name: University of Antwerp
+        department: Department of Family Medicine & Population Health (FAMPOP)
+        city: Wilrijk
+        country: Belgium
+
+keywords:
+  - health insurance
+  - NHIF
+  - insurance coverage trends
+  - women of reproductive age
+  - wealth inequality
+  - concentration index
+  - Kenya DHS
+  - universal health coverage
+  - Social Health Authority
+
+funding: |
+  This research received no specific grant from any funding agency in the public, commercial, or not-for-profit sectors.
+
+author-note:
+  contributions: |
+    **NWA** conceptualised the study, developed the multi-wave harmonisation approach, conducted all analyses, and drafted the manuscript. **JO** contributed to study design, interpretation of findings, and critical revision of the manuscript. Both authors approved the final version.
+
+  disclosures:
+    conflict-of-interest: |
+      The authors declare that they have no competing interests.
+
+    ethics: |
+      This study used de-identified secondary data from the Kenya Demographic and Health Surveys (2008, 2014, 2022), obtained from The DHS Program under authorisation letter reference 220623. The original surveys received ethical approval from the Kenya Medical Research Institute Scientific and Ethics Review Unit and the ICF Institutional Review Board. No new participant contact occurred.
+
+    data-availability: |
+      KDHS microdata are available from The DHS Program upon approved request at https://www.dhsprogram.com. Analysis scripts are available from the corresponding author upon reasonable request.
+
+format:
+  docx:
+    toc: false
+    number-sections: true
+    reference-doc: ../../_TEMPLATES/reference_doc.docx
+    filters:
+      - ../../_TEMPLATES/suppress-docx-authors.lua
+
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    theme: cosmo
+    code-fold: true
+    embed-resources: true
+
+bibliography: references.bib
+csl: ../../_TEMPLATES/vancouver.csl
+editor: source
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(tidyverse)
+library(flextable)
+
+analysis_object <- readRDS(file.path("..", "07_derived_data", "st06_analysis_outputs.rds"))
+table1 <- analysis_object$table1
+table2 <- analysis_object$table2
+table3 <- analysis_object$table3
+table4 <- analysis_object$table4
+sample_sizes <- analysis_object$sample_sizes
+
+# -- Inline helper functions -------------------------------------------
+
+fmt_pct_string <- function(x) {
+  if (is.na(x) || x == "") return(x)
+  vals <- as.numeric(unlist(regmatches(x, gregexpr("[0-9]+\\.?[0-9]*", x))))
+  sprintf("%.1f%% (95%% CI %.1f%% to %.1f%%)", vals[1], vals[2], vals[3])
+}
+
+fmt_p <- function(x) {
+  x_num <- suppressWarnings(as.numeric(x))
+  if (!is.finite(x_num)) return(x)
+  if (x_num < 0.001) "<0.001" else sprintf("%.3f", x_num)
+}
+
+fmt_ci_inline <- function(est, lo, hi, digits = 4) {
+  stringr::str_replace_all(
+    sprintf(paste0("%.", digits, "f (95%% CI %.", digits, "f to %.", digits, "f)"), est, lo, hi),
+    "-", "\u2212"
+  )
+}
+
+get_t1 <- function(wave_val, col) {
+  table1 %>% filter(Wave == wave_val) %>% pull(col)
+}
+
+get_t2 <- function(wave_val, subgroup_val, group_val) {
+  table2 %>%
+    filter(Wave == wave_val, Subgroup == subgroup_val, group == group_val) %>%
+    pull(`Insurance % (95% CI)`)
+}
+
+get_t3 <- function(covariate_val) {
+  table3 %>% filter(Covariate == covariate_val) %>% pull(`APR (95% CI)`)
+}
+
+get_t3p <- function(covariate_val) {
+  p <- table3 %>% filter(Covariate == covariate_val) %>% pull(`p-value`)
+  fmt_p(p)
+}
+
+get_ci_row <- function(wave_val) {
+  table4 %>% filter(Wave == wave_val)
+}
+
+fmt_ci_row <- function(wave_val) {
+  r <- get_ci_row(wave_val)
+  fmt_ci_inline(r$`Concentration index`, r$`95% CI lower`, r$`95% CI upper`)
+}
+
+# â”€â”€ Display-formatted tables â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+publication_flextable <- function(data, caption_text,
+                                  footer_lines = c("Source: Kenya DHS 2008, 2014, 2022. Survey-weighted estimates.")) {
+  ft <- flextable(data) %>%
+    set_table_properties(layout = "autofit", opts_word = list(split = TRUE)) %>%
+    autofit() %>%
+    theme_booktabs() %>%
+    font(fontname = "Times New Roman", part = "all") %>%
+    fontsize(size = 9, part = "all") %>%
+    bold(part = "header") %>%
+    align(align = "left", part = "all") %>%
+    valign(valign = "top", part = "all") %>%
+    padding(padding = 3, part = "all") %>%
+    set_caption(caption = caption_text)
+  if (length(footer_lines) > 0) {
+    ft <- add_footer_lines(ft, values = footer_lines) %>%
+      merge_h(part = "footer") %>%
+      italic(part = "footer") %>%
+      fontsize(size = 8, part = "footer") %>%
+      align(align = "left", part = "footer")
+  }
+  ft %>%
+    paginate(init = TRUE, hdr_ftr = TRUE) %>%
+    knitr::knit_print()
+}
+
+# Table 1: tidy % formatting with wave label
+table1_display <- table1 %>%
+  rename(
+    `Any insurance`            = `Any insurance % (95% CI)`,
+    `NHIF`                     = `NHIF % (95% CI)`,
+    `Other government`         = `Other government % (95% CI)`,
+    `Community-based`          = `Community-based % (95% CI)`,
+    `Private`                  = `Private % (95% CI)`,
+    `Other`                    = `Other % (95% CI)`,
+    `Uninsured`                = `Uninsured % (95% CI)`,
+    `n`                        = `Unweighted n`
+  )
+
+# Table 2: wide format per wave, pivoted for readability
+table2_display <- table2 %>%
+  select(Wave, Subgroup, `Category` = group, `Unweighted n`, `Insurance % (95% CI)`) %>%
+  arrange(Subgroup, Category, Wave)
+
+# Table 4 display
+table4_display <- table4 %>%
+  transmute(
+    `Survey year`           = Wave,
+    `Concentration index`   = stringr::str_replace_all(sprintf("%.4f", `Concentration index`), "-", "\u2212"),
+    `95% CI lower`          = stringr::str_replace_all(sprintf("%.4f", `95% CI lower`), "-", "\u2212"),
+    `95% CI upper`          = sprintf("%.4f", `95% CI upper`)
+  )
+
+# Table 3 display (filter out header row for docx)
+table3_display <- table3 %>%
+  mutate(`p-value` = vapply(`p-value`, fmt_p, character(1)))
+```
+
+Nichodemus Werre Amollo^1,\*^, Japheth Ogol^1,2^
+
+^1^ School of Health Sciences, Jaramogi Oginga Odinga University of Science and Technology, Bondo, Kenya\
+^2^ Department of Family Medicine & Population Health (FAMPOP), University of Antwerp, Wilrijk, Belgium
+
+\*Correspondence: Nichodemus Werre Amollo, nwere@ejooust.ac.ke
+
+# Abstract {.unnumbered}
+
+**Background:** Health insurance coverage among Kenyan women of reproductive age expanded considerably across the National Hospital Insurance Fund (NHIF) era, but the trajectory of that growth and the persistence of wealth-related inequality over time are not well characterised using nationally representative multi-wave data. This study quantifies insurance coverage trends, subgroup inequalities, and wealth-related concentration over three Kenya Demographic and Health Survey (KDHS) rounds spanning 14 years.
+
+**Methods:** We conducted a multi-wave secondary analysis using the individual recode (IR) files from KDHS 2008 and KDHS 2014, and the person recode (PR) file from KDHS 2022, restricted to women aged 15–49 years. All estimates incorporated the DHS complex sample design. Survey-weighted prevalence of any insurance and specific insurance types was estimated for each wave overall and by wealth quintile, residence, education, age group, and region. A survey-weighted quasi-Poisson model with log link was fitted to estimate adjusted prevalence ratios (APR) for the trend and for socioeconomic predictors. Wealth-related inequality was quantified using bootstrap concentration indices for each wave.
+
+**Results:** The analytic sample comprised 42,244 women (8,435 in 2008, 14,733 in 2014, and 19,076 in 2022). Any insurance coverage grew from 7.0% (95% CI 5.5–8.4%) in 2008 to 18.1% (16.9–19.3%) in 2014 and 28.9% (27.5–30.2%) in 2022. Coverage remained strongly pro-rich throughout, though the wealth-related concentration index fell from 0.5279 (95% CI 0.4827–0.5642) in 2008 to 0.3349 (0.3209–0.3495) in 2022. In 2022, 53.9% of women in the richest quintile were insured versus 6.0% in the poorest quintile. After adjusting for socioeconomic composition, insurance prevalence in 2022 was 3.45-fold (95% CI 2.94–4.05) that of 2008. The richest wealth quintile had 6.79-fold (95% CI 5.72–8.07) higher adjusted insurance prevalence than the poorest quintile. Despite substantial growth, 71.1% (69.8–72.5%) of women remained uninsured in 2022.
+
+**Conclusions:** Kenyan women of reproductive age experienced substantial growth in insurance coverage between 2008 and 2022, but coverage remained low and pro-rich at the end of the NHIF era. The Social Health Authority inherits a financing landscape where rapid aggregate expansion has not yet produced equitable coverage, making equity-sensitive monitoring essential.
+
+**Keywords:** health insurance; NHIF; insurance coverage trends; women of reproductive age; wealth inequality; concentration index; Kenya DHS; universal health coverage; Social Health Authority; SHA
+
+# Background
+
+Kenya has pursued universal health coverage (UHC) primarily through its National Hospital Insurance Fund since NHIF's founding in 1966 as a statutory contributory scheme [@barasa2018]. Successive policy reforms — including the expansion of benefit packages, the introduction of community health coverage modules, and maternity-care linkages — aimed to broaden the reach of NHIF beyond formal-sector employees [@mbau2020; @barasa2018]. The 2022 replacement of NHIF by the Social Health Authority (SHA), effective 1 October 2024, represents the most fundamental restructuring of the national financing architecture in decades [@nungo2024]. For that transition to be assessed credibly, a multi-wave baseline documenting the NHIF-era trajectory of coverage and inequality is needed.
+
+Earlier Kenya insurance studies established the critical starting points. Kimani et al., analysing the 2008–09 KDHS, documented that insurance coverage was low and concentrated among wealthier, more educated, and urban women [@kimani2014]. Kazungu and Barasa, using the 2014 KDHS, confirmed that these gradients persisted even as aggregate coverage grew [@kazungu2017]. Barasa et al. subsequently showed that the pro-rich pattern in Kenya reflected a broader sub-Saharan African tendency for contributory insurance schemes to achieve disproportionate coverage among better-off populations rather than universal inclusion [@barasa2021]. That body of evidence, however, mostly characterises individual cross-sections. A study that explicitly tracks the trajectory of coverage growth and inequality across the three major DHS waves spanning 2008 to 2022 — the full NHIF policy era before the SHA transition — has not been published.
+
+Progress on wealth inequality in coverage is particularly consequential. The concentration index literature shows that insurance systems can grow without becoming more equitable, especially when enrolment relies on ability to pay or formal employment as a selection mechanism [@wagstaff1991; @erreygers2009]. Conversely, targeted subsidies, community-based insurance linkages, and provider-side incentives have, in some settings, produced measurable reductions in pro-rich concentration [@barasa2021]. Understanding whether Kenya's trajectory was equalising or simply expanding at all income levels is essential for calibrating what the SHA era needs to achieve to reach groups left behind by NHIF.
+
+Women of reproductive age are a strategically important sub-population for this assessment. They are a primary target of maternal and reproductive health financing policy, they have historically benefited from NHIF-linked maternity programmes including Linda Mama, and they appear in both IR and PR DHS files with consistent insurance variables across waves [@kdhs2022report]. Restricting the analysis to women aged 15–49 also allows harmonisation across the three survey files despite the structural difference that requires use of the 2022 PR file rather than the IR file for that round (because `v481` is not populated in the 2022 IR).
+
+This study addresses three questions. First, how did insurance coverage among Kenyan women aged 15–49 change from 2008 to 2022, nationally and within key socioeconomic subgroups? Second, did wealth-related inequality in coverage increase or decrease over this period? Third, which socioeconomic factors independently predicted insurance coverage after adjusting for compositional change across waves?
+
+# Methods
+
+## Study design and data sources
+
+We conducted a multi-wave cross-sectional secondary analysis of the KDHS rounds fielded in 2008–09, 2014, and 2022. Each KDHS used a stratified two-stage cluster sample design providing nationally representative estimates for women of reproductive age [@dhsguide2023]. The 2008 and 2014 individual recode (IR) files, which contain all standard DHS insurance variables (`v481`, `v481a–e`), were used for those waves. For 2022, the variable `v481` is entirely missing in the IR file; we therefore used the person recode (PR) file (`KEPR8CFL.DTA`), which contains the variables `sh27` (any insurance) and `sh28a–c`, `sh28x` (insurance types) [@kdhs2022report]. Diagnostic checks confirmed 156,571 rows in the 2022 PR file, with 36,614 females aged 15–49 identifiable from `hv105` and `hv104`.
+
+## Study population
+
+The analytic population was women aged 15–49 years in each survey round. The 2022 PR sample was restricted using the numeric filters `hv104 == 2` (female) and `15 â‰¤ hv105 â‰¤ 49`. Observations were further restricted to those with a non-missing response to the any-insurance item (`v481` in 2008 and 2014; `sh27` in 2022). The "don't know" response code (8) for `sh27` in 2022 was treated as missing rather than uninsured.
+
+## Variables
+
+The primary outcome was **any insurance coverage**, defined as `v481 = yes` in 2008 and 2014, and `sh27 = 1` in 2022. Insurance types were extracted for each wave where available. In 2008 and 2014, the type indicators `v481a–e` are unconditional population-level flags; in 2022, the type indicators `sh28a–c` and `sh28x` are asked only of insured respondents (i.e., those with `sh27 = 1`), making type-specific estimates in 2022 conditional on being insured. For the 2022 wave, type variables were mapped as: `sh28a` = NHIF; `sh28b` = private or commercial insurance; `sh28c` = community-based insurance; `sh28x` = other. No 2022 equivalent exists for the "other government" insurance category available in 2008 and 2014.
+
+Sociodemographic covariates were education (no education, primary, secondary, higher), wealth quintile, residence (urban, rural), age group (five-year bands from 15–19 to 45–49), and region. Region in 2022 was derived by collapsing county codes (`hv024`) to Kenya's eight former provinces. Marital status, available in the 2008 and 2014 IR files, was not available for 2022 and was excluded from multivariable models to ensure consistency.
+
+## Survey design and statistical analysis
+
+All analyses incorporated the DHS complex sample design using the primary sampling unit (`v021`/`hv021`), sampling strata (`v022`/`hv022`), and household-member survey weights (`v005`/`hv005`, divided by 1,000,000) [@dhsguide2023; @lumley2010]. The `survey.lonely.psu = "adjust"` option was applied throughout. Design objects were constructed separately per wave for subgroup analyses and jointly for the multivariable model.
+
+Analysis proceeded in four stages. **First**, we estimated national weighted prevalence of any insurance, insurance types, and uninsured status for each wave (Table 1). **Second**, we estimated coverage by wealth quintile, residence, education, five-year age group, and region for each wave (Table 2). **Third**, we fitted a survey-weighted quasi-Poisson generalised linear model with log link to estimate adjusted prevalence ratios (APR) for the survey wave, education, wealth quintile, residence, age group, and region jointly, using 2008 as the reference wave (Table 3). The quasi-Poisson family was preferred over logistic because insurance coverage was common enough in later waves to make odds ratios potentially misleading [@zou2004]. **Fourth**, we estimated the concentration index for insurance coverage in each wave using a weighted-rank covariance approach with 400 bootstrap replicates for confidence intervals (Table 4) [@wagstaff1991; @erreygers2009]. The concentration index ranges from âˆ’1 to +1, with positive values indicating pro-rich concentration.
+
+All analyses were conducted in R version 4.5.1 using the packages `haven`, `tidyverse`, `survey` (version 4.4-2), `flextable`, and `officer` [@lumley2010].
+
+# Results
+
+## Sample description
+
+The combined analytic sample comprised **42,244 women aged 15–49** across three survey waves: 8,435 in 2008, 14,733 in 2014, and 19,076 in 2022. The increase in sample size across waves reflects both population growth and expanded KDHS sample frames.
+
+## National insurance coverage trends
+
+Any insurance coverage among women aged 15–49 grew substantially over the 14-year period: `r fmt_pct_string(get_t1("2008", "Any insurance % (95% CI)"))` in 2008, `r fmt_pct_string(get_t1("2014", "Any insurance % (95% CI)"))` in 2014, and `r fmt_pct_string(get_t1("2022", "Any insurance % (95% CI)"))` in 2022 (Table 1; Figure 1). Despite this nearly four-fold increase, `r fmt_pct_string(get_t1("2022", "Uninsured % (95% CI)"))` of women remained uninsured in 2022.
+
+Among insured women in 2022, NHIF was the dominant modality — an estimated `r get_t1("2022", "NHIF % (95% CI)")` of insured women held NHIF coverage. Private or commercial insurance accounted for `r get_t1("2022", "Private % (95% CI)")` of insured women, and community-based schemes for `r get_t1("2022", "Community-based % (95% CI)")`. Because type-specific estimates in 2022 are conditional on insurance status while those in 2008 and 2014 reflect the full survey population, direct cross-wave comparisons of insurance types should be interpreted cautiously and are provided for descriptive context only.
+
+```{r}
+#| label: tbl-1
+#| results: asis
+publication_flextable(
+  table1_display,
+  caption_text = "Table 1. National insurance coverage trends among women aged 15-49 in Kenya, KDHS 2008, 2014, and 2022.",
+  footer_lines = c(
+    "Source: Kenya DHS 2008, 2014, 2022. Survey-weighted estimates with 95% confidence intervals.",
+    "Note: For 2022, insurance-type estimates (NHIF, community-based, private, other) are conditional on being insured (sh28a-sh28x asked only of insured respondents). For 2008 and 2014, type estimates are unconditional population proportions. Direct cross-wave comparisons of specific types should be made with caution.",
+    "NA = variable not available in that wave."
+  )
+)
+```
+
+```{r}
+#| label: fig-1
+#| fig-cap: "Figure 1. Survey-weighted insurance coverage trends among women aged 15–49 in Kenya, KDHS 2008, 2014, and 2022. Points and lines show any insurance prevalence; error bars indicate 95% confidence intervals."
+knitr::include_graphics(file.path("..", "05_figures", "Figure1_ST06_National_Trend.png"))
+```
+
+## Subgroup trends by socioeconomic characteristics
+
+**Wealth gradient.** Coverage was strongly and consistently stratified by wealth in all three waves (Table 2; Figure 2). In 2008, insurance coverage was `r fmt_pct_string(get_t2("2008", "Wealth", "Poorest"))` among women in the poorest quintile versus `r fmt_pct_string(get_t2("2008", "Wealth", "Richest"))` in the richest quintile — a 59-fold absolute difference. By 2022, the poorest quintile reached `r fmt_pct_string(get_t2("2022", "Wealth", "Poorest"))` and the richest `r fmt_pct_string(get_t2("2022", "Wealth", "Richest"))`, narrowing the absolute gap but leaving coverage in the poorest quintile at less than one-ninth of that in the richest.
+
+**Residence.** Urban women consistently had higher coverage than rural women. In 2022, coverage was `r fmt_pct_string(get_t2("2022", "Residence", "Urban"))` among urban women versus `r fmt_pct_string(get_t2("2022", "Residence", "Rural"))` among rural women. The absolute urban–rural gap grew from approximately 12 percentage points in 2008 to 17 percentage points in 2022, suggesting that urban women absorbed proportionally more of the aggregate coverage gains.
+
+**Education.** Insurance coverage increased across all education groups, but the gradient remained steep. By 2022, women with higher education had `r fmt_pct_string(get_t2("2022", "Education", "Higher"))` coverage compared with `r fmt_pct_string(get_t2("2022", "Education", "No Education"))` among women with no formal education. Women with at most primary education (`r fmt_pct_string(get_t2("2022", "Education", "Primary"))`) remained substantially below the national average.
+
+**Age group.** In 2022, insurance coverage was highest among older age groups: `r fmt_pct_string(get_t2("2022", "Age", "40-44"))` at ages 40–44 and `r fmt_pct_string(get_t2("2022", "Age", "45-49"))` at ages 45–49, compared with `r fmt_pct_string(get_t2("2022", "Age", "15-19"))` among adolescents aged 15–19 and `r fmt_pct_string(get_t2("2022", "Age", "20-24"))` among women aged 20–24. This age pattern was consistent across waves and likely reflects the association between formal employment and NHIF enrolment, since employment is more prevalent at older ages.
+
+**Region.** Regional variation in 2022 was substantial. Nairobi had the highest coverage (`r fmt_pct_string(get_t2("2022", "Region", "Nairobi"))`), followed by Central (`r fmt_pct_string(get_t2("2022", "Region", "Central"))`), Rift Valley (`r fmt_pct_string(get_t2("2022", "Region", "Rift Valley"))`), and Nyanza (`r fmt_pct_string(get_t2("2022", "Region", "Nyanza"))`). Coast (`r fmt_pct_string(get_t2("2022", "Region", "Coast"))`), Western (`r fmt_pct_string(get_t2("2022", "Region", "Western"))`), and Eastern (`r fmt_pct_string(get_t2("2022", "Region", "Eastern"))`) had lower coverage. North Eastern showed notable improvement from negligible coverage in 2008 to `r fmt_pct_string(get_t2("2022", "Region", "North Eastern"))` in 2022.
+
+```{r}
+#| label: tbl-2
+#| results: asis
+publication_flextable(
+  table2_display,
+  caption_text = "Table 2. Insurance coverage by socioeconomic subgroup and survey wave, women aged 15-49, KDHS 2008, 2014, and 2022.",
+  footer_lines = c(
+    "Source: Kenya DHS 2008, 2014, 2022. Survey-weighted estimates with 95% confidence intervals.",
+    "Region in 2022 was derived by collapsing county codes (hv024) to Kenya's eight former provinces."
+  )
+)
+```
+
+```{r}
+#| label: fig-2
+#| fig-cap: "Figure 2. Wealth gradient in any insurance coverage across survey waves among women aged 15–49 in Kenya, KDHS 2008, 2014, and 2022. Survey-weighted prevalence by wealth quintile; error bars indicate 95% confidence intervals."
+knitr::include_graphics(file.path("..", "05_figures", "Figure2_ST06_Wealth_Gradient_Trend.png"))
+```
+
+## Multivariable analysis of insurance coverage trends
+
+In the combined multivariable model adjusting for wealth quintile, education, residence, age group, and region, insurance coverage was substantially higher in both 2014 and 2022 than in 2008 (Table 3). The adjusted prevalence ratio for 2014 versus 2008 was `r get_t3("2014 vs 2008")` (p `r get_t3p("2014 vs 2008")`), and for 2022 versus 2008 was `r get_t3("2022 vs 2008")` (p `r get_t3p("2022 vs 2008")`), indicating that even after accounting for compositional change in the sample's socioeconomic profile, coverage grew substantially over the period.
+
+Education and wealth were the strongest socioeconomic predictors. Women with secondary education had `r get_t3("Secondary vs no education")`-fold higher insurance prevalence than women with no education (p `r get_t3p("Secondary vs no education")`), and women with higher education had `r get_t3("Higher vs no education")`-fold higher prevalence (p `r get_t3p("Higher vs no education")`). The adjusted prevalence ratio for the richest versus poorest wealth quintile was `r get_t3("Richest vs poorest")` (p `r get_t3p("Richest vs poorest")`), confirming that wealth remained by far the dominant individual-level correlate of insurance status across all three waves.
+
+```{r}
+#| label: tbl-3
+#| results: asis
+publication_flextable(
+  table3_display,
+  caption_text = "Table 3. Survey-weighted multivariable adjusted prevalence ratios (APR) for any insurance coverage among women aged 15-49, combined KDHS 2008, 2014, and 2022.",
+  footer_lines = c(
+    "Source: Kenya DHS 2008, 2014, 2022. Survey-weighted estimates.",
+    "APR from a single survey-weighted quasi-Poisson generalised linear model with log link, combining all three waves.",
+    "Reference categories: wave = 2008; education = no education; wealth = poorest; residence = urban; age group = 15-19.",
+    "Model also adjusted for region (coefficients not tabulated).",
+    "Marital status was excluded from the model because it is not available in the 2022 person recode file."
+  )
+)
+```
+
+## Wealth-related inequality trends
+
+The concentration index for any insurance coverage was `r fmt_ci_row("2008")` in 2008, `r fmt_ci_row("2014")` in 2014, and `r fmt_ci_row("2022")` in 2022 (Table 4; Figure 3). All three values were strongly positive, confirming persistent pro-rich concentration throughout the study period. The reduction from 2008 to 2022 of approximately 0.19 concentration index units indicates meaningful narrowing of wealth-related inequality. Nevertheless, the 2022 concentration index of 0.33 remains well above zero and substantially above the level that would indicate equitable distribution, indicating that the NHIF era ended with insurance strongly concentrated among wealthier women.
+
+```{r}
+#| label: tbl-4
+#| results: asis
+publication_flextable(
+  table4_display,
+  caption_text = "Table 4. Wealth-related concentration indices for any insurance coverage by survey wave, women aged 15-49, KDHS 2008, 2014, and 2022.",
+  footer_lines = c(
+    "Source: Kenya DHS 2008, 2014, 2022. Survey-weighted estimates.",
+    "Positive concentration index values indicate pro-rich distribution of coverage.",
+    "95% confidence intervals from 400 bootstrap replicates."
+  )
+)
+```
+
+```{r}
+#| label: fig-3
+#| fig-cap: "Figure 3. Trend in wealth-related concentration index for any insurance coverage among women aged 15–49 in Kenya, KDHS 2008, 2014, and 2022. Error bars indicate 95% bootstrap confidence intervals. A dashed line at zero indicates perfectly equal distribution."
+knitr::include_graphics(file.path("..", "05_figures", "Figure3_ST06_Inequality_Trend.png"))
+```
+
+```{r}
+#| label: fig-4
+#| fig-cap: "Figure 4. Insurance type composition across survey waves among women aged 15–49 in Kenya, KDHS 2008, 2014, and 2022. Survey-weighted estimates. Note: 2022 type estimates are conditional on being insured (sh28a–x asked only of insured respondents); 2008 and 2014 type estimates are unconditional population proportions."
+knitr::include_graphics(file.path("..", "05_figures", "Figure4_ST06_Insurance_Composition.png"))
+```
+
+# Discussion
+
+This study provides the first multi-wave nationally representative characterisation of insurance coverage and wealth-related inequality among Kenyan women of reproductive age across the 2008–2022 NHIF era. Four findings deserve particular attention.
+
+**First, insurance coverage grew substantially — but a large majority of women remained uninsured by 2022.** Coverage increased from 7.0% in 2008 to 28.9% in 2022, representing a nearly four-fold improvement. Adjusted for socioeconomic composition, 2022 coverage was 3.45 times that of 2008. This growth is consistent with Kenya's successive NHIF reform initiatives, including mandatory coverage for civil servants, expansion of benefit packages, and the Linda Mama free-maternity programme that aligned NHIF with maternal health services [@barasa2018; @mbau2020]. However, 71.1% of women of reproductive age were still uninsured in 2022 — immediately before SHA implementation. That residual exclusion is substantial, and it establishes a demanding benchmark against which SHA enrolment progress should be measured.
+
+**Second, wealth-related inequality in coverage narrowed but remained strongly pro-rich.** The concentration index fell from 0.528 in 2008 to 0.335 in 2022, representing a 36% reduction in pro-rich concentration. The 2014 inflection — at which the concentration index dropped from 0.528 to 0.384 — coincides with a period of NHIF premium reform and expanded Linda Mama uptake, which may have differentially reached middle-income groups and formal-sector employees [@barasa2018; @kazungu2017]. The further decline to 0.335 by 2022 may reflect some penetration of community health insurance and NHIF among rural and lower-income populations. Nevertheless, even the 2022 value of 0.335 implies substantial pro-rich concentration — far from the near-zero values that would characterise an equitable distribution. Barasa et al. found a similar range of concentration indices across sub-Saharan African countries in their 2021 analysis, suggesting that Kenya's inequality trajectory, while improving, is not unusual in regional context [@barasa2021].
+
+**Third, wealth was by far the dominant predictor of coverage across the entire period.** After adjusting for all other covariates, women in the richest quintile had 6.79-fold higher insurance prevalence than those in the poorest quintile in the combined model. This magnitude is consistent with earlier single-wave Kenya analyses [@kimani2014; @kazungu2017] and underscores that ability to contribute — directly or through formal employment — remained the central gateway to insurance throughout the NHIF era. Education was the second strongest predictor: women with higher education had 4.36-fold higher coverage than women with no education. These two factors are deeply intertwined; higher education is a strong correlate of formal employment and household economic status. The implication is that NHIF's contributory structure, even with its subsidised categories, could not systematically reach women in the lower wealth quintiles and with limited formal education.
+
+**Fourth, NHIF dominated the 2022 insurance landscape.** Among insured women in 2022, 90.2% held NHIF specifically, with private commercial insurance (15.4% of insured) the only other substantial category. Community-based insurance covered just 1.8% of insured women in 2022. This concentration of insured women within NHIF has two implications. First, SHA — which replaces NHIF — inherits a system where nearly all the existing insured population is NHIF-registered, meaning the transition should, in theory, be administratively straightforward for those already enrolled. Second, reaching the 71.1% of uninsured women requires mechanisms that go beyond the contributory logic that NHIF embodies, since those women are presumably excluded precisely because the NHIF model did not reach them.
+
+**Urban-rural and regional patterns.** Urban women in 2022 had 39.2% coverage versus 21.9% for rural women, and the absolute urban–rural gap widened slightly over the study period. Nairobi had the highest coverage in 2022 (43.2%), consistent with its concentration of formal employment and NHIF enrolment opportunities. Coast and Western regions had the lowest coverage (18.7% and 19.0%, respectively), suggesting that the NHIF era's aggregate gains were geographically concentrated. SHA implementation will need to prioritise outreach to lagging regions, including strategies that do not depend on formal employment channels.
+
+**Comparison with prior evidence.** Our estimates for 2008 (7.0%) and 2014 (18.1%) are consistent with those reported in the prior literature using the same data sources. Kimani et al. reported 7.3% coverage among women in the 2008–09 KDHS, and Kazungu and Barasa found 17.1% among women in the 2014 KDHS, both closely aligning with our survey-weighted estimates [@kimani2014; @kazungu2017]. The 2022 estimate of 28.9% cannot be directly compared with these earlier papers, but represents a substantial additional gain after a period of expanded NHIF policy activities. Our concentration index values are broadly consistent with the Barasa et al. finding of pro-rich concentration across sub-Saharan Africa, and the trajectory of declining concentration in Kenya parallels the pattern observed in a small number of countries where targeted subsidies or community insurance expansion reached poorer groups [@barasa2021].
+
+## Strengths and limitations
+
+Strengths of this study include its use of nationally representative population-based data across three survey rounds, its explicit multi-wave design for trend analysis, its incorporation of the DHS complex sample design, and its dual focus on aggregate trends and inequality trajectories through the concentration index. Restricting the analysis to women aged 15–49 provides a population directly targeted by key Kenyan reproductive health financing programmes and ensures comparability with the DHS individual recode standard.
+
+Several limitations require acknowledgement. First, each wave is cross-sectional, so the adjusted models describe associations rather than causal effects of time or policy. Second, the 2022 wave uses the PR file rather than the IR file, because `v481` is missing in the 2022 IR. This introduces a possible source of non-comparability: the 2022 PR sample includes all eligible household members, whereas the 2008 and 2014 IR samples include only de jure residents who completed the individual interview. Differences in sample frame coverage may affect estimates, though the magnitude is likely small for the specific age and sex group analysed. Third, the insurance type variables are not fully harmonised across waves: 2008 and 2014 types are unconditional population proportions while 2022 types are conditional on being insured. Cross-wave comparisons of specific insurance types should therefore be treated as illustrative rather than directly comparable. Fourth, marital status was available in 2008 and 2014 but not in the 2022 PR file, preventing its inclusion as a covariate in the pooled model. Fifth, the region variable for 2022 was derived by collapsing county codes to former provinces; because the DHS 2022 uses county-level geography, the collapse introduces some geographic imprecision and the regional categories may not perfectly replicate the province designations used in the 2008 and 2014 surveys. Finally, the concentration index uses wealth quintile rank as a proxy for socioeconomic status; this is a standard and defensible approach [@wagstaff1991], but alternative socioeconomic rankings could yield modestly different values.
+
+# Conclusions
+
+Between 2008 and 2022, health insurance coverage among Kenyan women aged 15–49 grew from 7.0% to 28.9% — a nearly four-fold absolute increase that represents meaningful progress toward universal health coverage. Coverage growth was, however, accompanied by persistent and still substantial pro-rich concentration: in 2022 the richest quintile was nearly nine times as likely to be insured as the poorest quintile, and the concentration index, though declining, remained far from the zero value that would indicate equitable distribution. The SHA transition inherits both the achievement of expanded coverage and the challenge of reaching the 71.1% of women of reproductive age who remained uninsured at the close of the NHIF era. Monitoring SHA's impact will require tracking not only aggregate enrolment growth, but whether the new architecture materially reduces the wealth gradient and regional disparities documented here.
+
+# List of abbreviations
+
+- APR: adjusted prevalence ratio
+- CI: confidence interval
+- DHS: Demographic and Health Survey
+- IR: individual recode
+- KDHS: Kenya Demographic and Health Survey
+- NHIF: National Hospital Insurance Fund
+- PR: person recode
+- SHA: Social Health Authority
+- UHC: universal health coverage
+
+# Declarations
+
+## Ethics approval and consent to participate
+
+This study used de-identified secondary data from the Kenya Demographic and Health Surveys (2008, 2014, 2022), obtained from The DHS Program under authorisation letter reference 220623 for the registered project titled "Impact of NHIF Enrollment on Financial Catastrophic Health Expenditure", authorised on 20 October 2025. The original surveys received ethical approval from the Kenya Medical Research Institute Scientific and Ethics Review Unit and the ICF Institutional Review Board. No new participant contact occurred in this secondary analysis.
+
+## Consent for publication
+
+Not applicable.
+
+## Availability of data and materials
+
+KDHS microdata are available from The DHS Program upon approved request at https://www.dhsprogram.com. Analysis scripts and supporting files for this study are available from the corresponding author upon reasonable request.
+
+## Competing interests
+
+The authors declare that they have no competing interests.
+
+## Funding
+
+No specific external funding was received for this secondary analysis.
+
+## Authors' contributions
+
+NWA conceptualised the study, developed the multi-wave harmonisation approach, conducted the analysis, and drafted the manuscript. JO contributed to study design, interpretation of findings, and critical revision of the manuscript. Both authors approved the final version.
+
+## Acknowledgements
+
+The authors thank The DHS Program for access to KDHS 2008, 2014, and 2022 microdata.
+
+# References
+```
+
+
+
+
+

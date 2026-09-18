@@ -1,0 +1,469 @@
+=================================================================
+All-Population Insurance Feasibility Exploration
+2026-03-31 10:13:10 
+=================================================================
+
+=================================================================
+SECTION 1: 2022 KDHS PR (KEPR8CFL.DTA)
+=================================================================
+
+Total columns in 2022 PR: 499 
+
+--- Key household-member identifiers and eligibility flags ---
+  hv001          : cluster number
+               NA=0/0  unique_numeric: 
+  hv002          : household number
+               NA=0/0  unique_numeric: 
+  hvidx          : line number
+               NA=0/0  unique_numeric: 
+  hv003          : respondent's line number (answering household questionnaire)
+               NA=0/0  unique_numeric: 
+               labels: 0=incomplete household 
+  hv004          : ultimate area unit
+               NA=0/0  unique_numeric: 
+  hv015          : result of household interview
+               NA=0/0  unique_numeric: 
+               labels: 1=completed  2=no household member/no competent member at home  3=entire household absent for extended period of time  4=postponed  5=refused  6=dwelling vacant or address not a dwelling  7=dwelling destroyed  8=dwelling not found  9=other 
+  hv103          : stayed last night
+               NA=0/0  unique_numeric: 
+               labels: 0=no  1=yes 
+  hv104          : sex of household member
+               NA=0/0  unique_numeric: 
+               labels: 1=male  2=female 
+  hv105          : age of household members
+               NA=0/0  unique_numeric: 
+               labels: 95=95+  98=don't know 
+  hv106          : highest educational level attained
+               NA=0/0  unique_numeric: 
+               labels: 0=no education, preschool/early childhood education  1=primary  2=secondary  3=higher  8=don't know 
+  hv270          : wealth index combined
+               NA=0/0  unique_numeric: 
+               labels: 1=poorest  2=poorer  3=middle  4=richer  5=richest 
+  hv024          : region
+               NA=0/0  unique_numeric: 
+  hv025          : type of place of residence
+               NA=0/0  unique_numeric: 
+               labels: 1=urban  2=rural 
+  hv009          : number of household members
+               NA=0/0  unique_numeric: 
+
+--- Insurance module variables ---
+  sh27           : covered by health insurance
+               NA=0/0  unique_numeric: 
+               labels: 0=no  1=yes  8=don't know 
+  sh28a          : type of health insurance - nhif
+               NA=0/0  unique_numeric: 
+               labels: 0=no  1=yes 
+  sh28b          : type of health insurance - private/commercial
+               NA=0/0  unique_numeric: 
+               labels: 0=no  1=yes 
+  sh28c          : type of health insurance - community-based
+               NA=0/0  unique_numeric: 
+               labels: 0=no  1=yes 
+  sh28x          : type of health insurance - other
+               NA=0/0  unique_numeric: 
+               labels: 0=no  1=yes 
+  sh29           : admitted to overnight stay in medical facility in last 12 months
+               NA=0/0  unique_numeric: 
+               labels: 0=no  1=yes  8=don't know 
+  sh30           : eligibility for in-patient module
+               NA=0/0  unique_numeric: 
+               labels: 0=not eligible 
+  sh31           : received outpatient medical care in last 4 weeks
+               NA=0/0  unique_numeric: 
+               labels: 0=no  1=yes  8=don't know 
+  sh32           : paid money for last outpatient care
+               NA=0/0  unique_numeric: 
+               labels: 0=no  1=yes  8=don't know 
+  sh33           : eligibility for outpatient module
+               NA=0/0  unique_numeric: 
+               labels: 0=not eligible 
+  sh34           : NOT PRESENT
+
+--- Disability module variables (hdis*) ---
+hdis columns found: 9 
+  hdis1          : na - wear glasses or contact lenses
+               NA=0/0  unique_numeric: 
+               labels: 0=no  1=yes 
+  hdis2          : have difficulty seeing
+               NA=0/0  unique_numeric: 
+               labels: 1=no difficulty seeing  2=some difficulty  3=a lot of difficulty  4=cannot see at all  8=don't know 
+  hdis3          : na - wear a hearing aid
+               NA=0/0  unique_numeric: 
+               labels: 0=no  1=yes 
+  hdis4          : have difficulty hearing
+               NA=0/0  unique_numeric: 
+               labels: 1=no difficulty hearing  2=some difficulty  3=a lot of difficulty  4=cannot hear at all  8=don't know 
+  hdis5          : have difficulty communicating using usual language
+               NA=0/0  unique_numeric: 
+               labels: 1=no difficulty communicating  2=some difficulty  3=a lot of difficulty  4=cannot communicate at all  8=don't know 
+  hdis6          : have difficulty remembering or concentrating
+               NA=0/0  unique_numeric: 
+               labels: 1=no difficulty remembering/concentrating  2=some difficulty  3=a lot of difficulty  4=cannot remember/concentrate at all  8=don't know 
+  hdis7          : have difficulty walking or climbing steps
+               NA=0/0  unique_numeric: 
+               labels: 1=no difficulty walking or climbing  2=some difficulty  3=a lot of difficulty  4=cannot walk or climb at all  8=don't know 
+  hdis8          : have difficulty washing all over or dressing
+               NA=0/0  unique_numeric: 
+               labels: 1=no difficulty washing or dressing  2=some difficulty  3=a lot of difficulty  4=cannot wash or dress at all  8=don't know 
+  hdis9          : highest degree of difficulty for any of the impairments
+               NA=0/0  unique_numeric: 
+               labels: 1=no difficulty  2=some difficulty  3=a lot of difficulty  4=cannot do at all  8=don't know 
+
+--- Employment / occupation (hv*) ---
+  hv216          : number of rooms used for sleeping
+               NA=0/0  unique_numeric: 
+  hv221          : has telephone (land-line)
+               NA=0/0  unique_numeric: 
+               labels: 0=no  1=yes 
+  hv226          : type of cooking fuel
+               NA=0/0  unique_numeric: 
+  hv227          : has mosquito bed net for sleeping
+               NA=0/0  unique_numeric: 
+               labels: 0=no  1=yes 
+  hv228          : children under 5 slept under mosquito bed net last night
+               NA=0/0  unique_numeric: 
+               labels: 0=no  1=all children  2=some children  3=no net in household 
+  sh35           : NOT PRESENT
+  sh36           : NOT PRESENT
+  sh37           : NOT PRESENT
+  sh38           : NOT PRESENT
+
+--- Loading core columns for eligibility analysis ---
+Loaded rows: 156571 
+
+--- hv103 (de-facto resident) x sh27 missingness ---
+                sh27_missing
+hv103 (de_facto) FALSE  TRUE
+               0  5274  5127
+               1 76081 70089
+
+--- hv015 (slept here last night) x sh27 missingness ---
+                  sh27_missing
+hv015 (slept_here) FALSE  TRUE
+                 1 81355 75216
+
+--- De-facto household members (hv103==1): 146170 ---
+--- Members with sh27 non-missing:          81355 ---
+
+--- Age distribution of sh27 respondents (all ages) ---
+Age group   Male     Female   Total
+ age_group Female Male Total
+       0-4   5353 5537 10890
+       5-9   5502 5682 11184
+     10-14   6213 6124 12337
+     15-19   4339 4511  8850
+     20-24   3551 2879  6430
+     25-29   3105 2567  5672
+     30-34   2600 2292  4892
+     35-39   2465 2045  4510
+     40-44   1726 1762  3488
+     45-49   1418 1342  2760
+     50-59   2469 2056  4525
+     60-69   1611 1491  3102
+       70+   1502 1213  2715
+
+Total with sh27 data by sex:
+
+Female   Male 
+ 41854  39501 
+
+--- sh27 prevalence by broad age group ---
+# A tibble: 7 × 4
+  broad_age              n insured_n   pct
+  <chr>              <int>     <int> <dbl>
+1 15-17 (adolescent)  5601      1076  19.2
+2 18-24               9679      1444  14.9
+3 25-39              15074      4568  30.3
+4 40-59              10773      3781  35.1
+5 5-14               23521      4311  18.3
+6 60+                 5817      1578  27.1
+7 Under 5            10890      1785  16.4
+
+--- sh27 insurance prevalence summary for all ages ---
+Overall: n = 81355 | insured = 18543 | pct = 22.8 %
+
+--- sh29 (hospital admission last 12m) available? ---
+sh29 non-NA: 81355 
+sh30 non-NA: 4385 
+sh31 non-NA: 81355 
+sh32 non-NA: 15949 
+sh33 non-NA: 13198 
+
+=================================================================
+SECTION 2: 2022 PR — disability, relationship, household-head
+=================================================================
+
+hv101 (relationship to HH head) labels:
+  hv101          : relationship to head
+               NA=0/156571  unique_numeric: 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 98
+
+Disability columns available:
+hdis1, hdis2, hdis3, hdis4, hdis5, hdis6, hdis7, hdis8, hdis9 
+
+  hdis1          : na - wear glasses or contact lenses
+               NA=156571/156571  unique_numeric: 
+               labels: 0=no  1=yes 
+  hdis2          : have difficulty seeing
+               NA=86106/156571  unique_numeric: 1, 2, 3, 4, 8
+               labels: 1=no difficulty seeing  2=some difficulty  3=a lot of difficulty  4=cannot see at all  8=don't know 
+  hdis3          : na - wear a hearing aid
+               NA=156571/156571  unique_numeric: 
+               labels: 0=no  1=yes 
+  hdis4          : have difficulty hearing
+               NA=86106/156571  unique_numeric: 1, 2, 3, 4, 8
+               labels: 1=no difficulty hearing  2=some difficulty  3=a lot of difficulty  4=cannot hear at all  8=don't know 
+  hdis5          : have difficulty communicating using usual language
+               NA=86106/156571  unique_numeric: 1, 2, 3, 4, 8
+               labels: 1=no difficulty communicating  2=some difficulty  3=a lot of difficulty  4=cannot communicate at all  8=don't know 
+  hdis6          : have difficulty remembering or concentrating
+               NA=86106/156571  unique_numeric: 1, 2, 3, 4, 8
+               labels: 1=no difficulty remembering/concentrating  2=some difficulty  3=a lot of difficulty  4=cannot remember/concentrate at all  8=don't know 
+  hdis7          : have difficulty walking or climbing steps
+               NA=86106/156571  unique_numeric: 1, 2, 3, 4, 8
+               labels: 1=no difficulty walking or climbing  2=some difficulty  3=a lot of difficulty  4=cannot walk or climb at all  8=don't know 
+  hdis8          : have difficulty washing all over or dressing
+               NA=86106/156571  unique_numeric: 1, 2, 3, 4, 8
+               labels: 1=no difficulty washing or dressing  2=some difficulty  3=a lot of difficulty  4=cannot wash or dress at all  8=don't know 
+  hdis9          : highest degree of difficulty for any of the impairments
+               NA=86106/156571  unique_numeric: 1, 2, 3, 4, 8
+               labels: 1=no difficulty  2=some difficulty  3=a lot of difficulty  4=cannot do at all  8=don't know 
+
+hdis9 (summary disability) distribution:
+
+    1     2     3     4     8  <NA> 
+56875  9924  3148   441    77 86106 
+
+=================================================================
+SECTION 3: 2008 KDHS PR file check
+=================================================================
+
+PR file found: KEPR52FL.DTA 
+Columns: 333 
+
+--- Insurance-related variables in 2008 PR ---
+Matches: sh27, sh28a, sh28b 
+  sh27           : attended school in 2007
+               NA=0/0  unique_numeric: 
+               labels: 0=no  1=yes 
+  sh28a          : level attended school year 2007
+               NA=0/0  unique_numeric: 
+               labels: 0=pre-school  1=primary  2=post-primary, vocational  3=secondary a-level  4=college (middle level)  5=university  8=dk 
+  sh28b          : grade at level in 2007
+               NA=0/0  unique_numeric: 
+               labels: 0=< 1 year completed  98=dk 
+
+--- Standard HH-member variables in 2008 PR ---
+  hv103          : slept last night
+               NA=0/0  unique_numeric: 
+               labels: 0=no  1=yes 
+  hv104          : sex of household member
+               NA=0/0  unique_numeric: 
+               labels: 1=male  2=female 
+  hv105          : age of household members
+               NA=0/0  unique_numeric: 
+               labels: 96=96+  98=dk 
+  hv106          : highest educational level
+               NA=0/0  unique_numeric: 
+               labels: 0=no education, preschool  1=primary  2=secondary  3=higher  8=dk 
+  hv270          : wealth index
+               NA=0/0  unique_numeric: 
+               labels: 1=poorest  2=poorer  3=middle  4=richer  5=richest 
+  hv024          : region
+               NA=0/0  unique_numeric: 
+               labels: 1=nairobi  2=central  3=coast  4=eastern  5=nyanza  6=rift valley  7=western  8=northeastern 
+  hv025          : type of place of residence
+               NA=0/0  unique_numeric: 
+               labels: 1=urban  2=rural 
+
+Rows in 2008 PR: 38515 
+
+sh27 non-NA: 17009
+
+    0     1     9  <NA> 
+ 4086 12810   113 21506 
+
+sh28a non-NA: 12810
+
+    0     1     2     3     4     5     8     9  <NA> 
+ 2444  8871    36  1253   132    62     2    10 25705 
+
+=================================================================
+SECTION 4: 2014 KDHS PR file check
+=================================================================
+
+PR file found: KEPR72FL.DTA 
+Columns: 384 
+
+--- Insurance-related variables in 2014 PR ---
+Matches:  
+
+Rows in 2014 PR: 153840 
+
+=================================================================
+SECTION 5: Proposed all-population sample profile (2022 only)
+=================================================================
+
+All-population analytic sample (de-facto, sh27 non-missing, insured non-NA):
+  Total n = 75561 
+  Insured = 17085 ( 22.6 %)
+
+--- Sample by sex ---
+# A tibble: 2 × 3
+  sex        n insured_pct
+  <chr>  <int>       <dbl>
+1 Female 39238        22.5
+2 Male   36323        22.7
+
+--- Sample by broad age group ---
+# A tibble: 9 × 3
+  age_group     n insured_pct
+  <fct>     <int>       <dbl>
+1 Under 5   10499        16.3
+2 5-14      22053        17.9
+3 15-17      4551        16.7
+4 18-24      8572        14.8
+5 25-34      9972        29.4
+6 35-44      7547        33.9
+7 45-59      6842        35  
+8 60-69      2946        29.8
+9 70+        2579        24.6
+
+--- Sample by wealth quintile ---
+# A tibble: 5 × 3
+  wealth      n insured_pct
+  <chr>   <int>       <dbl>
+1 Middle  15010        21.7
+2 Poorer  14514        12  
+3 Poorest 21098         5.3
+4 Richer  14577        33.7
+5 Richest 10362        58.4
+
+--- Sample by residence ---
+# A tibble: 2 × 3
+  residence     n insured_pct
+  <chr>     <int>       <dbl>
+1 Rural     51290        17.3
+2 Urban     24271        33.7
+
+--- Sample by education (adults 15+) ---
+# A tibble: 5 × 3
+  education     n insured_pct
+  <chr>     <int>       <dbl>
+1 Higher     5904        63.8
+2 None       6298        10.4
+3 Primary   16352        17.3
+4 Secondary 14353        29  
+5 <NA>        102        15.7
+
+--- Sample by household relationship ---
+# A tibble: 12 × 3
+   hh_relation        n insured_pct
+   <chr>          <int>       <dbl>
+ 1 Son/Daughter   34544        19.3
+ 2 Head           18637        32.8
+ 3 Wife/Partner    9484        31.1
+ 4 Grandchild      6708         8.7
+ 5 Code_10         2835        10.5
+ 6 Code_12         1133        12.6
+ 7 Sibling          877        13.9
+ 8 Not related      441        12.9
+ 9 Son/Dau-in-law   441        18.1
+10 Parent           344        13.1
+11 Parent-in-law    116        15.5
+12 Code_98            1         0  
+
+--- Insurance by sex x age group (key equity matrix) ---
+# A tibble: 18 × 4
+   sex    age_group     n insured_pct
+   <chr>  <fct>     <int>       <dbl>
+ 1 Female Under 5    5180        16.2
+ 2 Female 5-14      10966        17.7
+ 3 Female 15-17      2202        16.8
+ 4 Female 18-24      4617        15.5
+ 5 Female 25-34      5485        29.8
+ 6 Female 35-44      4035        33.7
+ 7 Female 45-59      3732        32.9
+ 8 Female 60-69      1570        27.5
+ 9 Female 70+        1451        22.2
+10 Male   Under 5    5319        16.5
+11 Male   5-14      11087        18  
+12 Male   15-17      2349        16.6
+13 Male   18-24      3955        14  
+14 Male   25-34      4487        29  
+15 Male   35-44      3512        34.1
+16 Male   45-59      3110        37.4
+17 Male   60-69      1376        32.3
+18 Male   70+        1128        27.7
+
+=================================================================
+SECTION 6: Publication gap assessment summary
+=================================================================
+
+Existing published studies (from literature search):
+  1. Kimani et al 2014 (IJEOH): Women 15-49, 2008-09 KDHS IR — determinants
+  2. Kazungu & Barasa 2017 (TMIH): Women 15-49, 2014 KDHS IR — levels, correlates
+  3. Barasa et al 2021 (BMJ GH): 36 SSA countries, all pop, single cross-section
+  4. Medrxiv 2025 (Aldousari): All Kenyans 2022 KDHS — media/digital access only
+  5. FSD Kenya 2025: National household survey 2024 — not DHS-based
+
+GAPS not covered by any published study:
+  - Multi-wave (2008, 2014, 2022) TREND analysis for ALL population groups
+  - Children under 5, adolescents 5-17, older adults 60+ — NEVER analyzed
+  - Sex-stratified trends (men vs women at all ages)
+  - Disability x insurance interaction across time
+  - Concentration index TREND (inequality trajectory) for all ages
+  - Vulnerable group profiling: children, elderly, disabled, rural poor
+  - All of this using PR files from 3 waves — population-representative
+
+PROPOSED NEW STUDY (ST06 revised or new ST09):
+  Title candidate:
+  'Who is left behind? Health insurance coverage, equity trends, and
+   vulnerable group profiles across the Kenyan population 2008-2022:
+   A multi-wave analysis of KDHS household survey data'
+
+  Key additions over ST06:
+   * Full population, not just women 15-49
+   * Sex disaggregation
+   * Life-course age groups (children, adolescents, working-age, elderly)
+   * Disability interaction
+   * HH-head status (are heads better covered than other members?)
+   * Insurance type trends across population sub-groups
+   * Policy relevance: directly informs SHA targeting for exemptions
+
+=================================================================
+SECTION 7: Cross-wave variable availability matrix
+=================================================================
+
+ Variable            Concept 2008_PR 2014_PR   2022_PR
+    hv103  De-facto resident   CHECK   CHECK       YES
+    hv104                Sex   CHECK   CHECK       YES
+    hv105                Age   CHECK   CHECK       YES
+    hv106          Education   CHECK   CHECK       YES
+    hv270    Wealth quintile   CHECK   CHECK       YES
+    hv024      Region/county   CHECK   CHECK       YES
+    hv025          Residence   CHECK   CHECK       YES
+    hv101    HH relationship   CHECK   CHECK       YES
+     sh27      Any insurance   CHECK   CHECK YES(~81k)
+    sh28a               NHIF   CHECK   CHECK YES(cond)
+    sh28b  Private insurance   CHECK   CHECK YES(cond)
+    sh28c    Community-based   CHECK   CHECK YES(cond)
+    sh28x    Other insurance      NO      NO YES(cond)
+    hdis9 Disability summary      NO      NO       YES
+     sh29 Hospital admission   CHECK   CHECK YES(~81k)
+     sh31   Outpatient visit   CHECK   CHECK YES(~81k)
+
+ NOTE: CHECK = need to verify in actual file; YES = confirmed present
+       cond  = conditional on sh27==1 (asked only of insured members)
+       ~81k  = approximately 81,355 de-facto members with data
+
+=================================================================
+SECTION 8: Saving 2022 all-population profile
+=================================================================
+
+Profile saved to: c:/Users/HFD 2/Research/02_Studies/ST06_Insurance_Trends_2008_2022/02_data_notes/2022_allpop_insurance_profile.csv 
+Profile rows: 180 
+
+=================================================================
+Exploration complete.
+=================================================================

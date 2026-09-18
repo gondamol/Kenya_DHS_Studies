@@ -156,7 +156,7 @@ lowest_domain_prevalence <- key_results$domain_threshold_prevalence %>%
 if (knitr::pandoc_to() == "docx") {
   cat(
     paste(
-      "Nichodemus Werre Amollo^1,*^, Japheth Ogol^1,2^",
+      r"(Nichodemus Werre Amollo^1,\*^, Japheth Ogol^1,2^)",
       "",
       "^1^ School of Health Sciences, Jaramogi Oginga Odinga University of Science and Technology, Bondo, Kenya\\",
       "^2^ Department of Family Medicine & Population Health (FAMPOP), University of Antwerp, Wilrijk, Belgium",

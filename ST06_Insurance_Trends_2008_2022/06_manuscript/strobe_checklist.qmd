@@ -1,0 +1,36 @@
+---
+title: ""
+output-file: Additional_file_1_STROBE_Checklist.docx
+format:
+  docx: default
+editor: source
+---
+
+# STROBE checklist
+
+Study type: Multi-wave cross-sectional secondary analysis of Kenya Demographic and Health Survey data (2008, 2014, 2022).
+
+| Item | Reporting element | Location in manuscript |
+|---|---|---|
+| 1 | Study design identified in title and abstract | Title; Abstract |
+| 2 | Background and rationale | Background |
+| 3 | Objectives and prespecified questions | End of Background |
+| 4 | Key elements of study design | Methods: Study design and data sources |
+| 5 | Setting, survey context, and dates | Methods: Study design and data sources |
+| 6 | Eligibility criteria and participant selection | Methods: Study population |
+| 7 | Definitions of outcomes, exposures, predictors, and effect modifiers | Methods: Variables |
+| 8 | Data sources and measurement, including cross-wave harmonisation | Methods: Study design and data sources; Variables |
+| 9 | Potential sources of bias, including the 2022 IR-to-PR file transition | Methods: Study design and data sources; Discussion: Strengths and limitations |
+| 10 | Study size | Methods: Study population; Results: Sample description |
+| 11 | Handling of quantitative variables | Methods: Variables; Survey design and statistical analysis |
+| 12 | Statistical methods, complex-survey design, confounding control, and inequality measures | Methods: Survey design and statistical analysis |
+| 13 | Participant flow and analytic sample by wave | Methods: Study population; Results: Sample description |
+| 14 | Descriptive characteristics of participants | Results: Sample description; Table 1 |
+| 15 | Outcome data | Results: National insurance coverage trends; Subgroup trends by socioeconomic characteristics; Tables 1-2 |
+| 16 | Main results with adjusted and unadjusted estimates | Results: Multivariable analysis of insurance coverage trends; Table 3 |
+| 17 | Other analyses, including inequality decomposition and sensitivity analyses | Results: Wealth-related inequality trends; Table 4 |
+| 18 | Key findings in relation to study objectives | Discussion: opening paragraph |
+| 19 | Study limitations | Discussion: Strengths and limitations |
+| 20 | Interpretation considering objectives, limitations, and comparable evidence | Discussion |
+| 21 | Generalisability | Discussion: Strengths and limitations; Conclusions |
+| 22 | Funding and role of funders | Front matter; Declarations: Funding |

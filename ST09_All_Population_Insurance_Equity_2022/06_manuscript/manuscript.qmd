@@ -106,6 +106,10 @@ table10 <- analysis_object$table10
 table11 <- analysis_object$table11
 table12 <- analysis_object$table12
 table_sens <- analysis_object$table_sens
+table13 <- analysis_object$table13
+table14 <- analysis_object$table14
+table15 <- analysis_object$table15
+table16 <- analysis_object$table16
 fig4_df <- analysis_object$fig4_df
 
 `%||%` <- function(x, y) {
@@ -183,6 +187,16 @@ cost_val <- function(obj, col) analysis_object[[obj]][[col]][[1]]
 
 get_t12 <- function(population, year, col = "Coverage % (95% CI)") {
   table12 %>% filter(Population == population, Year == year) %>% pull(.data[[col]])
+}
+
+# Multilevel column label is dynamic (APR if the Poisson mixed model converged,
+# otherwise OR); resolve it so inline references are robust either way.
+mlm_effect_col <- setdiff(names(table15), c("Covariate", "Single-level APR (95% CI)"))[1]
+get_t15 <- function(covariate, col = mlm_effect_col) {
+  table15 %>% filter(Covariate == covariate) %>% pull(.data[[col]])
+}
+get_t16 <- function(scenario, col) {
+  table16 %>% filter(Scenario == scenario) %>% pull(.data[[col]])
 }
 
 # Decomposition contributions (precomputed to avoid backticks inside inline code)
@@ -281,7 +295,7 @@ publication_flextable <- function(data,
 }
 ```
 
-Nichodemus Werre Amollo^1,*^, Japheth Ogol^1,2^
+Nichodemus Werre Amollo^1,\*^, Japheth Ogol^1,2^
 
 ^1^ School of Health Sciences, Jaramogi Oginga Odinga University of Science and Technology, Bondo, Kenya\
 ^2^ Department of Family Medicine & Population Health (FAMPOP), University of Antwerp, Wilrijk, Belgium
@@ -292,9 +306,9 @@ Nichodemus Werre Amollo^1,*^, Japheth Ogol^1,2^
 
 **Background:** Kenya replaced the National Hospital Insurance Fund (NHIF) with the Social Health Authority (SHA) on 1 October 2024. KDHS 2022 therefore provides the last nationally representative population baseline before the transition. Earlier Kenyan DHS analyses mainly focused on women of reproductive age rather than the full household population across life stages.
 
-**Methods:** We conducted a cross-sectional secondary analysis of the KDHS 2022 person recode file. The analytic sample included de-facto household members with valid insurance responses from the full household questionnaire subsample. We estimated survey-weighted prevalence of insurance coverage, hospital admission, outpatient use, and payment at the last outpatient visit, and quantified the depth of out-of-pocket (OOP) payment using cleaned continuous cost variables. Wealth-related inequality was summarized using concentration indices, Erreygers-corrected estimates, the slope index of inequality (SII), and the relative index of inequality (RII), and decomposed using the Wagstaff method. Survey-weighted quasi-Poisson models estimated adjusted prevalence ratios (APR) for insurance coverage. We assessed linkage between insurance and household social assistance, and compared coverage with KDHS 2014 for adults of reproductive/working age. Disability analyses were limited to respondents with non-missing disability data; under-five children were not assessed in that module.
+**Methods:** We conducted a cross-sectional secondary analysis of the KDHS 2022 person recode file. The analytic sample included de-facto household members with valid insurance responses from the full household questionnaire subsample. We estimated survey-weighted prevalence of insurance coverage, hospital admission, outpatient use, and payment at the last outpatient visit, and quantified the depth of out-of-pocket (OOP) payment using cleaned continuous cost variables. Wealth-related inequality was summarized using concentration indices, Erreygers-corrected estimates, the slope index of inequality (SII), and the relative index of inequality (RII), and decomposed using the Wagstaff method. Survey-weighted quasi-Poisson models estimated adjusted prevalence ratios (APR) for insurance coverage. We assessed linkage between insurance and household social assistance, and compared coverage with KDHS 2014 for adults of reproductive/working age. We additionally fitted an intersectional multilevel (MAIHDA) model and a survey-cluster mixed-effects model, and microsimulated SHA premium-subsidy scenarios on the concentration index. Disability analyses were limited to respondents with non-missing disability data; under-five children were not assessed in that module.
 
-**Results:** The analytic sample comprised `r format(analysis_object$overall_n, big.mark = ",")` de-facto household members. Any insurance coverage was `r fmt_pct_string(get_t1("All household members", "Any insurance % (95% CI)"))`, leaving `r fmt_pct_string(get_t1("All household members", "Uninsured % (95% CI)"))` uninsured. Coverage was lowest among young adults aged 18-24 at `r fmt_pct_string(get_t2("18-24", "All: insured % (95% CI)"))`, compared with `r fmt_pct_string(get_t4("Children under 18"))` among children under 18 and `r fmt_pct_string(get_t4("Older adults 60+"))` among adults aged 60 years and above. The wealth gradient was steep, from `r fmt_pct_string(get_t3("Wealth quintile", "Poorest"))` in the poorest quintile to `r fmt_pct_string(get_t3("Wealth quintile", "Richest"))` in the richest (ratio `r wealth_ratio`x). Richest-versus-poorest APR was `r get_t5("Model A: All ages", "Wealth: Richest")` in the all-ages model. The overall standard concentration index was `r fmt_ci_inline("All household members", "standard")`, the SII was `r get_t7("All household members", "SII, pp (95% CI)")` percentage points, and the RII was `r get_t7("All household members", "RII (95% CI)")`; decomposition attributed the inequality overwhelmingly to the wealth quintile itself. Among recent outpatient users, cash met `r cost_val("opd_overall_cost", "Cash share of cost, %")`% of total outpatient cost and NHIF only `r cost_val("opd_overall_cost", "NHIF share of cost, %")`%, with little difference between insured and uninsured users. `r top_uninsured_sentence` the most over-represented group among uninsured persons.
+**Results:** The analytic sample comprised `r format(analysis_object$overall_n, big.mark = ",")` de-facto household members. Any insurance coverage was `r fmt_pct_string(get_t1("All household members", "Any insurance % (95% CI)"))`, leaving `r fmt_pct_string(get_t1("All household members", "Uninsured % (95% CI)"))` uninsured. Coverage was lowest among young adults aged 18-24 at `r fmt_pct_string(get_t2("18-24", "All: insured % (95% CI)"))`, compared with `r fmt_pct_string(get_t4("Children under 18"))` among children under 18 and `r fmt_pct_string(get_t4("Older adults 60+"))` among adults aged 60 years and above. The wealth gradient was steep, from `r fmt_pct_string(get_t3("Wealth quintile", "Poorest"))` in the poorest quintile to `r fmt_pct_string(get_t3("Wealth quintile", "Richest"))` in the richest (ratio `r wealth_ratio`x). Richest-versus-poorest APR was `r get_t5("Model A: All ages", "Wealth: Richest")` in the all-ages model. The overall standard concentration index was `r fmt_ci_inline("All household members", "standard")`, the SII was `r get_t7("All household members", "SII, pp (95% CI)")` percentage points, and the RII was `r get_t7("All household members", "RII (95% CI)")`; decomposition attributed the inequality overwhelmingly to the wealth quintile itself. Among recent outpatient users, cash met `r cost_val("opd_overall_cost", "Cash share of cost, %")`% of total outpatient cost and NHIF only `r cost_val("opd_overall_cost", "NHIF share of cost, %")`%, with little difference between insured and uninsured users. `r top_uninsured_sentence` the most over-represented group among uninsured persons. Intersectional analysis attributed `r sprintf("%.1f", 100 * analysis_object$maihda_vpc_null)`% of coverage variation to differences between strata, almost all of it additive (`r sprintf("%.1f", analysis_object$maihda_pcv)`% explained by main effects), and a subsidy microsimulation showed that enrolling the two poorest quintiles reversed the concentration index from pro-rich (`r sprintf("%.4f", analysis_object$sim_baseline_ci)`) to pro-poor, leaving an uninsured "missing middle".
 
 **Conclusions:** Before SHA, Kenya had low overall insurance coverage, extreme wealth-related inequality, and high payment exposure at outpatient contact. Young adults, children, the poorest households, and people with severe functional difficulty remained vulnerable in different ways. SHA monitoring should therefore track life-course coverage, disability-sensitive access, and point-of-care payment exposure rather than enrolment alone.
 
@@ -348,7 +362,15 @@ To identify the drivers of wealth-related inequality, we performed a Wagstaff de
 
 For temporal context, we compared the 2022 baseline with KDHS 2014. A like-for-like all-population (person-recode) comparison is not possible because KDHS 2014 did not carry a household-roster insurance item and the 2022 individual recodes no longer carry the individual insurance item. We therefore compared the two populations measured in both rounds—women aged 15–49 and men aged 15–54—using the 2014 individual self-reported insurance items (`v481`, `mv481`) against the same age–sex groups in the 2022 person recode. These comparisons are directional rather than exact because the respondent unit, sample weights, and wealth-index construction differ across rounds.
 
-Finally, we calculated the weighted composition of the uninsured population across overlapping policy-priority groups; these shares are descriptive and should not be summed across groups. All analyses were conducted in R.
+We also calculated the weighted composition of the uninsured population across overlapping policy-priority groups; these shares are descriptive and should not be summed across groups.
+
+We extended the baseline with three further analyses. First, to test whether exclusion was concentrated at the intersection of social positions rather than along single axes, we conducted an intersectional multilevel analysis of individual heterogeneity and discriminatory accuracy (MAIHDA) [@evans2018; @merlo2018]. Individuals were nested within strata defined by the combination of age group, wealth quintile, residence, and sex (`r analysis_object$maihda_n_strata` strata), and we fitted a two-level logistic model with a random intercept for stratum. From the null (intercept-only) model we computed the variance partition coefficient (VPC) using the latent-variable method—the share of total variation attributable to differences between intersectional strata—and from a model additionally adjusting for the additive main effects of the four axes we computed the proportional change in variance (PCV). The residual share, 100 minus the PCV, approximates the contribution of intersectional interaction effects beyond the additive main effects. MAIHDA models were fitted unweighted, consistent with convention; the design-based survey-weighted prevalence ratios above are the primary effect estimates.
+
+Second, to quantify how much of the residual variation in coverage operated at the community level and to verify that the wealth and residence gradients were robust to clustering, we fitted a multilevel mixed-effects model nesting individuals within survey clusters (`hv001`) on the all-ages Model A sample [@merlo2006]. To preserve the prevalence-ratio framing used throughout, we specified a Poisson mixed model with a log link—a multilevel extension of the modified-Poisson approach—with a random intercept for cluster, and pre-specified a logistic mixed model (odds ratios) as a fallback if it failed to converge. We report the cluster-level random-intercept variance and a variance partition coefficient (a Poisson-lognormal VPC evaluated at the reference covariate pattern for the Poisson model, or the latent-variable VPC for the logistic fallback) alongside the multilevel and single-level effect estimates.
+
+Third, to translate the equity baseline into a forward-looking policy question, we conducted a microsimulation of SHA premium-subsidy scenarios. Holding the observed wealth ranking fixed, we recomputed the standard concentration index of coverage under three counterfactual enrolment scenarios: full (100%) enrolment of everyone in the two poorest wealth quintiles; partial (80%) enrolment of those currently uninsured in the two poorest quintiles; and enrolment of all members of households already receiving a government cash transfer (the registries on which SHA premium subsidies build). Comparing each simulated index with the observed baseline indicates whether subsidising the poorest would flatten the wealth gradient or whether an uninsured "missing middle" in the middle and richer quintiles would sustain it.
+
+All analyses were conducted in R, using the `survey`, `lme4`, and `tidyverse` packages.
 
 ```{r}
 #| label: display-tables
@@ -689,6 +711,79 @@ publication_flextable(
 )
 ```
 
+## Intersectional inequality across social positions
+
+Insurance exclusion was strongly patterned by the intersection of social positions (Table 8, Figure 8). Across the `r analysis_object$maihda_n_strata` strata defined by age group, wealth quintile, residence, and sex, the null-model variance partition coefficient was `r sprintf("%.1f", 100 * analysis_object$maihda_vpc_null)`%, indicating that roughly a third of the total variation in individual coverage lay between intersectional strata rather than within them. Adjusting for the additive main effects of the four axes reduced the between-stratum variance by `r sprintf("%.1f", analysis_object$maihda_pcv)`% (the proportional change in variance), leaving only about `r sprintf("%.1f", 100 - analysis_object$maihda_pcv)`% attributable to intersectional interaction effects. The steep inequalities were therefore overwhelmingly additive—driven above all by wealth—rather than arising from specific multiplicative combinations of identities. The caterpillar plot (Figure 8) shows the resulting fan of predicted coverage across strata, with the lowest-coverage strata concentrated among poorer, rural, and younger groups.
+
+Table 8. Intersectional multilevel analysis (MAIHDA) of any health insurance coverage across strata of age, wealth, residence, and sex, KDHS 2022.
+
+```{r}
+#| label: table-14-display
+#| results: asis
+publication_flextable(
+  table14,
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Two-level logistic MAIHDA models (individuals within intersectional strata), fitted unweighted.",
+    "VPC = variance partition coefficient (latent-variable method); PCV = proportional change in the between-stratum variance after adjusting for the additive main effects of age, wealth, residence, and sex.",
+    "The residual share (100 - PCV) approximates the contribution of intersectional interaction effects beyond additive main effects."
+  )
+)
+```
+
+```{r}
+#| label: fig-8
+#| fig-cap: "Intersectional inequality in health insurance coverage (MAIHDA), KDHS 2022. Predicted coverage from a two-level logistic null model is shown for each stratum of age group, wealth quintile, residence, and sex, ranked from lowest to highest with 95% intervals; the dashed line marks the overall predicted mean."
+#| out-width: "95%"
+knitr::include_graphics(file.path("..", "05_figures", "Figure8_ST09_MAIHDA_Caterpillar.png"))
+```
+
+## Community-level clustering and multilevel estimates
+
+The wealth and residence gradients were robust to community-level clustering (Table 9). A multilevel mixed model nesting individuals within survey clusters (`r analysis_object$mlm_family` specification) yielded estimates close to the design-based single-level prevalence ratios—for example, a richest-versus-poorest estimate of `r get_t15("Wealth: Richest vs Poorest")` against the single-level `r get_t15("Wealth: Richest vs Poorest", "Single-level APR (95% CI)")`, and a rural-versus-urban estimate of `r get_t15("Residence: Rural vs Urban")` against `r get_t15("Residence: Rural vs Urban", "Single-level APR (95% CI)")`. The cluster-level random-intercept variance was `r sprintf("%.3f", analysis_object$mlm_cluster_var)`, corresponding to a variance partition coefficient of `r sprintf("%.1f", 100 * analysis_object$mlm_vpc)`%. Only a small share of the residual variation in coverage therefore operated between clusters once individual wealth, age, sex, residence, and region were accounted for, reinforcing that the gradient is driven by household socioeconomic position rather than by unobserved community-level factors.
+
+Table 9. Multilevel (individuals within survey clusters) versus single-level adjusted effect estimates for any health insurance coverage, KDHS 2022.
+
+```{r}
+#| label: table-15-display
+#| results: asis
+publication_flextable(
+  table15,
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Single-level estimates are survey-weighted quasi-Poisson APRs (all-ages Model A); multilevel estimates are from an unweighted mixed model with a random intercept for survey cluster (hv001).",
+    sprintf("Model family: %s. Cluster-level random-intercept variance = %.4f; variance partition coefficient = %.1f%% (%s).",
+            analysis_object$mlm_family, analysis_object$mlm_cluster_var,
+            100 * analysis_object$mlm_vpc, analysis_object$mlm_vpc_method),
+    "Closeness of the single-level and multilevel estimates indicates the wealth and residence gradients are robust to community-level clustering."
+  )
+)
+```
+
+## Microsimulation of SHA subsidy scenarios
+
+A microsimulation of premium-subsidy scenarios showed that subsidising the poorest alone would over-correct rather than equalise the distribution of coverage (Table 10, Figure 9). At baseline the standard concentration index was strongly pro-rich (`r sprintf("%.4f", analysis_object$sim_baseline_ci)`). Enrolling 100% of the two poorest quintiles raised simulated coverage to `r get_t16("100% of poorest two quintiles enrolled", "Simulated coverage %")`% and flipped the index to pro-poor (`r get_t16("100% of poorest two quintiles enrolled", "Standard CI (95% CI)")`), because the middle and richer quintiles—still only partly insured—would then sit below the subsidised poor. An 80% enrolment scenario produced a similar reversal (coverage `r get_t16("80% of poorest two quintiles enrolled", "Simulated coverage %")`%; index `r get_t16("80% of poorest two quintiles enrolled", "Standard CI (95% CI)")`). Targeting only households already receiving a government cash transfer raised coverage modestly to `r get_t16("Government safety-net beneficiaries enrolled", "Simulated coverage %")`% and left the distribution pro-rich (`r get_t16("Government safety-net beneficiaries enrolled", "Standard CI (95% CI)")`), reflecting the limited reach of existing transfer registries. Taken together, the scenarios show that an income-neutral distribution requires reaching the uninsured "missing middle" in the middle and richer quintiles in addition to subsidising the poorest (Figure 9).
+
+Table 10. Microsimulation of SHA premium-subsidy scenarios: coverage and the wealth-related concentration index under counterfactual enrolment, KDHS 2022.
+
+```{r}
+#| label: table-16-display
+#| results: asis
+publication_flextable(
+  table16,
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Survey-weighted simulated coverage; standard concentration indices with 95% CIs from 250 bootstrap replicates.",
+    "Scenario 1 sets coverage to 1 for everyone in the poorest two quintiles; scenario 2 enrols 80% of the currently uninsured in those quintiles; scenario 3 enrols all members of households receiving a government cash transfer.",
+    "A concentration index near zero indicates an income-neutral distribution; a persisting positive index reflects an uninsured 'missing middle' in the middle and richer quintiles."
+  )
+)
+```
+
+```{r}
+#| label: fig-9
+#| fig-cap: "Simulated insurance coverage by wealth quintile under SHA premium-subsidy scenarios versus the observed baseline, KDHS 2022. A persisting dip in the middle and richer quintiles is the uninsured 'missing middle'."
+#| out-width: "95%"
+knitr::include_graphics(file.path("..", "05_figures", "Figure9_ST09_SHA_Microsimulation.png"))
+```
+
 # Discussion
 
 This study provides a population-wide pre-SHA baseline for insurance coverage and wealth-related inequality in Kenya. Three findings stand out. First, overall insurance coverage remained low at `r fmt_pct_string(get_t1("All household members", "Any insurance % (95% CI)"))`, with almost three quarters of the population uninsured. Second, coverage was extremely pro-rich by both regression and concentration-index evidence. Third, payment at the last outpatient visit remained high even among insured users, indicating that insurance enrolment alone did not eliminate point-of-care payment.
@@ -709,11 +804,13 @@ The comparison with KDHS 2014 indicates that, for women aged 15–49 and men age
 
 For SHA monitoring, the practical implication is that enrolment totals should be paired with distributional indicators. The indicators in this paper can be repeated as SHA implementation data mature: coverage in the poorest quintile, coverage among children under 18, coverage among young adults aged 18-24, coverage among people with severe functional difficulty, the wealth-related SII/RII, and payment at the last outpatient contact among insured users. These indicators do not determine eligibility for government-financed SHA coverage, but they identify groups for which registration, contribution subsidy, provider payment, and benefit-package implementation should be monitored together.
 
+The intersectional, multilevel, and microsimulation analyses converge on the same policy message from different angles. The MAIHDA results show that pre-SHA exclusion was structured overwhelmingly by the additive effect of wealth rather than by idiosyncratic combinations of identities: about a third of the variation in individual coverage lay between intersectional strata, yet adjusting for the four axes' main effects removed almost all of it, leaving a negligible interaction component [@evans2018; @merlo2018]. The multilevel model points the same way—once individual socioeconomic position was accounted for, very little residual variation operated between survey clusters, and the multilevel prevalence ratios were almost identical to the design-based estimates, so the steep wealth gradient is not an artefact of community-level clustering [@merlo2006]. The microsimulation then makes the operational implication concrete. Subsidising only the two poorest quintiles did not merely narrow the gap but reversed it, because the partially insured middle and richer quintiles were left behind; targeting existing cash-transfer registries alone reached too few people to move the distribution. For SHA, this means that financing indigent coverage is necessary but not sufficient: an income-neutral coverage distribution also requires deliberately enrolling the uninsured "missing middle" of informal-sector and lower-middle-wealth households that fall outside both formal employment and means-tested subsidy.
+
 ## Strengths and limitations
 
-The main strengths of this study are its population-wide scope, its use of the PR file to analyze all ages and both sexes together, its focus on survey-weighted estimates across the full age distribution, and its inclusion of complementary inequality metrics: concentration indices, Erreygers-corrected estimates, SII, RII, a Wagstaff decomposition, and composition of the uninsured population. By analyzing the depth of out-of-pocket payment rather than only its occurrence, examining linkage with social safety nets, and benchmarking against KDHS 2014, the study moves beyond a single descriptive cross-section. The life-course framing also makes the results directly relevant to monitoring SHA implementation.
+The main strengths of this study are its population-wide scope, its use of the PR file to analyze all ages and both sexes together, its focus on survey-weighted estimates across the full age distribution, and its inclusion of complementary inequality metrics: concentration indices, Erreygers-corrected estimates, SII, RII, a Wagstaff decomposition, and composition of the uninsured population. By analyzing the depth of out-of-pocket payment rather than only its occurrence, examining linkage with social safety nets, and benchmarking against KDHS 2014, the study moves beyond a single descriptive cross-section. The intersectional MAIHDA, multilevel, and subsidy microsimulation analyses further strengthen the inference by showing that the wealth gradient is additive and robust to clustering, and by translating it into actionable subsidy-targeting scenarios. The life-course framing also makes the results directly relevant to monitoring SHA implementation.
 
-Several limitations matter. First, the study is cross-sectional and cannot support causal claims about the determinants of coverage. Second, insurance, service use, costs, and payment at the last outpatient visit were self-reported and may be subject to recall or reporting error; the cost items in particular contained reserved "don't know" codes and a minority of records in which the reported cash payment exceeded the reported total cost, which is why we summarized cost shares as population-level aggregates rather than averages of individual ratios. Third, the insurance, cost, and disability modules were collected only in the full household questionnaire, so the analytic sample represents that subsample of de-facto household members rather than the entire household roster. Selection into the full household questionnaire subsample was determined by the KDHS 2022 sampling design, and we used the household-member weights provided for that subsample, so it is not expected to introduce systematic bias within the survey's design-based inference framework; nonetheless, residual selection concerns cannot be entirely ruled out. Fourth, disability-specific analyses are additionally limited because the household disability summary variable was not collected for under-five children. Fifth, the payment and cost analyses are conditional on recent care-seeking—outpatient use in the previous 4 weeks or admission in the previous 12 months—which is itself wealth-dependent. Poorer or uninsured individuals who forgo or delay care because they cannot pay are not observed among users, so the payment-exposure estimates are conditional on having sought care and may understate the true financial barrier faced by the poorest; insured and uninsured users may also differ in underlying need. These estimates also do not capture total household spending or catastrophic expenditure. Sixth, the KDHS 2014 comparison is restricted to women aged 15–49 and men aged 15–54 and relies on a different insurance instrument and respondent unit, so it indicates direction rather than precise change. Seventh, KDHS 2022 was conducted before SHA became operational, so the analysis cannot capture early SHA registration, contribution assessment, or claims experience. Eighth, the survey groups examined here are policy-relevant monitoring categories, not exact administrative counts of who qualifies for government-financed SHA coverage under current legal and operational rules.
+Several limitations matter. First, the study is cross-sectional and cannot support causal claims about the determinants of coverage. Second, insurance, service use, costs, and payment at the last outpatient visit were self-reported and may be subject to recall or reporting error; the cost items in particular contained reserved "don't know" codes and a minority of records in which the reported cash payment exceeded the reported total cost, which is why we summarized cost shares as population-level aggregates rather than averages of individual ratios. Third, the insurance, cost, and disability modules were collected only in the full household questionnaire, so the analytic sample represents that subsample of de-facto household members rather than the entire household roster. Selection into the full household questionnaire subsample was determined by the KDHS 2022 sampling design, and we used the household-member weights provided for that subsample, so it is not expected to introduce systematic bias within the survey's design-based inference framework; nonetheless, residual selection concerns cannot be entirely ruled out. Fourth, disability-specific analyses are additionally limited because the household disability summary variable was not collected for under-five children. Fifth, the payment and cost analyses are conditional on recent care-seeking—outpatient use in the previous 4 weeks or admission in the previous 12 months—which is itself wealth-dependent. Poorer or uninsured individuals who forgo or delay care because they cannot pay are not observed among users, so the payment-exposure estimates are conditional on having sought care and may understate the true financial barrier faced by the poorest; insured and uninsured users may also differ in underlying need. These estimates also do not capture total household spending or catastrophic expenditure. Sixth, the KDHS 2014 comparison is restricted to women aged 15–49 and men aged 15–54 and relies on a different insurance instrument and respondent unit, so it indicates direction rather than precise change. Seventh, KDHS 2022 was conducted before SHA became operational, so the analysis cannot capture early SHA registration, contribution assessment, or claims experience. Eighth, the survey groups examined here are policy-relevant monitoring categories, not exact administrative counts of who qualifies for government-financed SHA coverage under current legal and operational rules. Ninth, the multilevel and MAIHDA models were fitted unweighted, as is conventional for variance-partitioning models, so their variance components complement rather than replace the design-based weighted prevalence ratios; the Poisson-lognormal variance partition coefficient is also mean-dependent and was evaluated at the reference covariate pattern. Tenth, the subsidy microsimulation is a deterministic counterfactual that holds the observed wealth ranking and all other behaviour fixed and assumes enrolment translates directly into the coverage indicator; it is intended to illustrate the distributional logic of alternative targeting rules rather than to forecast actual SHA uptake, costs, or service use.
 
 # Conclusions
 
@@ -736,7 +833,7 @@ Before SHA, Kenya had low overall insurance coverage, strong wealth-related ineq
 
 Additional file 1: STROBE checklist.
 
-Additional file 2: Supplementary tables. Table S1: socioeconomic gradient in health insurance coverage; Table S2: policy-priority group profiles; Table S3: standard and Erreygers-corrected concentration indices; Table S4: SII and RII by subgroup; Table S5: uninsured composition and representation ratios; Table S6: sensitivity of adjusted prevalence ratios to model family (quasi-Poisson vs log-binomial); Table S7: Wagstaff decomposition among adults aged 15+ adding education and functional difficulty.
+Additional file 2: Supplementary tables. Table S1: socioeconomic gradient in health insurance coverage; Table S2: policy-priority group profiles; Table S3: standard and Erreygers-corrected concentration indices; Table S4: SII and RII by subgroup; Table S5: uninsured composition and representation ratios; Table S6: sensitivity of adjusted prevalence ratios to model family (quasi-Poisson vs log-binomial); Table S7: Wagstaff decomposition among adults aged 15+ adding education and functional difficulty; Table S8: coverage by household-head sex, mobile-phone ownership, and child parental survival; Table S9: intersectional MAIHDA variance results; Table S10: multilevel versus single-level adjusted estimates; Table S11: microsimulation of SHA premium-subsidy scenarios.
 
 # Declarations
 

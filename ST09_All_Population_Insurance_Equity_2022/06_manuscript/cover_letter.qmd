@@ -1,0 +1,22 @@
+---
+title: "Cover letter"
+format: docx
+---
+
+Dear Editor,
+
+Please consider our manuscript, *Who was left outside Kenya's health insurance system before SHA? An all-population equity baseline from the 2022 Kenya Demographic and Health Survey*, for publication as a Research Article.
+
+Kenya replaced the National Hospital Insurance Fund with the Social Health Authority on 1 October 2024, making KDHS 2022 the last nationally representative measurement before the transition. Previous Kenyan DHS analyses have largely been confined to women of reproductive age. Using the person recode, we construct an all-ages, both-sexes baseline across 75,561 de-facto household members and find 26.1% insured, a wealth gradient running from 5.0% in the poorest quintile to 57.8% in the richest (richest-versus-poorest APR 14.32), and a concentration index of 0.3922 with a slope index of inequality of 63.8 percentage points.
+
+Beyond description, the paper measures the *depth* of financial protection rather than only its presence: among recent outpatient users, cash met 74.3% of total outpatient cost while NHIF met 16.3%, with little difference between insured and uninsured users. We decompose the inequality using the Wagstaff method, fit an intersectional multilevel (MAIHDA) model showing that 32.5% of variation lies between social strata and is overwhelmingly additive, and microsimulate SHA premium-subsidy scenarios, showing that fully enrolling the two poorest quintiles would reverse the concentration index from pro-rich to pro-poor while leaving an uninsured "missing middle".
+
+We believe the combination of a full life-course baseline, out-of-pocket depth, inequality decomposition, and an explicit policy microsimulation makes the paper directly usable for SHA monitoring rather than only diagnostic. The manuscript is original, is not under consideration elsewhere, and uses authorised de-identified survey microdata. All authors have approved the submission and declare no competing interests.
+
+Thank you for your consideration.
+
+Sincerely,
+Nichodemus Werre Amollo
+Jaramogi Oginga Odinga University of Science and Technology
+nwere@ejooust.ac.ke
+ORCID: 0009-0008-1501-601X

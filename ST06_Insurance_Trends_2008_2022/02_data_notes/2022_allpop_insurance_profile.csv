@@ -1,0 +1,181 @@
+sex,age_group,wealth,residence,n,insured_n,insured_pct,nhif_n,private_n,community_n
+Female,Under 5,Middle,Rural,635,93,14.65,90,5,1
+Female,Under 5,Middle,Urban,255,34,13.33,28,6,1
+Female,Under 5,Poorer,Rural,844,69,8.18,62,1,5
+Female,Under 5,Poorer,Urban,107,6,5.61,5,0,1
+Female,Under 5,Poorest,Rural,1637,64,3.91,40,3,22
+Female,Under 5,Poorest,Urban,104,6,5.77,3,0,3
+Female,Under 5,Richer,Rural,323,102,31.58,95,14,2
+Female,Under 5,Richer,Urban,585,104,17.78,98,12,1
+Female,Under 5,Richest,Rural,67,47,70.15,42,10,0
+Female,Under 5,Richest,Urban,623,315,50.56,288,67,1
+Female,5-14,Middle,Rural,1600,306,19.12,285,21,10
+Female,5-14,Middle,Urban,520,77,14.81,71,7,1
+Female,5-14,Poorer,Rural,2011,209,10.39,186,11,10
+Female,5-14,Poorer,Urban,251,10,3.98,8,1,2
+Female,5-14,Poorest,Rural,3536,147,4.16,78,19,50
+Female,5-14,Poorest,Urban,223,19,8.52,12,1,6
+Female,5-14,Richer,Rural,688,290,42.15,266,53,4
+Female,5-14,Richer,Urban,1030,228,22.14,214,21,2
+Female,5-14,Richest,Rural,135,94,69.63,87,29,0
+Female,5-14,Richest,Urban,972,561,57.72,510,121,1
+Female,15-17,Middle,Rural,363,72,19.83,65,6,3
+Female,15-17,Middle,Urban,127,16,12.6,13,2,1
+Female,15-17,Poorer,Rural,476,55,11.55,48,4,2
+Female,15-17,Poorer,Urban,50,1,2,1,0,0
+Female,15-17,Poorest,Rural,540,18,3.33,9,6,3
+Female,15-17,Poorest,Urban,37,6,16.22,3,2,1
+Female,15-17,Richer,Rural,155,64,41.29,54,14,0
+Female,15-17,Richer,Urban,228,48,21.05,44,5,2
+Female,15-17,Richest,Rural,27,15,55.56,15,2,0
+Female,15-17,Richest,Urban,199,76,38.19,67,13,0
+Female,18-24,Middle,Rural,631,96,15.21,84,4,7
+Female,18-24,Middle,Urban,262,17,6.49,15,1,1
+Female,18-24,Poorer,Rural,702,63,8.97,51,9,3
+Female,18-24,Poorer,Urban,90,8,8.89,5,2,2
+Female,18-24,Poorest,Rural,933,45,4.82,33,8,6
+Female,18-24,Poorest,Urban,65,7,10.77,4,1,2
+Female,18-24,Richer,Rural,352,89,25.28,82,8,0
+Female,18-24,Richer,Urban,728,112,15.38,103,15,2
+Female,18-24,Richest,Rural,78,21,26.92,18,5,0
+Female,18-24,Richest,Urban,776,259,33.38,230,46,1
+Female,25-34,Middle,Rural,692,201,29.05,190,11,6
+Female,25-34,Middle,Urban,238,39,16.39,35,5,0
+Female,25-34,Poorer,Rural,745,130,17.45,124,3,4
+Female,25-34,Poorer,Urban,107,5,4.67,5,0,0
+Female,25-34,Poorest,Rural,1134,89,7.85,66,8,15
+Female,25-34,Poorest,Urban,73,4,5.48,3,0,1
+Female,25-34,Richer,Rural,424,194,45.75,179,30,4
+Female,25-34,Richer,Urban,839,227,27.06,218,15,1
+Female,25-34,Richest,Rural,95,65,68.42,61,12,0
+Female,25-34,Richest,Urban,1138,680,59.75,634,106,3
+Female,35-44,Middle,Rural,669,211,31.54,197,22,5
+Female,35-44,Middle,Urban,178,37,20.79,36,1,0
+Female,35-44,Poorer,Rural,595,100,16.81,90,3,6
+Female,35-44,Poorer,Urban,76,10,13.16,8,4,0
+Female,35-44,Poorest,Rural,807,56,6.94,37,6,13
+Female,35-44,Poorest,Urban,58,9,15.52,8,1,1
+Female,35-44,Richer,Rural,417,246,58.99,230,37,4
+Female,35-44,Richer,Urban,487,160,32.85,152,14,0
+Female,35-44,Richest,Rural,92,71,77.17,64,21,1
+Female,35-44,Richest,Urban,656,461,70.27,434,103,3
+Female,45-59,Middle,Rural,689,235,34.11,219,14,9
+Female,45-59,Middle,Urban,147,34,23.13,30,2,2
+Female,45-59,Poorer,Rural,716,105,14.66,97,8,3
+Female,45-59,Poorer,Urban,68,8,11.76,7,0,1
+Female,45-59,Poorest,Rural,786,56,7.12,37,9,10
+Female,45-59,Poorest,Urban,60,7,11.67,6,0,1
+Female,45-59,Richer,Rural,391,247,63.17,230,52,4
+Female,45-59,Richer,Urban,344,131,38.08,125,13,0
+Female,45-59,Richest,Rural,95,82,86.32,76,24,1
+Female,45-59,Richest,Urban,436,323,74.08,297,83,1
+Female,60-69,Middle,Rural,301,107,35.55,101,4,4
+Female,60-69,Middle,Urban,68,17,25,12,4,1
+Female,60-69,Poorer,Rural,316,50,15.82,44,2,4
+Female,60-69,Poorer,Urban,38,6,15.79,6,0,0
+Female,60-69,Poorest,Rural,409,23,5.62,17,1,5
+Female,60-69,Poorest,Urban,24,2,8.33,0,0,2
+Female,60-69,Richer,Rural,181,106,58.56,99,10,2
+Female,60-69,Richer,Urban,93,31,33.33,30,2,0
+Female,60-69,Richest,Rural,35,28,80,27,4,1
+Female,60-69,Richest,Urban,105,62,59.05,51,11,1
+Female,70+,Middle,Rural,282,85,30.14,76,4,6
+Female,70+,Middle,Urban,69,9,13.04,9,1,0
+Female,70+,Poorer,Rural,302,62,20.53,52,4,7
+Female,70+,Poorer,Urban,32,3,9.38,3,0,0
+Female,70+,Poorest,Rural,449,31,6.9,23,2,6
+Female,70+,Poorest,Urban,35,1,2.86,1,0,0
+Female,70+,Richer,Rural,112,57,50.89,57,0,1
+Female,70+,Richer,Urban,85,35,41.18,34,2,0
+Female,70+,Richest,Rural,15,8,53.33,8,1,0
+Female,70+,Richest,Urban,70,31,44.29,29,3,1
+Male,Under 5,Middle,Rural,704,120,17.05,114,17,1
+Male,Under 5,Middle,Urban,234,34,14.53,30,3,1
+Male,Under 5,Poorer,Rural,807,59,7.31,55,2,3
+Male,Under 5,Poorer,Urban,109,5,4.59,5,0,0
+Male,Under 5,Poorest,Rural,1728,76,4.4,40,3,33
+Male,Under 5,Poorest,Urban,115,4,3.48,4,0,0
+Male,Under 5,Richer,Rural,379,138,36.41,122,25,0
+Male,Under 5,Richer,Urban,558,85,15.23,83,3,0
+Male,Under 5,Richest,Rural,75,51,68,48,10,0
+Male,Under 5,Richest,Urban,610,304,49.84,280,59,0
+Male,5-14,Middle,Rural,1643,332,20.21,311,26,7
+Male,5-14,Middle,Urban,496,70,14.11,62,7,2
+Male,5-14,Poorer,Rural,1971,199,10.1,188,4,6
+Male,5-14,Poorer,Urban,255,16,6.27,13,3,1
+Male,5-14,Poorest,Rural,3633,169,4.65,95,28,46
+Male,5-14,Poorest,Urban,246,10,4.07,8,0,2
+Male,5-14,Richer,Rural,718,303,42.2,277,42,8
+Male,5-14,Richer,Urban,1044,242,23.18,230,20,1
+Male,5-14,Richest,Rural,124,87,70.16,79,26,1
+Male,5-14,Richest,Urban,957,569,59.46,519,129,1
+Male,15-17,Middle,Rural,424,86,20.28,76,10,2
+Male,15-17,Middle,Urban,121,15,12.4,13,2,0
+Male,15-17,Poorer,Rural,505,58,11.49,48,7,3
+Male,15-17,Poorer,Urban,44,4,9.09,2,1,2
+Male,15-17,Poorest,Rural,610,14,2.3,8,2,4
+Male,15-17,Poorest,Urban,46,2,4.35,0,0,2
+Male,15-17,Richer,Rural,179,70,39.11,65,10,0
+Male,15-17,Richer,Urban,228,50,21.93,45,6,0
+Male,15-17,Richest,Rural,30,21,70,17,7,2
+Male,15-17,Richest,Urban,162,69,42.59,59,19,2
+Male,18-24,Middle,Rural,642,74,11.53,67,7,2
+Male,18-24,Middle,Urban,216,17,7.87,11,5,1
+Male,18-24,Poorer,Rural,737,56,7.6,45,9,3
+Male,18-24,Poorer,Urban,92,8,8.7,6,2,2
+Male,18-24,Poorest,Rural,805,22,2.73,16,3,3
+Male,18-24,Poorest,Urban,68,7,10.29,4,2,2
+Male,18-24,Richer,Rural,345,86,24.93,73,17,2
+Male,18-24,Richer,Urban,580,112,19.31,94,18,3
+Male,18-24,Richest,Rural,53,19,35.85,16,6,0
+Male,18-24,Richest,Urban,417,153,36.69,127,38,0
+Male,25-34,Middle,Rural,543,130,23.94,128,8,0
+Male,25-34,Middle,Urban,246,38,15.45,33,6,0
+Male,25-34,Poorer,Rural,602,104,17.28,98,5,2
+Male,25-34,Poorer,Urban,83,9,10.84,8,0,1
+Male,25-34,Poorest,Rural,820,50,6.1,40,4,7
+Male,25-34,Poorest,Urban,66,5,7.58,4,1,0
+Male,25-34,Richer,Rural,361,144,39.89,131,19,3
+Male,25-34,Richer,Urban,813,253,31.12,246,20,0
+Male,25-34,Richest,Rural,88,43,48.86,39,9,0
+Male,25-34,Richest,Urban,865,526,60.81,498,101,1
+Male,35-44,Middle,Rural,565,187,33.1,176,14,5
+Male,35-44,Middle,Urban,160,29,18.12,25,5,0
+Male,35-44,Poorer,Rural,548,108,19.71,106,0,1
+Male,35-44,Poorer,Urban,89,14,15.73,12,1,1
+Male,35-44,Poorest,Rural,634,47,7.41,35,4,8
+Male,35-44,Poorest,Urban,41,7,17.07,6,1,0
+Male,35-44,Richer,Rural,326,169,51.84,163,22,3
+Male,35-44,Richer,Urban,475,162,34.11,155,7,1
+Male,35-44,Richest,Rural,85,64,75.29,55,23,0
+Male,35-44,Richest,Urban,589,412,69.95,384,89,2
+Male,45-59,Middle,Rural,552,203,36.78,189,21,5
+Male,45-59,Middle,Urban,154,38,24.68,35,3,1
+Male,45-59,Poorer,Rural,552,101,18.3,95,3,4
+Male,45-59,Poorer,Urban,72,8,11.11,8,2,0
+Male,45-59,Poorest,Rural,601,54,8.99,43,4,7
+Male,45-59,Poorest,Urban,48,9,18.75,8,2,1
+Male,45-59,Richer,Rural,357,240,67.23,212,52,5
+Male,45-59,Richer,Urban,288,132,45.83,125,16,1
+Male,45-59,Richest,Rural,81,68,83.95,64,18,1
+Male,45-59,Richest,Urban,405,311,76.79,284,80,1
+Male,60-69,Middle,Rural,256,94,36.72,89,4,3
+Male,60-69,Middle,Urban,64,20,31.25,19,0,0
+Male,60-69,Poorer,Rural,237,38,16.03,35,3,2
+Male,60-69,Poorer,Urban,28,4,14.29,4,1,0
+Male,60-69,Poorest,Rural,343,30,8.75,22,3,5
+Male,60-69,Poorest,Urban,23,1,4.35,1,0,0
+Male,60-69,Richer,Rural,169,99,58.58,97,8,1
+Male,60-69,Richer,Urban,117,53,45.3,49,3,1
+Male,60-69,Richest,Rural,40,34,85,34,6,1
+Male,60-69,Richest,Urban,99,72,72.73,67,13,0
+Male,70+,Middle,Rural,222,80,36.04,76,1,4
+Male,70+,Middle,Urban,42,10,23.81,9,1,0
+Male,70+,Poorer,Rural,236,48,20.34,41,1,6
+Male,70+,Poorer,Urban,21,2,9.52,2,0,0
+Male,70+,Poorest,Rural,331,24,7.25,17,2,6
+Male,70+,Poorest,Urban,30,2,6.67,0,0,2
+Male,70+,Richer,Rural,124,75,60.48,73,3,0
+Male,70+,Richer,Urban,54,23,42.59,22,3,0
+Male,70+,Richest,Rural,23,18,78.26,18,3,0
+Male,70+,Richest,Urban,45,31,68.89,28,4,0

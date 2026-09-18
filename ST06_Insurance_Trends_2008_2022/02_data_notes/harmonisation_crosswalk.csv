@@ -1,0 +1,7 @@
+Concept,2008-09 var,2014 var,2022 var (PR),Notes
+Any insurance,v481,v481,sh27,Validated from extracted IR files: 2008 and 2014 use respondent-level v481; 2022 uses person-recode sh27 because v481 is empty in IR/MR.
+NHIF specifically,v481c,v481c,sh28a,Validated from extracted IR files: v481c is labelled social security in both 2008 and 2014 and is the defensible NHIF proxy; 2022 uses sh28a for NHIF.
+Wealth quintile,v190,v190,hv270,Older waves use respondent wealth index in IR; 2022 uses household member wealth in PR.
+Urban/rural,v025,v025,hv025,The place-of-residence coding is directly comparable at the urban-rural level.
+Education level,v106,v106,hv106,"2008 and 2014 use respondent education v106; 2022 PR contains hv106 and hv109, with hv106 preferred for highest educational level attained."
+Region,v024,v024,hv024,2008 and 2014 use IR v024 labelled region; 2022 PR hv024 is county-level geography and should be collapsed carefully for trend work.

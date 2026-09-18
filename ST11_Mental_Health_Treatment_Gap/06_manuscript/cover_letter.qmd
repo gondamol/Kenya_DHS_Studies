@@ -1,0 +1,22 @@
+---
+title: "Cover letter"
+format: docx
+---
+
+Dear Editor,
+
+Please consider our manuscript, *Diagnosed but untreated: the national depression and anxiety treatment gap and its socioeconomic and insurance patterning in Kenya*, for publication as a Research Article.
+
+KDHS 2022 is the first nationally representative Kenyan survey to carry a mental-health module. Published analyses of that module have described the prevalence and correlates of diagnosed depression and anxiety; none has used the survey's *treatment* item. Among 31,354 adults asked the module, we find that 3.6% reported a diagnosis of depression or anxiety, and that among those 1,091 adults, 75.3% (95% CI 71.9% to 78.7%) were not receiving treatment.
+
+The central result is the contrast between two gradients. Diagnosis is modestly concentrated among wealthier and better-educated adults (concentration index 0.045), consistent with unequal access to recognition. The treatment gap, by contrast, is distribution-neutral (concentration index -0.003) and near-universal: 73.0% among the insured and 73.1% in the richest quintile, with no covariate strongly predictive after adjustment. This is the signature of a supply-side deficit rather than one that demand-side measures such as insurance enrolment would resolve — a distinction that matters directly for how Kenya invests under the Social Health Authority and the Mental Health (Amendment) Act 2022.
+
+The manuscript is original, is not under consideration elsewhere, and uses authorised de-identified survey microdata. All authors have approved the submission and declare no competing interests.
+
+Thank you for your consideration.
+
+Sincerely,
+Nichodemus Werre Amollo
+Jaramogi Oginga Odinga University of Science and Technology
+nwere@ejooust.ac.ke
+ORCID: 0009-0008-1501-601X
