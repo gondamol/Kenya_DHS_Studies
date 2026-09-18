@@ -1,0 +1,20 @@
+---
+title: "Cover letter"
+format: docx
+---
+
+Dear Editor,
+
+Please consider our manuscript, *Beyond the diagnosed: underdiagnosis, care cascades, and dual-survey estimation of population unmet need for hypertension and diabetes care in Kenya*, for publication as a Research Article.
+
+Using Kenya STEPS 2015, we estimate measured hypertension and diabetes care cascades to control. Using KDHS 2022, we estimate self-reported diagnosis, treatment among the diagnosed, and insurance. We then introduce and validate a dual-survey hybrid estimator (STEPS awareness × DHS treatment among the diagnosed) that recovers STEPS-measured treatment rates for hypertension. Our findings show that only 2.7% of people with measured hypertension were controlled, that self-report captures about one-fifth of measured hypertension prevalence, and that treatment gaps among diagnosed adults—while important—describe a visible minority of true disease.
+
+The paper complements financing analyses restricted to diagnosed adults and is timed as a pre–Social Health Authority baseline for biological unmet need. It is original, not under consideration elsewhere, and uses authorised de-identified survey microdata.
+
+Thank you for your consideration.
+
+Sincerely,  
+Nichodemus Werre Amollo  
+Jaramogi Oginga Odinga University of Science and Technology  
+nwere@ejooust.ac.ke  
+ORCID: 0009-0008-1501-601X

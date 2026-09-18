@@ -1,0 +1,36 @@
+---
+title: "STROBE checklist — ST12 Dual-survey NCD unmet need"
+format:
+  docx:
+    toc: false
+---
+
+# STROBE Statement — checklist of items for cross-sectional studies
+
+| Item | Recommendation | Location in manuscript |
+|------|----------------|------------------------|
+| 1a Title | Indicate study design | Title: dual-survey secondary analysis of STEPS and DHS |
+| 1b Abstract | Informative abstract | Structured abstract |
+| 2 Background | Scientific background | Background |
+| 3 Objectives | State objectives | End of Background |
+| 4 Study design | Present key design elements | Methods — Study design |
+| 5 Setting | Settings, locations, dates | Methods — Data sources (STEPS 2015; KDHS 2022) |
+| 6 Participants | Eligibility criteria | Methods — age ranges; usual survey eligibility |
+| 7 Variables | Outcomes, exposures, predictors | Methods — Outcome definitions |
+| 8 Data sources | Measurement details | Methods — STEPS BP/glucose; DHS self-report; PR insurance |
+| 9 Bias | Address potential bias | Discussion — Limitations (year gap, age ceilings, constructs) |
+| 10 Study size | Explain study size | Results — n=4,500 STEPS; n=40,636 DHS |
+| 11 Quantitative variables | Explain handling | Methods — thresholds; cascade stages |
+| 12a Statistical methods | Describe methods | Methods — design-based estimators; Erreygers CI |
+| 12b Subgroups | Describe | Sex, residence, education; insurance-stratified treatment |
+| 12c Missing data | Describe | Domain complete-case restriction |
+| 13a Participants | Numbers | Results tables (unweighted n) |
+| 14a Descriptive | Characteristics | Table 1; sample composition |
+| 15 Outcome data | Report numbers | Tables 1–5 |
+| 16 Main results | Estimates and precision | 95% CIs throughout |
+| 17 Other analyses | Sensitivity | Table 5 hybrid sensitivity grid |
+| 18 Key results | Summarise | Discussion — Principal findings |
+| 19 Limitations | Discuss | Discussion — Strengths and limitations |
+| 20 Interpretation | Cautious overall | Discussion — Policy implications |
+| 21 Generalisability | Discuss | National Kenyan adults; pre-SHA frame |
+| 22 Funding | Give sources | Declarations — none specific |
