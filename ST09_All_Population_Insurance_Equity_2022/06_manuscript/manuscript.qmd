@@ -307,11 +307,11 @@ Nichodemus Werre Amollo^1,\*^, Japheth Ogol^1,2^
 
 **Background:** Kenya replaced the National Hospital Insurance Fund (NHIF) with the Social Health Authority (SHA) on 1 October 2024. KDHS 2022 therefore provides the last nationally representative population baseline before the transition. Earlier Kenyan DHS analyses mainly focused on women of reproductive age rather than the full household population across life stages.
 
-**Methods:** We conducted a cross-sectional secondary analysis of the KDHS 2022 person recode file. The analytic sample included de-facto household members with valid insurance responses from the full household questionnaire subsample. We estimated survey-weighted prevalence of insurance coverage, hospital admission, outpatient use, and payment at the last outpatient visit, and quantified the depth of out-of-pocket (OOP) payment using cleaned continuous cost variables. Wealth-related inequality was summarized using concentration indices, Erreygers-corrected estimates, the slope index of inequality (SII), and the relative index of inequality (RII), and decomposed using the Wagstaff method. Survey-weighted quasi-Poisson models estimated adjusted prevalence ratios (APR) for insurance coverage. We assessed linkage between insurance and household social assistance, and compared coverage with KDHS 2014 for adults of reproductive/working age. We additionally fitted an intersectional multilevel (MAIHDA) model and a survey-cluster mixed-effects model, and microsimulated SHA premium-subsidy scenarios on the concentration index. Disability analyses were limited to respondents with non-missing disability data; under-five children were not assessed in that module.
+**Methods:** We conducted a cross-sectional secondary analysis of the KDHS 2022 person recode file. The analytic sample included de-facto household members with valid insurance responses from the full household questionnaire subsample. We estimated survey-weighted prevalence of coverage, service use, and payment at the last outpatient visit, and quantified out-of-pocket (OOP) depth from cleaned continuous cost variables. Wealth-related inequality was summarised with concentration indices, Erreygers-corrected estimates, the slope and relative indices of inequality (SII, RII), and decomposed by the Wagstaff method. Survey-weighted quasi-Poisson models estimated adjusted prevalence ratios (APR). We assessed linkage with household social assistance and compared coverage with KDHS 2014. We additionally fitted an intersectional multilevel (MAIHDA) model and a survey-cluster mixed-effects model, and microsimulated SHA premium-subsidy scenarios on the concentration index. Geolocating all 1,691 clusters, we modelled exclusion as a smooth function of location using binomial additive models and mapped the probability that it exceeds 90%.
 
-**Results:** The analytic sample comprised `r format(analysis_object$overall_n, big.mark = ",")` de-facto household members. Any insurance coverage was `r fmt_pct_string(get_t1("All household members", "Any insurance % (95% CI)"))`, leaving `r fmt_pct_string(get_t1("All household members", "Uninsured % (95% CI)"))` uninsured. Coverage was lowest among young adults aged 18-24 at `r fmt_pct_string(get_t2("18-24", "All: insured % (95% CI)"))`, compared with `r fmt_pct_string(get_t4("Children under 18"))` among children under 18 and `r fmt_pct_string(get_t4("Older adults 60+"))` among adults aged 60 years and above. The wealth gradient was steep, from `r fmt_pct_string(get_t3("Wealth quintile", "Poorest"))` in the poorest quintile to `r fmt_pct_string(get_t3("Wealth quintile", "Richest"))` in the richest (ratio `r wealth_ratio`x). Richest-versus-poorest APR was `r get_t5("Model A: All ages", "Wealth: Richest")` in the all-ages model. The overall standard concentration index was `r fmt_ci_inline("All household members", "standard")`, the SII was `r get_t7("All household members", "SII, pp (95% CI)")` percentage points, and the RII was `r get_t7("All household members", "RII (95% CI)")`; decomposition attributed the inequality overwhelmingly to the wealth quintile itself. Among recent outpatient users, cash met `r cost_val("opd_overall_cost", "Cash share of cost, %")`% of total outpatient cost and NHIF only `r cost_val("opd_overall_cost", "NHIF share of cost, %")`%, with little difference between insured and uninsured users. `r top_uninsured_sentence` the most over-represented group among uninsured persons. Intersectional analysis attributed `r sprintf("%.1f", 100 * analysis_object$maihda_vpc_null)`% of coverage variation to differences between strata, almost all of it additive (`r sprintf("%.1f", analysis_object$maihda_pcv)`% explained by main effects), and a subsidy microsimulation showed that enrolling the two poorest quintiles reversed the concentration index from pro-rich (`r sprintf("%.4f", analysis_object$sim_baseline_ci)`) to pro-poor, leaving an uninsured "missing middle".
+**Results:** The analytic sample comprised `r format(analysis_object$overall_n, big.mark = ",")` de-facto household members. Any insurance coverage was `r fmt_pct_string(get_t1("All household members", "Any insurance % (95% CI)"))`, leaving `r fmt_pct_string(get_t1("All household members", "Uninsured % (95% CI)"))` uninsured. Coverage was lowest among young adults aged 18-24 at `r fmt_pct_string(get_t2("18-24", "All: insured % (95% CI)"))`, compared with `r fmt_pct_string(get_t4("Children under 18"))` among children under 18 and `r fmt_pct_string(get_t4("Older adults 60+"))` among adults aged 60 years and above. The wealth gradient was steep, from `r fmt_pct_string(get_t3("Wealth quintile", "Poorest"))` in the poorest quintile to `r fmt_pct_string(get_t3("Wealth quintile", "Richest"))` in the richest (ratio `r wealth_ratio`x). Richest-versus-poorest APR was `r get_t5("Model A: All ages", "Wealth: Richest")` in the all-ages model. The overall standard concentration index was `r fmt_ci_inline("All household members", "standard")`, the SII was `r get_t7("All household members", "SII, pp (95% CI)")` percentage points, and the RII was `r get_t7("All household members", "RII (95% CI)")`; decomposition attributed the inequality overwhelmingly to the wealth quintile itself. Among recent outpatient users, cash met `r cost_val("opd_overall_cost", "Cash share of cost, %")`% of total outpatient cost and NHIF only `r cost_val("opd_overall_cost", "NHIF share of cost, %")`%, with little difference between insured and uninsured users. `r top_uninsured_sentence` the most over-represented group among uninsured persons. Intersectional analysis attributed `r sprintf("%.1f", 100 * analysis_object$maihda_vpc_null)`% of coverage variation to differences between strata, almost all additive, and a subsidy microsimulation showed that enrolling the two poorest quintiles reversed the concentration index from pro-rich (`r sprintf("%.4f", analysis_object$sim_baseline_ci)`) to pro-poor, leaving an uninsured "missing middle". Location stayed predictive after adjusting for settlement type and wealth; 55.6% of sampled land area had at least 80% probability of exceeding 90% exclusion, and county estimates ranged from 94.7% uninsured in Tana River to 54.0% in Nairobi.
 
-**Conclusions:** Before SHA, Kenya had low overall insurance coverage, extreme wealth-related inequality, and high payment exposure at outpatient contact. Young adults, children, the poorest households, and people with severe functional difficulty remained vulnerable in different ways. SHA monitoring should therefore track life-course coverage, disability-sensitive access, and point-of-care payment exposure rather than enrolment alone.
+**Conclusions:** Before SHA, Kenya had low coverage, extreme wealth-related inequality, and high payment exposure at outpatient contact. Young adults, children, the poorest households, and people with severe functional difficulty remained vulnerable in different ways. SHA monitoring should track life-course coverage, disability-sensitive access, geography, and payment exposure, not enrolment alone.
 
 **Keywords:** Kenya DHS; health insurance; Social Health Authority; NHIF; wealth inequality; concentration index; disability; young adults; outpatient payment; universal health coverage
 
@@ -464,6 +464,14 @@ table8_display <- table8 %>%
     representation = `Uninsured representation ratio`
   )
 ```
+
+## Geospatial analysis
+
+We geolocated all 1,691 survey clusters using the KDHS 2022 GPS dataset and modelled the cluster-level probability of being uninsured as a smooth function of location, using penalised-likelihood binomial generalised additive models fitted by restricted maximum likelihood in `mgcv` [@wood2017gam]. Three nested models separate raw geography from population composition: a spatial smooth alone, the smooth plus urban/rural residence, and the smooth plus urban/rural residence and cluster wealth composition. Coordinates were projected to a Lambert azimuthal equal-area system centred on Kenya so that distances behave consistently across the country, and the spatial term was a Duchon spline with a generous basis dimension whose effective complexity was selected by the smoothing penalty rather than fixed in advance.
+
+We chose penalised additive models over Bayesian geostatistical approximations or kriging for a substantive reason rather than a computational one. The DHS programme displaces cluster coordinates before release to protect respondent confidentiality, by up to 2 km for urban clusters and up to 5 km for rural clusters, with 1% of rural clusters displaced up to 10 km [@burgert2013geographic]. Spatial structure finer than that displacement has been removed from the data by design, so a method whose appeal rests on very high resolution would be modelling noise. We therefore predicted onto a 5 km grid as a rendering choice but interpret the surface at approximately 10 km and coarser, and report substantive findings at county and sub-regional scale.
+
+Predictions were masked to grid cells within 50 km of a sampled cluster, so that the model is never asked to extrapolate into parts of the country the survey did not visit. Hotspots of exclusion are defined as the probability that local exclusion exceeds 90%, computed from the predicted linear predictor and its standard error, rather than by thresholding the point estimate. Thresholding point estimates would preferentially flag the most sparsely sampled areas, where estimates are least certain, which inverts the intended meaning of a hotspot. We additionally computed design-based direct estimates of exclusion for all 47 counties, since `hv024` carries county in KDHS 2022, and compared them against the model-based surface. Calibration was assessed at cluster locations against observed counts and across deciles of predicted risk.
 
 # Results
 
@@ -783,6 +791,44 @@ publication_flextable(
 #| fig-cap: "Simulated insurance coverage by wealth quintile under SHA premium-subsidy scenarios versus the observed baseline, KDHS 2022. A persisting dip in the middle and richer quintiles is the uninsured 'missing middle'."
 #| out-width: "95%"
 knitr::include_graphics(file.path("..", "05_figures", "Figure9_ST09_SHA_Microsimulation.png"))
+```
+
+## The geography of exclusion
+
+All 1,691 clusters carried valid GPS coordinates. Location alone explained 50.3% of the deviance in cluster-level insurance exclusion; adding urban/rural residence raised this to 55.3%, and adding cluster wealth composition to 68.1%. The spatial smooth nevertheless remained strongly significant in the fully adjusted model (effective degrees of freedom 207.4, chi-squared 3116, p < 0.001), so where a person lives predicts exclusion well beyond what settlement type and household wealth account for. Urban clusters had substantially lower odds of exclusion than rural clusters (log-odds -0.79, standard error 0.03).
+
+The model was well calibrated. The population-weighted national estimate implied at cluster locations was 74.1%, against 73.9% observed, and the largest discrepancy across deciles of predicted risk was 2.2 percentage points.
+
+The predicted surface (Figure 8a) concentrates exclusion in the arid and semi-arid north and north-east and along much of the coast, with the lowest exclusion in Nairobi and the central highlands. Of the sampled domain, which covers 22,136 of 23,634 5 km land cells or 93.7% of Kenya, 55.6% had at least an 80% probability that local exclusion exceeded 90% (Figure 8b). The residual surface net of settlement type and wealth composition (Figure 8d) retains the same north-east to central gradient, indicating that the geography of exclusion is not simply a map of where poor or rural households happen to live.
+
+County-level direct estimates (Table 17, Figure 8e) span a far wider range than the eight former provinces reported above: from 94.7% (95% CI 92.4% to 97.0%) uninsured in Tana River, 94.0% (91.1% to 96.9%) in Mandera and 93.1% (89.9% to 96.3%) in Marsabit, to 54.0% (47.8% to 60.2%) in Nairobi, 57.3% (51.4% to 63.2%) in Nyeri and 57.8% (52.2% to 63.5%) in Kiambu, a spread of 40.7 percentage points. All 47 counties had direct 95% confidence intervals narrower than 20 percentage points, so county-level reporting is supportable from this survey without model-based smoothing.
+
+```{r}
+#| label: fig-geo-surface
+#| fig-cap: "Predicted probability of being uninsured, Kenya 2022. Binomial generalised additive model surface on a 5 km grid, shown for rural settlement at mean wealth and masked to within 50 km of a sampled cluster. DHS displaces cluster coordinates, so the surface should be read at approximately 10 km and coarser."
+#| out-width: "90%"
+knitr::include_graphics(file.path("..", "05_figures", "Figure8a_Predicted_Uninsured_Surface.png"))
+```
+
+```{r}
+#| label: fig-geo-hotspots
+#| fig-cap: "Hotspots of insurance exclusion, Kenya 2022, defined as the probability that local exclusion exceeds 90%. Because the map shows an exceedance probability rather than a thresholded point estimate, sparsely sampled areas are not spuriously flagged."
+#| out-width: "90%"
+knitr::include_graphics(file.path("..", "05_figures", "Figure8b_Exclusion_Hotspots.png"))
+```
+
+```{r}
+#| label: fig-geo-residual
+#| fig-cap: "Exclusion attributable to place, net of settlement type and cluster wealth composition. Structure remaining here is not explained by how urban an area is or how poor its households are."
+#| out-width: "90%"
+knitr::include_graphics(file.path("..", "05_figures", "Figure8d_Residual_Place_Effect.png"))
+```
+
+```{r}
+#| label: fig-geo-county
+#| fig-cap: "Insurance exclusion by county, Kenya 2022. Design-based direct estimates for all 47 counties, recovered from hv024; the main analysis above reports the eight former provinces."
+#| out-width: "90%"
+knitr::include_graphics(file.path("..", "05_figures", "Figure8e_County_Choropleth.png"))
 ```
 
 # Discussion

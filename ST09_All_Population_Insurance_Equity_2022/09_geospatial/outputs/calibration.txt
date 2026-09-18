@@ -1,0 +1,26 @@
+ST09 geospatial — calibration of the binomial GAM (M2)
+
+Population-weighted uninsured, observed : 0.7393 
+Population-weighted uninsured, model    : 0.7413 
+ST09 main paper (survey-weighted)       : 0.7390
+
+Area-based median of the mapped surface :  0.9285 
+  The surface is area-based and drawn for rural settlement at mean wealth.
+  Kenya's land area is dominated by sparsely populated arid counties with the
+  lowest coverage, so an area median above the population mean is expected.
+  These are different estimands, not a discrepancy.
+
+Calibration by decile of predicted risk:
+ bin n_clusters n_persons mean_pred       obs     diff_pp
+   1        170      5287 0.4651301 0.4832608  1.81306796
+   2        169      5802 0.5620405 0.5608411 -0.11994032
+   3        169      6171 0.6323248 0.6329606  0.06358515
+   4        169      6606 0.6900875 0.6680291 -2.20584456
+   5        169      7285 0.7422604 0.7335621 -0.86983268
+   6        169      8184 0.7876619 0.7873900 -0.02719097
+   7        169      8515 0.8303536 0.8311216  0.07679628
+   8        169      8580 0.8638754 0.8695804  0.57050054
+   9        169      8998 0.9031545 0.9044232  0.12687060
+  10        169     10133 0.9660084 0.9754268  0.94184080
+
+max |observed - predicted| across deciles: 2.2 pp 

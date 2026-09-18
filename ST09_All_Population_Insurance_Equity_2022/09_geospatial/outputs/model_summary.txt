@@ -1,0 +1,96 @@
+ST09 geospatial models — binomial GAMs of cluster-level uninsured probability
+Clusters: 1691  Persons: 75561 
+Projection: Lambert azimuthal equal-area, km units
+
+==============================================================================
+M1
+==============================================================================
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+resp ~ s(X, Y, bs = "ds", m = c(1, 0.5), k = K)
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  1.33459    0.01128   118.4   <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Approximate significance of smooth terms:
+         edf Ref.df Chi.sq p-value    
+s(X,Y) 226.5    249   6378  <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+R-sq.(adj) =  0.417   Deviance explained = 50.3%
+-REML = 7751.6  Scale est. = 1         n = 1691
+
+AIC: 14905.3  deviance explained: 50.3% 
+
+==============================================================================
+M2
+==============================================================================
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+resp ~ s(X, Y, bs = "ds", m = c(1, 0.5), k = K) + urban_f
+
+Parametric coefficients:
+             Estimate Std. Error z value Pr(>|z|)    
+(Intercept)   1.62521    0.01499  108.45   <2e-16 ***
+urban_fUrban -0.79159    0.02504  -31.62   <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Approximate significance of smooth terms:
+       edf Ref.df Chi.sq p-value    
+s(X,Y) 220    249   5483  <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+R-sq.(adj) =  0.478   Deviance explained = 55.3%
+-REML = 7260.5  Scale est. = 1         n = 1691
+
+AIC: 13997.67  deviance explained: 55.3% 
+
+==============================================================================
+M3
+==============================================================================
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+resp ~ s(X, Y, bs = "ds", m = c(1, 0.5), k = K) + urban_f + s(mean_wealth, 
+    k = 5)
+
+Parametric coefficients:
+             Estimate Std. Error z value Pr(>|z|)    
+(Intercept)   1.12718    0.01893   59.53   <2e-16 ***
+urban_fUrban  0.52152    0.04051   12.88   <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Approximate significance of smooth terms:
+                   edf  Ref.df Chi.sq p-value    
+s(X,Y)         207.409 249.000   3116  <2e-16 ***
+s(mean_wealth)   3.846   3.981   2282  <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+R-sq.(adj) =  0.653   Deviance explained = 68.1%
+-REML = 6058.2  Scale est. = 1         n = 1691
+
+AIC: 11683.39  deviance explained: 68.1% 
+
+==============================================================================
+Model comparison
+==============================================================================
+         df      AIC
+m1 227.8238 14905.30
+m2 222.4153 13997.67
+m3 213.8319 11683.39
