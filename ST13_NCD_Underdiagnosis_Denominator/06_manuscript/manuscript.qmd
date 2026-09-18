@@ -1,0 +1,216 @@
+---
+title: "Who counts as a case? Self-reported diagnosis and the hidden denominator in Kenya's non-communicable disease financing evidence"
+shorttitle: "The hidden denominator in Kenya's NCD evidence"
+
+author:
+  - name: Nichodemus Werre Amollo
+    corresponding: true
+    email: nwere@ejooust.ac.ke
+    orcid: "0009-0008-1501-601X"
+    affiliations:
+      - id: aff1
+        name: Jaramogi Oginga Odinga University of Science and Technology
+        department: School of Health Sciences
+        city: Bondo
+        country: Kenya
+  - name: Japheth Ogol
+    email: japhth.ogol@ejooust.ac.ke
+    orcid: "0009-0004-2431-7501"
+    affiliations:
+      - ref: aff1
+      - id: aff2
+        name: University of Antwerp
+        department: Department of Family Medicine & Population Health (FAMPOP)
+        city: Wilrijk
+        country: Belgium
+
+keywords:
+  - hypertension
+  - diabetes
+  - underdiagnosis
+  - self-reported diagnosis
+  - health financing
+  - measurement
+  - Demographic and Health Survey
+  - STEPS
+  - Kenya
+  - Social Health Authority
+
+bibliography: references.bib
+csl: ../../_TEMPLATES/vancouver.csl
+format:
+  docx:
+    toc: false
+    number-sections: true
+    reference-doc: ../../_TEMPLATES/reference_doc.docx
+    filters:
+      - ../../_TEMPLATES/suppress-docx-authors.lua
+  html:
+    toc: true
+    number-sections: true
+    theme: cosmo
+    embed-resources: true
+execute:
+  echo: false
+---
+
+Nichodemus Werre Amollo^1,\*^, Japheth Ogol^1,2^
+
+^1^ School of Health Sciences, Jaramogi Oginga Odinga University of Science and Technology, Bondo, Kenya\
+^2^ Department of Family Medicine & Population Health (FAMPOP), University of Antwerp, Wilrijk, Belgium
+
+\*Correspondence: Nichodemus Werre Amollo, nwere@ejooust.ac.ke
+
+# Abstract
+
+**Background:** Health financing research in Kenya, including work based on the Demographic and Health Survey, defines its study population by *self-reported diagnosis*: adults who say a health worker told them they have hypertension or diabetes. Treatment gaps and insurance coverage are then estimated within that group. If self-report captures only a fraction of those who have the disease, such estimates describe a selected subset of the population in need, and the shortfall is invisible in the surveys themselves. We quantify that denominator problem for Kenya.
+
+**Methods:** We compared measured disease prevalence from the Kenya STEPS 2015 survey, which recorded blood pressure and fasting glucose, with self-reported diagnosis prevalence from the Kenya Demographic and Health Survey (KDHS) 2022, which records only self-report. We defined the detection ratio as self-reported diagnosis prevalence divided by measured prevalence, and the underdiagnosis index as one minus that ratio. Because KDHS truncates women at 49 years and men at 54 while STEPS covers 18 to 69 years, and both prevalence and awareness rise with age, estimates on the overlapping 18-49 window are primary and the full range is secondary. All estimates use survey weights and design-based inference; intervals come from a stratified bootstrap resampling primary sampling units within strata, with the two surveys resampled independently. Awareness is reported under both the "ever told" and "told within 12 months" definitions to permit direct comparison with the published national cascade.
+
+**Results:** Among adults aged 18-49, measured hypertension affected 19.8% (95% CI 17.5% to 22.2%), while self-reported diagnosis in KDHS 2022 stood at 4.2% (95% CI 3.9% to 4.5%). The detection ratio was 0.212 (95% CI 0.184 to 0.244), corresponding to an underdiagnosis index of 78.8% (95% CI 75.6% to 81.6%). Across the full age range the detection ratio was 0.184 (95% CI 0.163 to 0.207). Put differently, 16.2% (95% CI 14.3% to 18.2%) of all Kenyan adults aged 18-49 carried hypertension of which they were unaware, and 19.4% (95% CI 17.1% to 21.8%) carried uncontrolled hypertension. Among adults with a self-reported diagnosis in KDHS, 32.0% (95% CI 28.7% to 35.3%) were on treatment and 47.3% (95% CI 43.8% to 50.7%) held insurance; applied to the self-report denominator, this corresponds to just 1.3% (95% CI 1.2% to 1.5%) of all adults reached by treatment. For diabetes the detection ratio was higher and far less precise, 0.567 (95% CI 0.390 to 0.862), from only 60 measured cases in the age-comparable window.
+
+**Conclusions:** Self-reported diagnosis captures roughly one in five Kenyan adults who have hypertension. Treatment-gap and insurance statistics conditioned on that denominator are therefore not statements about the population with disease; they describe a minority who have already been reached by a health system able to identify them. As Kenya implements the Social Health Authority, coverage monitoring that relies on self-report will record progress among the already-diagnosed while the larger undiagnosed majority remains uncounted. Periodic measured surveillance is not an optional supplement to household survey data but a precondition for interpreting it.
+
+**Keywords:** hypertension; diabetes; underdiagnosis; self-reported diagnosis; health financing; measurement; Demographic and Health Survey; STEPS; Kenya; Social Health Authority
+
+# Background
+
+Kenya's transition from the National Hospital Insurance Fund to the Social Health Authority (SHA) on 1 October 2024 has intensified demand for evidence on who is covered, who is treated, and who pays [@nungo2024; @barasa2018]. Most of that evidence comes from household surveys, and for non-communicable diseases (NCDs) it rests on a single kind of question: whether a respondent reports having been told by a health worker that they have hypertension or diabetes. KDHS 2022 carries such a module, and analyses of it, including our own, have estimated insurance coverage and treatment gaps among adults with diagnosed disease [@kdhs2022; @amollo2026st03].
+
+This design has an inherent limitation that is easy to state and easy to forget. A respondent can report a diagnosis only if the health system previously identified the condition and communicated it. Self-reported diagnosis therefore measures the joint outcome of *having disease* and *having been detected*, not disease itself. Where detection is incomplete, the surveyed "diagnosed" population is both smaller than, and systematically different from, the population with disease. Studies validating self-report against measurement in other settings consistently find underestimation, with the shortfall concentrated in men, younger adults, and those with less contact with services [@vellakkal2013; @singh2022].
+
+For financing research the consequence is specific rather than general. A treatment gap of 66% among diagnosed adults, as we and others have reported for Kenya, is a statement about people who have already cleared the detection hurdle [@amollo2026st03]. It is silent about the population that never enters that denominator. Whether the two groups are similar in their financing needs is not knowable from a self-report survey, because the undiagnosed are not observed in it at all. Quantifying the size of the excluded group is therefore a prerequisite for interpreting any DHS-based NCD financing estimate, and it requires a data source that measures rather than asks.
+
+Kenya has one such source. The 2015 Kenya STEPS survey applied the WHO STEPwise instrument, including measured blood pressure and fasting glucose, to a nationally representative sample of adults aged 18-69 [@kenyaSTEPS2015; @whoSTEPS]. Its hypertension findings have been published and are well cited [@mohamed2018prevalence]. What has not been done for Kenya is the comparison between the two measurement systems: how much of the disease that STEPS measures would be visible to a survey that, like KDHS, can only ask.
+
+This study makes that comparison. We estimate measured prevalence from STEPS 2015 and self-reported diagnosis prevalence from KDHS 2022, express the relationship as a detection ratio with an interval, and translate it into what it implies for population-level treatment coverage and for the interpretation of existing financing analyses. We deliberately introduce no new estimator: every quantity reported is either a within-survey estimate or a ratio of two independent within-survey estimates.
+
+# Methods
+
+## Study design and reporting
+
+This is a secondary analysis of two independent, nationally representative cross-sectional surveys. It is reported following STROBE guidance for observational studies [@vonelm2007strobe]. No individual-level linkage between the surveys was performed or is possible; comparison is between population-level estimates.
+
+## Data sources
+
+**Kenya STEPS 2015.** The WHO STEPwise survey collected interview data (Step 1), physical measurements including blood pressure (Step 2), and biochemical measures including fasting glucose (Step 3) from 4,500 adults aged 18-69, with design variables for primary sampling unit and stratum and step-specific analysis weights [@kenyaSTEPS2015]. Blood pressure was the mean of the second and third readings. **Measured hypertension** was systolic pressure of at least 140 mmHg, diastolic pressure of at least 90 mmHg, or current antihypertensive medication. **Measured diabetes** was fasting glucose of at least 7.0 mmol/L or current glucose-lowering medication.
+
+**KDHS 2022.** We used the women's (15-49) and men's (15-54) recodes, restricted to adults aged 18 and above, with insurance taken from the person recode, since KDHS 2022 carries household-member insurance there rather than in the individual files [@kdhs2022; @amollo2026st03]. **Diagnosed hypertension** and **diagnosed diabetes** were self-report of having been told by a health professional. **Treatment** was current medication among those reporting a diagnosis. KDHS 2022 records no measured blood pressure or glucose; this absence is precisely the gap the analysis addresses.
+
+## Estimands
+
+For each condition we estimated measured prevalence $p_{\text{meas}}$ from STEPS and self-reported diagnosis prevalence $p_{\text{dx}}$ from KDHS, and defined
+
+$$\text{DR} = \frac{p_{\text{dx}}}{p_{\text{meas}}}, \qquad \text{UDI} = \max(0,\; 1 - \text{DR}).$$
+
+The detection ratio compares two measurement systems seven years apart. It is not a time trend and is not interpreted as change between 2015 and 2022. We also report awareness among people with measured disease, treatment and control among people with measured disease, and, from KDHS, treatment and insurance among people reporting a diagnosis.
+
+## Age comparability
+
+KDHS truncates women at 49 years and men at 54, whereas STEPS extends to 69. Both prevalence and awareness rise steeply with age, so comparisons across the full ranges mix a genuine detection difference with an age-composition difference. We therefore restrict both surveys to **ages 18-49** for the primary analysis and report the full ranges as secondary. This restriction is material rather than cosmetic: it lowers measured hypertension prevalence from 24.2% to 19.8% and awareness from 23.7% to 18.1%.
+
+## Awareness definitions
+
+STEPS asks whether a respondent was ever told they had raised blood pressure (`h2a`) and, if so, whether this occurred within the previous 12 months (`h2b`). These yield materially different cascades, and the published national analysis used the narrower definition [@mohamed2018prevalence]. We report both, taking the 12-month definition as primary for comparability. Respondents never told, or never having had blood pressure measured, are treated as not aware rather than missing. We note that medication adds nothing to either definition in these data, because every respondent on treatment had also been told; treatment is thus a subset of awareness empirically as well as by clinical logic.
+
+## Statistical analysis
+
+All estimates apply survey weights, using the weight matching the measurement step for STEPS (`wstep2` for blood pressure, `wstep3` for glucose) and individual weights with a male subsample correction for KDHS. Confidence intervals come from a stratified bootstrap that resamples primary sampling units with replacement within strata (2,000 replicates, seed 20260918). The two surveys are resampled independently, so ratios formed across them carry intervals reflecting both sources of sampling variability. Point estimates are reported with 95% percentile intervals and unweighted denominators. Analyses used Python 3 with design-based estimators; scripts are archived with the study package. We make no causal claims.
+
+## Ethical considerations
+
+Both surveys are de-identified and were collected under national ethical approvals. This secondary analysis used KDHS data under DHS authorisation reference 220623 (granted 20 October 2025) and STEPS microdata under authorised research access. No additional participant contact occurred.
+
+# Results
+
+## Measured disease and self-reported diagnosis
+
+Among adults aged 18-49, measured hypertension affected 19.8% (95% CI 17.5% to 22.2%) of the STEPS sample (740 measured cases of 3,531 respondents), while self-reported hypertension diagnosis in KDHS 2022 stood at 4.2% (95% CI 3.9% to 4.5%) among 39,852 adults (1,678 reporting a diagnosis). Across the full ranges the corresponding figures were 24.2% (95% CI 21.9% to 26.8%) measured and 4.5% (95% CI 4.2% to 4.7%) self-reported (Table 1).
+
+## The detection ratio
+
+On the age-comparable base, the detection ratio for hypertension was **0.212 (95% CI 0.184 to 0.244)**, giving an underdiagnosis index of **78.8% (95% CI 75.6% to 81.6%)**. Across the full ranges the ratio was 0.184 (95% CI 0.163 to 0.207), underdiagnosis index 81.6% (95% CI 79.3% to 83.7%). Roughly four in five Kenyan adults with measured hypertension would not appear in a self-report denominator.
+
+For diabetes, detection was substantially better but far less precisely estimated: the ratio was 0.567 (95% CI 0.390 to 0.862) at ages 18-49 and 0.406 (95% CI 0.288 to 0.603) across the full ranges. These estimates rest on 60 and 119 measured cases respectively and should be read as indicative.
+
+## What the population looks like behind the denominator
+
+Combining measured prevalence with awareness gives the share of the whole adult population carrying undetected disease. At ages 18-49, **16.2% (95% CI 14.3% to 18.2%) of all adults had hypertension of which they were unaware**, and 19.4% (95% CI 17.1% to 21.8%) had uncontrolled hypertension. Treatment reached 5.3% (95% CI 3.1% to 7.9%) of people with measured hypertension, and control 2.3% (95% CI 0.6% to 5.1%).
+
+Viewed through the self-report denominator alone, the picture is very different in scale. Among KDHS adults reporting a hypertension diagnosis, 32.0% (95% CI 28.7% to 35.3%) were on treatment and 47.3% (95% CI 43.8% to 50.7%) held health insurance. Multiplying self-reported prevalence by treatment among the diagnosed gives population treatment coverage of **1.3% (95% CI 1.2% to 1.5%)** of all adults — a quantity that a self-report survey can produce on its own, but which describes only the detected fraction of need.
+
+## Awareness under two definitions
+
+Awareness among people with measured hypertension was 18.1% (95% CI 14.0% to 22.5%) under the "ever told" definition and 12.2% (95% CI 8.5% to 16.7%) under the 12-month definition at ages 18-49. Across the full range the corresponding values were 23.7% and 16.0% (95% CI 12.7% to 20.3%). The 12-month figure of 16.0% is consistent with the 15.6% (95% CI 12.4% to 18.9%) reported in the published national analysis of these data, which used the narrower definition and age-standardised its estimate [@mohamed2018prevalence]; the "ever told" figure is roughly 8 percentage points higher. Treatment conditional on awareness was correspondingly higher under the narrower definition, 43.7% (95% CI 32.2% to 53.2%) versus 29.5% (95% CI 19.4% to 39.1%), because the 12-month group is more recently and more actively engaged with care (Table 2).
+
+# Discussion
+
+## Principal findings
+
+Self-reported diagnosis identifies about one fifth of Kenyan adults who have measured hypertension. The detection ratio is 0.21 on an age-comparable base and 0.18 across the full survey ranges, with intervals that exclude any interpretation in which self-report approximates measured burden. Diabetes is better detected, though imprecisely so. The practical consequence is that 16% of all adults aged 18-49 carry hypertension they do not know about, and are therefore structurally absent from every survey-based financing statistic Kenya currently produces for this disease.
+
+## What this does and does not add
+
+It does not add a new estimate of Kenya's hypertension cascade. That was established from these same STEPS data by Mohamed and colleagues, who reported 24.5% age-standardised prevalence, 15.6% awareness, 26.9% treatment among the aware, and 51.7% control among the treated [@mohamed2018prevalence]. Our cascade figures are consistent with theirs once the awareness definition is matched, and we report both definitions explicitly for that reason. What is new is the comparison between measurement systems and its implication for the interpretation of financing research: the quantification of how much disease the self-report denominator omits, with intervals, on an age-comparable basis.
+
+That matters because the denominator question is usually acknowledged as a limitation and then set aside. Our own prior analysis of KDHS 2022 reported that treatment gaps exceeded 60% among adults with diagnosed hypertension or diabetes, and that insurance was incompletely protective [@amollo2026st03]. Those findings stand, but they should be read as describing roughly a fifth of the population with hypertension — the fifth that the health system has already found. The remaining four fifths have a treatment gap of effectively 100%, since untreated disease is the definition of being undetected. Financing analyses that omit this framing risk presenting a partial picture as a population one.
+
+## Implications for SHA-era monitoring
+
+If SHA monitoring relies on self-reported diagnosis, enrolment and treatment indicators can improve while population blood-pressure control remains near zero, because improvement among the detected minority is compatible with no change in detection. Two implications follow. First, coverage targets for NCDs should be expressed against measured prevalence, not against self-reported diagnosis, which requires periodic measured surveillance rather than treating STEPS as a one-off exercise; Kenya's only national measured NCD survey is now more than a decade old. Second, the binding constraint in the cascade is detection, not treatment among the detected: with awareness at 12-18% and treatment among the aware at 30-44%, expanding treatment access without expanding case-finding cannot move population control far.
+
+## Strengths and limitations
+
+Strengths include nationally representative microdata from both surveys, design-based inference with intervals propagated across two independent samples, an explicit age-comparable base, and reconciliation with the published national cascade under both awareness definitions.
+
+The limitations are substantial and bound the interpretation. The surveys are **seven years apart**; the detection ratio is a comparison of measurement systems and cannot distinguish a genuine detection deficit from change over that interval. If detection improved between 2015 and 2022, the true contemporaneous ratio would be higher than we estimate, and our underdiagnosis index correspondingly overstated. Age ranges do not fully align even after restriction, since KDHS truncates women and men at different ages. Measured and self-reported disease are different constructs, and a single-visit measurement will misclassify some individuals relative to a clinical diagnosis based on repeated readings. The diabetes estimates rest on very small numbers of measured cases and their intervals are correspondingly wide; the diabetes detection ratio should not be used for planning. STEPS carries no insurance variables, so all financing quantities remain KDHS-only and cannot be cross-linked to measured disease at the individual level. Finally, the design is cross-sectional throughout and supports no causal claims.
+
+# Conclusions
+
+Self-reported diagnosis captures roughly one in five Kenyan adults with hypertension. Statistics on treatment gaps, insurance coverage, and payment computed among the diagnosed therefore describe a minority already reached by a system able to detect them, not the population in need. As Kenya implements the Social Health Authority, monitoring built on self-report alone will track progress within that minority while the undiagnosed majority stays uncounted. Interpreting household-survey financing evidence for NCDs requires periodic measured surveillance alongside it.
+
+# List of abbreviations
+
+| Abbreviation | Definition |
+|--------------|------------|
+| CI | confidence interval |
+| DHS / KDHS | (Kenya) Demographic and Health Survey |
+| DR | detection ratio |
+| NCD | non-communicable disease |
+| NHIF | National Hospital Insurance Fund |
+| PSU | primary sampling unit |
+| SHA | Social Health Authority |
+| STEPS | WHO STEPwise approach to NCD risk factor surveillance |
+| UDI | underdiagnosis index |
+
+# Declarations
+
+## Ethics approval and consent to participate
+
+This study used de-identified secondary data. KDHS 2022 microdata were obtained from The DHS Program under authorisation reference 220623, granted 20 October 2025. Kenya STEPS 2015 microdata were used under authorised research access. The original surveys received ethical approval from the Kenya Medical Research Institute Scientific and Ethics Review Unit and, for KDHS, the ICF Institutional Review Board. No new participant contact occurred.
+
+## Consent for publication
+
+Not applicable.
+
+## Availability of data and materials
+
+KDHS microdata are available from The DHS Program at https://www.dhsprogram.com following registration and approval. Kenya STEPS 2015 microdata are available from the WHO NCD Microdata Repository. Analysis scripts are available from the corresponding author on reasonable request.
+
+## Competing interests
+
+The authors declare that they have no competing interests.
+
+## Funding
+
+This research received no specific grant from any funding agency in the public, commercial, or not-for-profit sectors.
+
+## Authors' contributions
+
+NWA conceptualised the study, conducted all analyses, and drafted the manuscript. JO contributed to study design, interpretation of findings, and critical revision. Both authors approved the final version.
+
+## Acknowledgements
+
+The authors thank The DHS Program and the WHO NCD Microdata Repository for data access, and the Kenya National Bureau of Statistics and Ministry of Health for the original surveys.
+
+# References

@@ -1,0 +1,31 @@
+source,variable,meaning,notes
+STEPS,wstep1,Interview weight,Step 1 outcomes
+STEPS,wstep2,Physical measurement weight,BP BMI hypertension
+STEPS,wstep3,Biochemical weight,glucose cholesterol diabetes
+STEPS,psu,Primary sampling unit,cluster
+STEPS,stratum,Survey stratum,
+STEPS,m4a/m4b,BP reading 1 SBP/DBP,
+STEPS,m5a/m5b,BP reading 2,
+STEPS,m6a/m6b,BP reading 3,mean of 2 and 3 used
+STEPS,h1,Ever BP measured,1=yes 2=no
+STEPS,h2a,Told high BP,
+STEPS,h3,BP meds past 2 weeks,
+STEPS,h6,Ever glucose measured,
+STEPS,h7a,Told high glucose,
+STEPS,h8,Diabetes meds,
+STEPS,b5,Fasting glucose mmol/L,
+STEPS,b8,Total cholesterol mmol/L,
+STEPS,m11,Height cm,
+STEPS,m12,Weight kg,
+STEPS,c5,Education,
+STEPS,sex,Men/Women,
+STEPS,urbrur,Urban/rural,1 urban 2 rural
+DHS,chd02/mchd02,Told hypertensive,women/men
+DHS,chd05/mchd05,On BP meds,
+DHS,chd07/mchd07,Told diabetes,
+DHS,chd10/mchd10,On diabetes meds,
+DHS,sh27,Any health insurance,PR file only KDHS 2022
+DHS,sh28a,NHIF,PR
+DHS,v005/mv005,Sample weight,/1e6
+DHS,v021/mv021,PSU,
+DHS,v022/mv022,Stratum,

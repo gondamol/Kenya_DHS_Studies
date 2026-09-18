@@ -1,0 +1,28 @@
+---
+title: "Cover letter"
+format: docx
+---
+
+Dear Editor,
+
+Please consider our manuscript, *Who counts as a case? Self-reported diagnosis and the hidden denominator in Kenya's non-communicable disease financing evidence*, for publication as a Research Article.
+
+Almost all household-survey evidence on NCD financing in low- and middle-income countries — including our own prior work on Kenya — defines its study population by self-reported diagnosis. Treatment gaps, insurance coverage, and out-of-pocket exposure are then estimated within that group. This is usually acknowledged as a limitation and then set aside, because the surveys themselves cannot show how large the omission is.
+
+We quantify it for Kenya by comparing measured disease prevalence from the Kenya STEPS 2015 survey, which recorded blood pressure and fasting glucose, with self-reported diagnosis prevalence from KDHS 2022, which records only self-report. Among adults aged 18-49, measured hypertension affected 19.8% while self-reported diagnosis stood at 4.2%, a detection ratio of 0.212 (95% CI 0.184 to 0.244). Roughly four in five Kenyan adults with hypertension would never enter a self-report denominator, and 16.2% of all adults in that age band carry hypertension of which they are unaware.
+
+The implication is interpretive rather than merely descriptive. A treatment gap of 66% among diagnosed adults, which we have reported previously for Kenya, describes a minority already reached by a health system capable of detecting them; the undiagnosed majority has a treatment gap of effectively 100% by construction. We think this reframing is useful to anyone using DHS-type data for NCD coverage monitoring, particularly as Kenya implements the Social Health Authority.
+
+We have deliberately introduced no new estimator. Every quantity is either a within-survey estimate or a ratio of two independent within-survey estimates, with intervals from a stratified bootstrap that resamples primary sampling units within strata in each survey independently. Because KDHS truncates women at 49 and men at 54 while STEPS extends to 69, we report an age-comparable 18-49 base as primary. We also report awareness under both the "ever told" and "told within 12 months" definitions, and reconcile explicitly with the published national cascade from these same STEPS data (Mohamed et al., *BMC Public Health* 2018), which used the narrower definition.
+
+The principal limitation is stated plainly in the manuscript: the surveys are seven years apart, so the detection ratio compares measurement systems and cannot be read as a time trend.
+
+The manuscript is original, is not under consideration elsewhere, and uses authorised de-identified survey microdata. All authors have approved the submission and declare no competing interests.
+
+Thank you for your consideration.
+
+Sincerely,
+Nichodemus Werre Amollo
+Jaramogi Oginga Odinga University of Science and Technology
+nwere@ejooust.ac.ke
+ORCID: 0009-0008-1501-601X

@@ -1,0 +1,36 @@
+---
+title: ""
+output-file: Additional_file_1_STROBE_Checklist.docx
+format:
+  docx: default
+editor: source
+---
+
+# STROBE checklist
+
+Study type: Secondary analysis of two independent nationally representative cross-sectional surveys (Kenya STEPS 2015; Kenya Demographic and Health Survey 2022).
+
+| Item | Reporting element | Location in manuscript |
+|---|---|---|
+| 1 | Study design identified in title and abstract | Title; Abstract |
+| 2 | Background and rationale | Background |
+| 3 | Objectives and prespecified questions | End of Background |
+| 4 | Key elements of study design | Methods: Study design and reporting |
+| 5 | Setting, survey context, and dates | Methods: Data sources |
+| 6 | Eligibility criteria and participant selection | Methods: Data sources; Age comparability |
+| 7 | Definitions of outcomes, exposures, and derived quantities | Methods: Data sources; Estimands; Awareness definitions |
+| 8 | Data sources and measurement, including the measured/self-report distinction | Methods: Data sources |
+| 9 | Potential sources of bias, including the seven-year interval and age truncation | Methods: Age comparability; Discussion: Strengths and limitations |
+| 10 | Study size | Results: Measured disease and self-reported diagnosis |
+| 11 | Handling of quantitative variables | Methods: Estimands; Awareness definitions |
+| 12 | Statistical methods, complex-survey design, and interval estimation | Methods: Statistical analysis |
+| 13 | Participant flow and analytic samples for both surveys | Results: Measured disease and self-reported diagnosis |
+| 14 | Descriptive characteristics of participants | Results; Table 1 |
+| 15 | Outcome data | Results: The detection ratio; What the population looks like behind the denominator; Tables 1-2 |
+| 16 | Main results with intervals | Results: The detection ratio; Table 1 |
+| 17 | Other analyses, including the secondary full-age base and both awareness definitions | Results: Awareness under two definitions; Table 2 |
+| 18 | Key findings in relation to study objectives | Discussion: Principal findings |
+| 19 | Study limitations | Discussion: Strengths and limitations |
+| 20 | Interpretation considering objectives, limitations, and comparable evidence | Discussion: What this does and does not add |
+| 21 | Generalisability | Discussion: Strengths and limitations; Conclusions |
+| 22 | Funding and role of funders | Declarations: Funding |

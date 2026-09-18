@@ -16,6 +16,7 @@ author:
         country: Kenya
 
   - name: Japheth Ogol
+    orcid: "0009-0004-2431-7501"
     email: japhth.ogol@ejooust.ac.ke
     affiliations:
       - ref: aff1
