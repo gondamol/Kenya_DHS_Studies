@@ -19,6 +19,10 @@ analysis_object <- readRDS(file.path("..", "07_derived_data", "st02_analysis_out
 table_s1 <- analysis_object$table_s1
 table_s2 <- analysis_object$table_s2
 table_s3 <- analysis_object$table_s3
+table_s4 <- analysis_object$table_s4
+table_s5 <- analysis_object$table_s5
+table_s6 <- analysis_object$table_s6
+table_s7 <- analysis_object$table_s7
 table_specs <- analysis_object$table_specs
 
 supplementary_flextable <- function(data, footer_lines, header_labels) {
@@ -36,6 +40,8 @@ supplementary_flextable <- function(data, footer_lines, header_labels) {
 
 Insurance coverage, service use, and payment at outpatient contact among adults with disability in Kenya before the SHA transition: a secondary analysis of KDHS 2022.
 
+Table S1 traces the analytic sample from the full person recode file to the analytic base and then to each outcome-specific denominator, so that every count reported in the paper can be followed back to the file it came from. The three payment populations, which have different denominators, separate here for the first time.
+
 ```{r}
 #| label: tbl-s1
 #| tbl-cap: "Table S1. Participant flow from the KDHS 2022 person recode file to the analytic base and to each outcome-specific denominator."
@@ -48,6 +54,8 @@ supplementary_flextable(
   header_labels = table_specs$table_s1$header_labels
 )
 ```
+
+Table S2 gives the number and proportion of missing values for every outcome and adjustment variable within the analytic base. Missingness is under 1% on each variable, which is the basis for the complete-case approach used throughout.
 
 ```{r}
 #| label: tbl-s2
@@ -62,6 +70,8 @@ supplementary_flextable(
 )
 ```
 
+Table S3 reports the prespecified contrasts between adjacent severity categories for uninsured status under each adjustment set. It is the formal test behind the statement in the Results that the severity gradient depends on the model, and it is what the severity comparison should be read from rather than from the overlap of the intervals in Table 2.
+
 ```{r}
 #| label: tbl-s3
 #| tbl-cap: "Table S3. Prespecified contrasts between adjacent Washington Group severity categories for uninsured status."
@@ -72,5 +82,68 @@ supplementary_flextable(
     "Design-based global Wald tests of the severity term are reported in the Results."
   ),
   header_labels = table_specs$table_s3$header_labels
+)
+```
+
+Table S4 gives the bounds on the proportion of insured outpatient contacts at which an insurer met any part of the cost, together with the counts the bounds rest on. Because the payer items are skipped whenever no payment was reported, the quantity is partially identified: the table reports the two assumptions that bound it and design-based limits for each endpoint, not a point estimate.
+
+```{r}
+#| label: tbl-s4
+#| tbl-cap: "Table S4. Bounds on the proportion of insured outpatient contacts at which an insurer met any part of the cost."
+supplementary_flextable(
+  table_s4,
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Counts are unweighted; both bounds are survey-weighted proportions estimated on the parent design with the DHS person weights.",
+    "Lower bound: every contact at which nothing was paid, and every contact with a missing payer split, is treated as having no insurer contribution. Upper bound: all of them are treated as met by an insurer.",
+    "The payer items are not asked of respondents who reported no payment, so no estimate between these bounds is identified by these data.",
+    "The final column gives design-based 95% limits for the lower and upper endpoint separately. They describe sampling uncertainty in each endpoint and are not a confidence interval for the partially identified quantity."
+  ),
+  header_labels = table_specs$table_s4$header_labels
+)
+```
+
+Table S5 sets out the two-part analysis of the cash payment. Part one is the probability of paying anything in cash, which is where the zero-cash records sit, and part two is the amount among those who paid something. The two parts are reported together because either one alone describes a different quantity from the one the policy question asks about.
+
+```{r}
+#| label: tbl-s5
+#| tbl-cap: "Table S5. Two-part analysis of the cash payment at the last outpatient visit, among adults who reported paying."
+supplementary_flextable(
+  table_s5,
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Survey-weighted models adjusted for sex, age group, residence, wealth quintile and educational attainment; confidence limits use the survey degrees of freedom.",
+    "Part one is the probability of paying anything in cash, which is where insurance appears as a zero; part two is the amount among those who paid something in cash and is conditional on that."
+  ),
+  header_labels = table_specs$table_s5$header_labels
+)
+```
+
+Table S6 places the delta-method and replicate-weight confidence limits for the standardised prevalence differences side by side. The point estimates are identical by construction and only the variance estimator differs, so the table shows how much the model-based limits depend on treating the weighted covariate distribution as fixed.
+
+```{r}
+#| label: tbl-s6
+#| tbl-cap: "Table S6. Standardised prevalence differences under delta-method and bootstrap replicate-weight variance estimation."
+supplementary_flextable(
+  table_s6,
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Point estimates are identical by construction; only the variance estimator differs.",
+    "Delta-method limits treat the weighted covariate distribution as fixed. Replicate-weight limits refit the model in 500 subbootstrap replicates constructed from the parent design, with the analytic domain applied after the replicate weights are formed."
+  ),
+  header_labels = table_specs$table_s6$header_labels
+)
+```
+
+Table S7 compares long-questionnaire and short-questionnaire adults on the five characteristics recorded in both halves of the sample. Because the disability, insurance, utilisation and payment modules were administered only in long-questionnaire households, every estimate in this study is conditional on that half; this table is the check on how far that restriction moves the composition of the sample. It cannot speak to the module variables themselves, which are not observed in the short half.
+
+```{r}
+#| label: tbl-s7
+#| tbl-cap: "Table S7. Survey-weighted composition of long-questionnaire and short-questionnaire adults on the characteristics recorded in both halves."
+supplementary_flextable(
+  table_s7,
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Survey-weighted column percentages estimated on the parent design.",
+    "P values are design-based Rao-Scott F tests of independence between questionnaire half and the characteristic, reported once per characteristic.",
+    "Agreement here does not establish that the two halves would agree on the module variables, which are unobserved in the short half."
+  ),
+  header_labels = table_specs$table_s7$header_labels
 )
 ```

@@ -24,3 +24,4 @@ insurer_met_any,sh305b/sh305c,NHIF or private insurance met any part of that cos
 cash_share_of_cost,sh305a-sh305e,Share of the reported amounts met in cash
 domain_burden,hdis2/hdis4/hdis5/hdis6/hdis7/hdis8,"Count of WG domains at or above threshold: none, one, two or more"
 uninsured_incl_dk,sh27,Uninsured with don't-know responses grouped as uninsured (sensitivity coding)
+amount_inconsistent,sh32/sh304/sh305a-e,"Any internal inconsistency in the reported amounts: payment reported with zero total, components above total, or cash above total"

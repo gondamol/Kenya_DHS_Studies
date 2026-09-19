@@ -17,6 +17,11 @@ missingness <- readr::read_csv(file.path(paths$logs_dir, "st02_missingness.csv")
 
 append_log("Building ST02 manuscript-facing tables, figures, and summary outputs.", also_message = TRUE)
 
+# Every estimate below is a domain of one parent design, so that variances keep
+# the parent PSU and stratum structure rather than being computed from a design
+# rebuilt on filtered rows.
+register_parent_design(analytic_adults)
+
 analysis_base <- analytic_adults %>%
   dplyr::filter(long_questionnaire, !is.na(wg_disability), !is.na(wg_severity))
 
@@ -492,6 +497,12 @@ table_contrasts <- purrr::imap_dfr(outcome_labels, function(outcome_label, outco
     dplyr::transmute(
       Characteristic = spec_labels[as.character(specification)],
       APR = fmt_apr_ci_p(apr, apr_ci_low, apr_ci_high, p_value),
+      # Absolute standardised prevalences, so the percentage-point contrast can be
+      # read without going back to the descriptive tables.
+      StandardisedPrevalence = sprintf(
+        "%.1f vs %.1f",
+        100 * standardised_exposed, 100 * standardised_unexposed
+      ),
       StandardisedDifference = fmt_pp_ci(
         standardised_difference, standardised_difference_ci_low, standardised_difference_ci_high
       )
@@ -503,6 +514,7 @@ table_contrasts <- purrr::imap_dfr(outcome_labels, function(outcome_label, outco
                               format(dplyr::first(extended$whole_sample_contrasts$model_n[extended$whole_sample_contrasts$outcome == outcome_name]), big.mark = ","),
                               ")"),
       APR = "",
+      StandardisedPrevalence = "",
       StandardisedDifference = ""
     ),
     rows
@@ -516,12 +528,13 @@ save_table_bundle(
   "Table 3. Prevalence ratios and standardised prevalence differences for adults meeting the Washington Group Short Set disability threshold compared with adults below it, whole adult sample, KDHS 2022.",
   footer_lines = c(
     "Source: Kenya DHS 2022. Survey-weighted quasi-Poisson models with a log link; confidence limits use the survey degrees of freedom.",
-    "Standardised differences are marginal (g-computation) contrasts in percentage points over the covariate distribution of the analytic sample, with delta-method confidence limits.",
-    "Wealth quintile and educational attainment are plausibly downstream of lifelong functional difficulty. The third row of each block therefore estimates an association net of that pathway rather than a more completely confounder-adjusted one."
+    "Standardised prevalences and differences are marginal (g-computation) estimates over the covariate distribution of the analytic sample, at the WG threshold versus below it, with delta-method confidence limits. Bootstrap replicate-weight limits are in Table S6 and agree closely.",
+    "Specifications are named for what they adjust for. KDHS records no age at disability onset, so whether education and wealth precede or follow functional difficulty cannot be established here; the change between the second and third row of each block is reported as attenuation, not as a mediated effect."
   ),
   header_labels = list(
     Characteristic = "Outcome and specification",
     APR = "Prevalence ratio (95% CI); p",
+    StandardisedPrevalence = "Standardised prevalence, % (disability vs no disability)",
     StandardisedDifference = "Standardised difference, percentage points (95% CI)"
   )
 )
@@ -537,6 +550,12 @@ zero_safe_pct <- function(est, lo, hi) {
   ifelse(est < 1e-6, "0 (not estimable)", fmt_pct_ci(est, lo, hi))
 }
 
+fmt_money <- function(x) format(round(x), big.mark = ",", trim = TRUE)
+
+fmt_money_ci <- function(est, lo, hi) {
+  sprintf("%s (%s, %s)", fmt_money(est), fmt_money(lo), fmt_money(hi))
+}
+
 cost_group_order <- c(
   "No WG disability, uninsured",
   "No WG disability, insured",
@@ -544,33 +563,48 @@ cost_group_order <- c(
   "WG disability, insured"
 )
 
+# Table 5 carries three different denominators and now says so in the table
+# itself: the amount columns come from respondents who reported paying and have a
+# usable total, the cash columns from those with a cash amount, and the payer
+# column from those with the full payer breakdown.
 table_cost <- extended$cost_group_summary %>%
   dplyr::left_join(
+    extended$zero_cash_summary %>%
+      dplyr::select(group, zero_cash_pct, zero_cash_ci_low, zero_cash_ci_high),
+    by = "group"
+  ) %>%
+  dplyr::left_join(
+    extended$cash_marginal %>% dplyr::select(group, cash_mean_all = mean,
+                                             cash_mean_all_low = ci_low,
+                                             cash_mean_all_high = ci_high),
+    by = "group"
+  ) %>%
+  dplyr::left_join(
     extended$payer_source_summary %>%
-      dplyr::select(group, payer_n = n, insurer_met_any, insurer_ci_low, insurer_ci_high,
-                    cash_share, cash_share_ci_low, cash_share_ci_high),
+      dplyr::select(group, payer_n = n, insurer_met_any, insurer_ci_low, insurer_ci_high),
     by = "group"
   ) %>%
   dplyr::mutate(group = factor(group, levels = cost_group_order)) %>%
   dplyr::arrange(group) %>%
   dplyr::transmute(
     Group = as.character(group),
-    N = format(n, big.mark = ",", trim = TRUE),
-    MedianCost = sprintf("%s (%s, %s)",
-                         format(round(median), big.mark = ",", trim = TRUE),
-                         format(round(median_ci_low), big.mark = ",", trim = TRUE),
-                         format(round(median_ci_high), big.mark = ",", trim = TRUE)),
-    MedianCash = sprintf("%s (%s, %s)",
-                         format(round(cash_median), big.mark = ",", trim = TRUE),
-                         format(round(cash_median_ci_low), big.mark = ",", trim = TRUE),
-                         format(round(cash_median_ci_high), big.mark = ",", trim = TRUE)),
-    MeanCost = sprintf("%s (%s, %s)",
-                       format(round(mean), big.mark = ",", trim = TRUE),
-                       format(round(mean_ci_low), big.mark = ",", trim = TRUE),
-                       format(round(mean_ci_high), big.mark = ",", trim = TRUE)),
-    InsurerMet = zero_safe_pct(insurer_met_any, insurer_ci_low, insurer_ci_high),
-    CashShare = fmt_pct_ci(cash_share, cash_share_ci_low, cash_share_ci_high)
+    AmountN = format(n, big.mark = ",", trim = TRUE),
+    MedianCost = fmt_money_ci(median, median_ci_low, median_ci_high),
+    ZeroCash = fmt_pct_ci(zero_cash_pct, zero_cash_ci_low, zero_cash_ci_high),
+    MeanCash = fmt_money_ci(cash_mean_all, cash_mean_all_low, cash_mean_all_high),
+    PayerN = format(payer_n, big.mark = ",", trim = TRUE),
+    InsurerMet = zero_safe_pct(insurer_met_any, insurer_ci_low, insurer_ci_high)
   )
+
+table_cost_header_labels <- list(
+  Group = "Group",
+  AmountN = "n with amount",
+  MedianCost = "Median total cost, KSh (95% CI)",
+  ZeroCash = "Paid nothing in cash, % (95% CI)",
+  MeanCash = "Mean cash paid, KSh (95% CI)",
+  PayerN = "n with payer split",
+  InsurerMet = "Insurer met any part, % (95% CI)"
+)
 
 save_table_bundle(
   table_cost,
@@ -578,29 +612,31 @@ save_table_bundle(
   file.path(paths$tables_dir, "Table5_Outpatient_Cost_And_Payer.docx"),
   "Table 5. Amount paid at the last outpatient visit and the source of that payment, among adults who used outpatient care in the previous four weeks and reported paying, KDHS 2022.",
   footer_lines = c(
-    "Source: Kenya DHS 2022. Survey-weighted estimates; amounts are Kenyan shillings at the time of the survey.",
-    "Restricted to respondents who reported paying, which is the questionnaire's own skip pattern for these items: KDHS does not record an amount for a visit at which nothing was paid. Estimates therefore describe the size and source of a payment among those who made one.",
-    "The amount is the gross cost of the visit (sh304); the cash figure is the part of it met out of pocket (sh305a), which is the net payment after any insurer contribution.",
-    "Insurer contribution is any non-zero amount met by NHIF or private insurance. Cash share is the mean proportion of the reported amounts met in cash.",
+    "Source: Kenya DHS 2022. Survey-weighted estimates; amounts are Kenyan shillings at the time of the survey. The two n columns are the unweighted denominators for the columns to their right.",
+    "Restricted to respondents who reported paying, which is the questionnaire's own skip pattern for these items: no amount or payer is recorded for a visit at which nothing was paid. These estimates therefore describe payments that were made, and do not describe all outpatient contacts.",
+    "Total cost is sh304. Cash is sh305a, the part met out of pocket; the mean cash figure retains respondents who paid nothing in cash, and the preceding column gives their share. Insurer contribution is any non-zero amount met by NHIF or private insurance (sh305b, sh305c).",
     "KDHS does not collect household consumption, so catastrophic health expenditure cannot be constructed from these data."
   ),
-  header_labels = list(
-    Group = "Group",
-    N = "n",
-    MedianCost = "Median amount, KSh (95% CI)",
-    MedianCash = "Median paid in cash, KSh (95% CI)",
-    MeanCost = "Mean amount, KSh (95% CI)",
-    InsurerMet = "Insurer met any part % (95% CI)",
-    CashShare = "Mean cash share of amount % (95% CI)"
-  )
+  header_labels = table_cost_header_labels
 )
 
 # --------------------------------------------------------------------------
 # Supplementary tables: participant flow, missingness, severity contrasts.
 # --------------------------------------------------------------------------
 
+# Each retention percentage is taken against the denominator carried alongside
+# the row in sample_flow. It is deliberately not recovered from the step label:
+# the CSV round trip strips the leading spaces that mark nesting.
 table_s1 <- sample_flow %>%
-  dplyr::transmute(Step = step, N = format(n, big.mark = ",", trim = TRUE))
+  dplyr::transmute(
+    Step = paste0(strrep("  ", dplyr::coalesce(indent, 0L)), step),
+    N = dplyr::if_else(is.na(n), "", format(n, big.mark = ",", trim = TRUE)),
+    Retained = dplyr::if_else(
+      !is.na(n) & !is.na(reference_n) & reference_n > 0,
+      sprintf("%.1f%%", 100 * n / reference_n),
+      ""
+    )
+  )
 
 save_table_bundle(
   table_s1,
@@ -609,9 +645,10 @@ save_table_bundle(
   "Table S1. Participant flow from the KDHS 2022 person recode file to the ST02 analytic base and to each outcome-specific denominator.",
   footer_lines = c(
     "Source: Kenya DHS 2022, person recode file. Unweighted counts.",
-    "Indented rows are subsets of the row above them."
+    "Indented rows are subsets of the row above them, and the percentage is of that row.",
+    "The item-level rows count the survey questions as asked. The payment analysis populations additionally exclude records with missing insurance status, because insurance is a term in each of those models, so they are smaller than the corresponding item-level rows."
   ),
-  header_labels = list(Step = "Step", N = "n")
+  header_labels = list(Step = "Step", N = "n", Retained = "% of preceding population")
 )
 
 table_s2 <- missingness %>%
@@ -678,6 +715,186 @@ save_table_bundle(
     Specification = "Specification",
     Contrast = "Contrast",
     PR = "Prevalence ratio (95% CI); p"
+  )
+)
+
+# --------------------------------------------------------------------------
+# Table S4. Bounds on insurer contribution among all insured outpatient users.
+#
+# The recorded proportion is conditional on having paid and on having a payer
+# split. Encounters at which nothing was paid carry no payer information and
+# could in principle all have been met by an insurer, or none of them. Those two
+# assumptions bound the quantity the policy question asks about; nothing between
+# them is identified by these data.
+# --------------------------------------------------------------------------
+
+table_s4 <- extended$insurer_bounds %>%
+  dplyr::transmute(
+    Population = population,
+    Users = format(users_n, big.mark = ",", trim = TRUE),
+    NoPayment = format(no_payment_n, big.mark = ",", trim = TRUE),
+    SplitMissing = format(payer_split_missing_n, big.mark = ",", trim = TRUE),
+    Recorded = sprintf("%s/%s (%.1f%%)",
+                       format(insurer_recorded_n, big.mark = ",", trim = TRUE),
+                       format(payers_with_split_n, big.mark = ",", trim = TRUE),
+                       100 * insurer_recorded_n / payers_with_split_n),
+    Bounds = sprintf("%.1f%% to %.1f%%", 100 * lower_bound, 100 * upper_bound),
+    BoundsCI = sprintf("%.1f%% to %.1f%%; %.1f%% to %.1f%%",
+                       100 * lower_bound_ci_low, 100 * lower_bound_ci_high,
+                       100 * upper_bound_ci_low, 100 * upper_bound_ci_high)
+  )
+
+save_table_bundle(
+  table_s4,
+  file.path(paths$tables_dir, "TableS4_Insurer_Contribution_Bounds.csv"),
+  file.path(paths$tables_dir, "TableS4_Insurer_Contribution_Bounds.docx"),
+  "Table S4. Bounds on the proportion of insured outpatient contacts at which an insurer met any part of the cost, KDHS 2022.",
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Counts are unweighted; both bounds are survey-weighted proportions estimated on the parent design with the DHS person weights.",
+    "Lower bound: only contacts with a recorded insurer contribution are counted, so every contact at which nothing was paid and every contact with a missing payer split is treated as having no insurer contribution.",
+    "Upper bound: every contact at which nothing was paid and every contact with a missing payer split is treated as having been met by an insurer.",
+    "The payer items are not asked of respondents who reported no payment, so no estimate between these bounds is identified by these data.",
+    "The final column gives design-based 95% limits for the lower and upper endpoint separately. They describe sampling uncertainty in each endpoint and are not a confidence interval for the partially identified quantity."
+  ),
+  header_labels = list(
+    Population = "Population",
+    Users = "Outpatient users",
+    NoPayment = "Reported no payment",
+    SplitMissing = "Payer split missing",
+    Recorded = "Insurer contribution recorded",
+    Bounds = "Bounds on insurer contribution (survey weighted)",
+    BoundsCI = "95% limits for each endpoint"
+  )
+)
+
+# --------------------------------------------------------------------------
+# Table S5. Two-part analysis of the cash payment.
+# --------------------------------------------------------------------------
+
+two_part_terms <- c(wg_disability = "WG disability threshold", insured_any = "Any insurance")
+
+table_s5 <- dplyr::bind_rows(
+  extended$cash_part1 %>%
+    dplyr::filter(term %in% names(two_part_terms)) %>%
+    dplyr::transmute(
+      Part = paste0("Any cash paid (n = ", format(extended$cash_part1_n, big.mark = ","), ")"),
+      Term = two_part_terms[term],
+      Estimate = fmt_apr_ci_p(apr, ci_low, ci_high, p.value),
+      Scale = "Prevalence ratio"
+    ),
+  extended$cash_part2 %>%
+    dplyr::filter(term %in% names(two_part_terms)) %>%
+    dplyr::transmute(
+      Part = paste0("Amount, given cash paid (n = ", format(extended$cash_part2_n, big.mark = ","), ")"),
+      Term = two_part_terms[term],
+      Estimate = fmt_apr_ci_p(ratio, ci_low, ci_high, p.value),
+      Scale = "Ratio of geometric means"
+    )
+)
+
+save_table_bundle(
+  table_s5,
+  file.path(paths$tables_dir, "TableS5_Two_Part_Cash_Model.csv"),
+  file.path(paths$tables_dir, "TableS5_Two_Part_Cash_Model.docx"),
+  "Table S5. Two-part analysis of the cash payment at the last outpatient visit, among adults who reported paying, KDHS 2022.",
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Survey-weighted models adjusted for sex, age group, residence, wealth quintile and educational attainment; confidence limits use the survey degrees of freedom.",
+    "Part one is the probability of paying anything in cash, which is where insurance appears as a zero. Part two is the amount among those who paid something in cash, and is conditional on that.",
+    "Reporting part two alone would exclude the zero-cash records, which are concentrated among insured respondents."
+  ),
+  header_labels = list(
+    Part = "Part",
+    Term = "Term",
+    Estimate = "Estimate (95% CI); p",
+    Scale = "Scale"
+  )
+)
+
+# --------------------------------------------------------------------------
+# Table S6. Delta-method and replicate-weight limits for the standardised
+# differences, so the model-based interval can be checked against one that also
+# carries the uncertainty in the covariate distribution.
+# --------------------------------------------------------------------------
+
+table_s6 <- extended$whole_sample_contrasts %>%
+  dplyr::mutate(
+    outcome_label = dplyr::recode(
+      outcome,
+      uninsured = "Uninsured",
+      outpatient_last4w = "Outpatient use",
+      inpatient_last12m = "Hospitalisation"
+    ),
+    specification_label = spec_labels[specification]
+  ) %>%
+  dplyr::transmute(
+    Outcome = outcome_label,
+    Specification = stringr::str_squish(specification_label),
+    Delta = fmt_pp_ci(standardised_difference, standardised_difference_ci_low, standardised_difference_ci_high),
+    Replicate = fmt_pp_ci(replicate_difference, replicate_difference_ci_low, replicate_difference_ci_high)
+  )
+
+# --------------------------------------------------------------------------
+# Table S7. Long- against short-questionnaire adults on the characteristics
+# collected in both halves. This is the check on whether the half-sample the
+# modules were administered in can stand in for the adult population.
+# --------------------------------------------------------------------------
+
+variable_labels_s7 <- c(
+  sex = "Sex", age_group = "Age group", residence = "Residence",
+  wealth = "Wealth quintile", education = "Education"
+)
+
+table_s7 <- extended$questionnaire_half_comparison %>%
+  dplyr::mutate(
+    Characteristic = paste0("  ", level),
+    Long = sprintf("%.1f", long_pct),
+    Short = sprintf("%.1f", short_pct),
+    Difference = sprintf("%+.1f", difference_pp),
+    P = fmt_pvalue(p_value),
+    .group = unname(variable_labels_s7[variable])
+  ) %>%
+  dplyr::group_by(.group) %>%
+  dplyr::group_modify(~ dplyr::bind_rows(
+    tibble::tibble(Characteristic = .y$.group, Long = "", Short = "", Difference = "", P = .x$P[1]),
+    .x %>% dplyr::select(Characteristic, Long, Short, Difference) %>% dplyr::mutate(P = "")
+  )) %>%
+  dplyr::ungroup() %>%
+  dplyr::select(Characteristic, Long, Short, Difference, P)
+
+save_table_bundle(
+  table_s7,
+  file.path(paths$tables_dir, "TableS7_Questionnaire_Half_Comparison.csv"),
+  file.path(paths$tables_dir, "TableS7_Questionnaire_Half_Comparison.docx"),
+  "Table S7. Survey-weighted composition of long-questionnaire and short-questionnaire adults on the characteristics recorded in both halves, KDHS 2022.",
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Survey-weighted column percentages estimated on the parent design; n is unweighted.",
+    "The disability, insurance, utilisation and payment modules were administered only in long-questionnaire households, so every estimate in this study is conditional on that half. These five characteristics are the ones recorded in both halves.",
+    "P values are design-based Rao-Scott F tests of independence between questionnaire half and the characteristic, reported once per characteristic.",
+    "Agreement here does not establish that the two halves would agree on the module variables, which are unobserved in the short half."
+  ),
+  header_labels = list(
+    Characteristic = "Characteristic",
+    Long = "Long questionnaire, %",
+    Short = "Short questionnaire, %",
+    Difference = "Difference, pp",
+    P = "p"
+  )
+)
+
+save_table_bundle(
+  table_s6,
+  file.path(paths$tables_dir, "TableS6_Standardisation_Method_Comparison.csv"),
+  file.path(paths$tables_dir, "TableS6_Standardisation_Method_Comparison.docx"),
+  "Table S6. Standardised prevalence differences in percentage points under delta-method and bootstrap replicate-weight variance estimation, KDHS 2022.",
+  footer_lines = c(
+    "Source: Kenya DHS 2022. Point estimates are identical by construction; only the variance estimator differs.",
+    "Delta-method limits propagate uncertainty in the fitted coefficients and treat the weighted covariate distribution as fixed. Replicate-weight limits refit the model in 500 subbootstrap replicates constructed from the parent design, with the analytic domain applied after the replicate weights are formed, and carry both components."
+  ),
+  header_labels = list(
+    Outcome = "Outcome",
+    Specification = "Specification",
+    Delta = "Delta-method difference (95% CI)",
+    Replicate = "Replicate-weight difference (95% CI)"
   )
 )
 
@@ -762,14 +979,14 @@ Intervals are logit-transformed; n is the unweighted denominator."
   )
 
 ggplot2::ggsave(
-  file.path(paths$figures_dir, "Figure1_Insurance_By_Disability_Severity.png"),
+  file.path(paths$figures_dir, "Insurance_By_Disability_Severity.png"),
   figure1,
   width = 9.5,
   height = 5,
   dpi = 300
 )
 ggplot2::ggsave(
-  file.path(paths$figures_dir, "Figure1_Insurance_By_Disability_Severity.tiff"),
+  file.path(paths$figures_dir, "Insurance_By_Disability_Severity.tiff"),
   figure1,
   width = 9.5,
   height = 5,
@@ -850,14 +1067,14 @@ the amount paid and who met it",
   )
 
 ggplot2::ggsave(
-  file.path(paths$figures_dir, "Figure3_Outpatient_Payment_By_Severity_Insurance.png"),
+  file.path(paths$figures_dir, "Figure2_Outpatient_Payment_By_Severity_Insurance.png"),
   figure_payment,
   width = 9,
   height = 5.6,
   dpi = 300
 )
 ggplot2::ggsave(
-  file.path(paths$figures_dir, "Figure3_Outpatient_Payment_By_Severity_Insurance.tiff"),
+  file.path(paths$figures_dir, "Figure2_Outpatient_Payment_By_Severity_Insurance.tiff"),
   figure_payment,
   width = 9,
   height = 5.6,
@@ -865,7 +1082,7 @@ ggplot2::ggsave(
   compression = "lzw"
 )
 
-# Figure 3. What happens to the disability contrast as the adjustment set grows.
+# Figure 1. What happens to the disability contrast as the adjustment set grows.
 # The point of the figure is that the insurance contrast and the utilisation
 # contrasts behave differently: utilisation survives every specification, while
 # the coverage contrast is absorbed once wealth and education enter.
@@ -940,14 +1157,14 @@ utilisation contrasts are not."
   )
 
 ggplot2::ggsave(
-  file.path(paths$figures_dir, "Figure2_Disability_Contrast_By_Adjustment.png"),
+  file.path(paths$figures_dir, "Figure1_Disability_Contrast_By_Adjustment.png"),
   figure_forest,
   width = 8.4,
   height = 6.4,
   dpi = 300
 )
 ggplot2::ggsave(
-  file.path(paths$figures_dir, "Figure2_Disability_Contrast_By_Adjustment.tiff"),
+  file.path(paths$figures_dir, "Figure1_Disability_Contrast_By_Adjustment.tiff"),
   figure_forest,
   width = 8.4,
   height = 6.4,
@@ -1057,6 +1274,19 @@ key_results <- list(
   payment_outcome_counts = extended$payment_outcome_counts,
   sensitivity_dk = extended$sensitivity_dk,
   inclusion_comparison = extended$inclusion_comparison,
+  insurer_bounds = extended$insurer_bounds,
+  zero_cash_summary = extended$zero_cash_summary,
+  cash_marginal = extended$cash_marginal,
+  cash_part1 = extended$cash_part1,
+  cash_part1_n = extended$cash_part1_n,
+  cash_part2 = extended$cash_part2,
+  cash_part2_n = extended$cash_part2_n,
+  cost_model_consistent = extended$cost_model_consistent,
+  population_counts = extended$population_counts,
+  questionnaire_half_comparison = extended$questionnaire_half_comparison,
+  questionnaire_half_max_difference = extended$questionnaire_half_max_difference,
+  amount_quality = readr::read_csv(file.path(paths$logs_dir, "st02_amount_data_quality.csv"), show_col_types = FALSE),
+  dk_n = sum(analysis_base$insurance_response == "don't know", na.rm = TRUE),
   sample_flow = sample_flow,
   missingness = missingness,
   cost_payers_n = sum(extended$cost_group_summary$n),
@@ -1072,8 +1302,12 @@ analysis_object <- list(
   table5 = table_cost,
   table6 = table_within,
   table_s1 = table_s1,
+  table_s7 = table_s7,
   table_s2 = table_s2,
   table_s3 = table_s3,
+  table_s4 = table_s4,
+  table_s5 = table_s5,
+  table_s6 = table_s6,
   figure1_data = figure1_data,
   figure2_data = figure_forest_data,
   figure3_data = figure_payment_data,
@@ -1104,23 +1338,15 @@ analysis_object <- list(
       header_labels = list(
         Characteristic = "Outcome and specification",
         APR = "Prevalence ratio (95% CI); p",
+        StandardisedPrevalence = "Standardised prevalence, % (disability vs no disability)",
         StandardisedDifference = "Standardised difference, percentage points (95% CI)"
       )
     ),
     table4 = list(header_labels = table_use_header_labels),
     table6 = list(header_labels = table_within_header_labels),
-    table5 = list(
-      header_labels = list(
-        Group = "Group",
-        N = "n",
-        MedianCost = "Median amount, KSh (95% CI)",
-        MedianCash = "Median paid in cash, KSh (95% CI)",
-        MeanCost = "Mean amount, KSh (95% CI)",
-        InsurerMet = "Insurer met any part % (95% CI)",
-        CashShare = "Mean cash share of amount % (95% CI)"
-      )
-    ),
-    table_s1 = list(header_labels = list(Step = "Step", N = "n")),
+    table5 = list(header_labels = table_cost_header_labels),
+    table_s1 = list(header_labels = list(Step = "Step", N = "n", Retained = "% of preceding population")),
+    table_s7 = list(header_labels = list(Characteristic = "Characteristic", Long = "Long questionnaire, %", Short = "Short questionnaire, %", Difference = "Difference, pp", P = "p")),
     table_s2 = list(
       header_labels = list(
         Variable = "Variable",
@@ -1134,6 +1360,32 @@ analysis_object <- list(
         Specification = "Specification",
         Contrast = "Contrast",
         PR = "Prevalence ratio (95% CI); p"
+      )
+    ),
+    table_s4 = list(
+      header_labels = list(
+        Population = "Population",
+        Users = "Outpatient users",
+        NoPayment = "Reported no payment",
+        SplitMissing = "Payer split missing",
+        Recorded = "Insurer contribution recorded",
+        Bounds = "Bounds on insurer contribution"
+      )
+    ),
+    table_s5 = list(
+      header_labels = list(
+        Part = "Part",
+        Term = "Term",
+        Estimate = "Estimate (95% CI); p",
+        Scale = "Scale"
+      )
+    ),
+    table_s6 = list(
+      header_labels = list(
+        Outcome = "Outcome",
+        Specification = "Specification",
+        Delta = "Delta-method difference (95% CI)",
+        Replicate = "Replicate-weight difference (95% CI)"
       )
     )
   )

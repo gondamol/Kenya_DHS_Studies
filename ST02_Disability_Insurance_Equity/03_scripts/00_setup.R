@@ -85,6 +85,8 @@ save_rds_output <- function(object, file_name) {
   saveRDS(object, file.path(paths$derived_dir, file_name))
 }
 
+`%||%` <- function(x, y) if (is.null(x)) y else x
+
 to_chr <- function(x) {
   stringr::str_squish(stringr::str_to_lower(as.character(labelled::to_factor(x))))
 }
@@ -162,6 +164,60 @@ make_design <- function(data, weight_var = "weight") {
   )
 }
 
+# Domain estimation.
+#
+# Filtering a data frame and calling svydesign() on the remainder discards the
+# PSUs that contribute no observations to the domain, which is not the same
+# calculation as a domain estimate from the full design: the variance should be
+# computed with the parent design's PSU and stratum structure, including the
+# PSUs that contribute nothing. The difference is small in large domains and not
+# small in the sparse ones this study reports, such as insured adults with severe
+# functional difficulty.
+#
+# The parent design is registered once per script, and every subsequent estimate
+# is a subset() of it, matched on the row identifier carried in the analytic
+# dataset. Call sites keep passing data frames; only the variance calculation
+# behind them changes.
+.st02_design_state <- new.env(parent = emptyenv())
+
+register_parent_design <- function(data, weight_var = "weight") {
+  if (!".row_id" %in% names(data)) {
+    stop("The analytic dataset must carry .row_id before a parent design is registered.")
+  }
+  assign("design", make_design(data, weight_var = weight_var), envir = .st02_design_state)
+  assign("weight_var", weight_var, envir = .st02_design_state)
+  invisible(TRUE)
+}
+
+parent_design <- function() {
+  if (!exists("design", envir = .st02_design_state)) NULL else get("design", envir = .st02_design_state)
+}
+
+# Design for one domain. Falls back to rebuilding when no parent has been
+# registered or the rows cannot be matched, so the helpers still work standalone.
+domain_design <- function(data, weight_var = "weight") {
+  parent <- parent_design()
+  if (is.null(parent) || !".row_id" %in% names(data) ||
+      !identical(weight_var, get("weight_var", envir = .st02_design_state))) {
+    return(make_design(data, weight_var = weight_var))
+  }
+  domain_ids <- data$.row_id
+  design <- subset(parent, .row_id %in% domain_ids)
+
+  # Variables derived after the parent design was registered, such as an
+  # indicator built for one table row, do not exist in the parent's variable
+  # frame. They are carried across by row identifier so that a domain estimate
+  # can still be taken from the parent design rather than from a rebuilt one.
+  derived <- setdiff(names(data), names(design$variables))
+  if (length(derived) > 0) {
+    position <- match(design$variables$.row_id, data$.row_id)
+    for (variable_name in derived) {
+      design$variables[[variable_name]] <- data[[variable_name]][position]
+    }
+  }
+  design
+}
+
 # Logit-transformed confidence interval for a survey proportion.
 #
 # The Wald interval returned by confint(svymean()) is computed on the proportion
@@ -208,7 +264,7 @@ weighted_binary <- function(data, var, weight_var = "weight") {
     ))
   }
 
-  design <- make_design(data_use, weight_var = weight_var)
+  design <- domain_design(data_use, weight_var = weight_var)
   r <- svy_prop_ci(design, paste0("~ I(", var, " == 1)"))
 
   tibble::tibble(
@@ -259,7 +315,7 @@ weighted_mean_stat <- function(data, var, weight_var = "weight") {
     ))
   }
 
-  design <- make_design(data_use, weight_var = weight_var)
+  design <- domain_design(data_use, weight_var = weight_var)
   estimate <- survey::svymean(stats::as.formula(paste0("~", var)), design, na.rm = TRUE)
   ci <- suppressWarnings(stats::confint(estimate))
 
@@ -287,7 +343,7 @@ weighted_level <- function(data, var, level_value, weight_var = "weight") {
     ))
   }
 
-  design <- make_design(data_use, weight_var = weight_var)
+  design <- domain_design(data_use, weight_var = weight_var)
   r <- svy_prop_ci(design, "~ I(.indicator == 1)")
 
   tibble::tibble(
@@ -314,6 +370,131 @@ tidy_apr_design <- function(model, design) {
     dplyr::select(term, apr, ci_low, ci_high, p.value, df)
 }
 
+# Replicate-weight version of the marginal contrast.
+#
+# The delta-method version below propagates uncertainty in the fitted
+# coefficients but treats the weighted covariate distribution as fixed, so its
+# intervals are model-based. Refitting the model in each bootstrap replicate
+# carries both the coefficient uncertainty and the uncertainty in the covariate
+# distribution through the design. Both are reported; the comparison is in the
+# supplementary material.
+# Replicate weights for the parent sample, built once and reused.
+#
+# Order matters here. as.svrepdesign() resamples the PSUs that are present in
+# the object it is given, so converting an already-subsetted domain design
+# resamples only the PSUs that contribute rows to that domain: the replicates
+# are drawn from the domain rather than from the sample the domain sits in.
+# Building the replicate weights from the parent and subsetting afterwards
+# resamples the whole parent PSU set, which is the quantity a domain estimate
+# needs.
+#
+# Verified against survey 4.4.2: subset() on a survey.design2 drops the
+# excluded rows rather than retaining them at zero weight (the per-row
+# fpc$sampsize is what preserves the parent stratum sizes), and subset() on a
+# svyrep.design behaves the same way. Neither route leaves zero-weight parent
+# rows behind, so nothing downstream may rely on that.
+#
+# The replicate design is cached because every specification and outcome should
+# use the same set of replicate weights, and rebuilding 500 replicates per call
+# would dominate the run time.
+.st02_repdesign_cache <- new.env(parent = emptyenv())
+
+parent_replicate_design <- function(replicates, seed, type = "subbootstrap") {
+  parent <- parent_design()
+  if (is.null(parent)) return(NULL)
+  key <- paste(type, replicates, seed, sep = "_")
+  if (!exists(key, envir = .st02_repdesign_cache)) {
+    set.seed(seed)
+    assign(
+      key,
+      survey::as.svrepdesign(parent, type = type, replicates = replicates),
+      envir = .st02_repdesign_cache
+    )
+  }
+  get(key, envir = .st02_repdesign_cache)
+}
+
+standardised_contrast_replicate <- function(formula, design, exposure,
+                                            family = quasipoisson(link = "log"),
+                                            replicates = 500, seed = 20260919) {
+  parent_rep <- parent_replicate_design(replicates, seed)
+
+  if (is.null(parent_rep)) {
+    # Standalone use with no registered parent: the domain is all there is.
+    set.seed(seed)
+    rep_design <- survey::as.svrepdesign(design, type = "subbootstrap", replicates = replicates)
+  } else {
+    rep_design <- subset(parent_rep, .row_id %in% design$variables$.row_id)
+    # Variables built after the parent was registered (the outcome indicator for
+    # one specification, say) are not in the parent's variable frame; carry them
+    # across by row identifier, as domain_design() does for the Taylor designs.
+    derived <- setdiff(names(design$variables), names(rep_design$variables))
+    if (length(derived) > 0) {
+      position <- match(rep_design$variables$.row_id, design$variables$.row_id)
+      for (variable_name in derived) {
+        rep_design$variables[[variable_name]] <- design$variables[[variable_name]][position]
+      }
+    }
+  }
+
+  sampling_weights <- stats::weights(rep_design, "sampling")
+  rep_weights <- stats::weights(rep_design, "analysis")
+  # Defensive: subsetting drops rows in survey 4.4.2, so this is normally the
+  # whole frame. It stays so that a survey version which zeroes instead of drops
+  # cannot silently feed zero-weight rows into the fit.
+  in_domain <- sampling_weights > 0
+  model_frame <- rep_design$variables[in_domain, , drop = FALSE]
+  sampling_weights <- sampling_weights[in_domain]
+  rep_weights <- rep_weights[in_domain, , drop = FALSE]
+  terms_obj <- stats::terms(stats::as.formula(formula), data = model_frame)
+
+  mm_1 <- {
+    d <- model_frame; d[[exposure]] <- 1
+    stats::model.matrix(stats::delete.response(terms_obj), data = d)
+  }
+  mm_0 <- {
+    d <- model_frame; d[[exposure]] <- 0
+    stats::model.matrix(stats::delete.response(terms_obj), data = d)
+  }
+
+  contrast_from_weights <- function(weights_vec) {
+    fit <- suppressWarnings(stats::glm(stats::as.formula(formula), data = model_frame,
+                                       weights = weights_vec, family = family))
+    beta <- stats::coef(fit)
+    w <- weights_vec / sum(weights_vec)
+    p1 <- sum(w * exp(as.vector(mm_1 %*% beta)))
+    p0 <- sum(w * exp(as.vector(mm_0 %*% beta)))
+    c(difference = p1 - p0, ratio = p1 / p0)
+  }
+
+  point <- contrast_from_weights(sampling_weights)
+  replicate_estimates <- t(apply(rep_weights, 2, contrast_from_weights))
+  # The analysis-weight matrix is the largest object here: one column per
+  # replicate over every domain row. It is not needed once the replicate
+  # estimates exist, and on a memory-constrained machine holding it across the
+  # nine outcome-by-specification fits is what pushes the session into swap.
+  rm(rep_weights, mm_1, mm_0, model_frame)
+  gc(verbose = FALSE)
+  scale_factor <- rep_design$scale
+  rscales <- rep_design$rscales
+  variance <- apply(replicate_estimates, 2, function(x) {
+    sum(rscales * (x - mean(x))^2) * scale_factor
+  })
+  standard_errors <- sqrt(variance)
+  df_design <- survey::degf(design)
+  t_crit <- stats::qt(0.975, df_design)
+
+  tibble::tibble(
+    difference = point[["difference"]],
+    difference_ci_low = point[["difference"]] - t_crit * standard_errors[["difference"]],
+    difference_ci_high = point[["difference"]] + t_crit * standard_errors[["difference"]],
+    ratio = point[["ratio"]],
+    ratio_ci_low = point[["ratio"]] - t_crit * standard_errors[["ratio"]],
+    ratio_ci_high = point[["ratio"]] + t_crit * standard_errors[["ratio"]],
+    replicates = replicates
+  )
+}
+
 # Marginal standardisation (g-computation) over the observed covariate
 # distribution of the analytic sample, weighted by the survey weights. Every
 # record is set first to exposed and then to unexposed, predictions are averaged
@@ -321,17 +502,20 @@ tidy_apr_design <- function(model, design) {
 # ratio scale. Standard errors come from the delta method applied to the model
 # variance-covariance matrix, so they carry the design through the fitted model.
 standardised_contrast <- function(model, design, exposure, value_1 = 1, value_0 = 0) {
-  data_model <- model$data
-  if (is.null(data_model)) data_model <- design$variables
+  data_model <- design$variables
   weights_vec <- stats::weights(design)
   if (is.null(weights_vec) || length(weights_vec) != nrow(data_model)) {
     weights_vec <- rep(1, nrow(data_model))
   }
-  keep <- !is.na(stats::predict(model, newdata = data_model, type = "link"))
+  # Standardise over the domain the model was fitted to: rows carrying weight and
+  # complete on every model term.
+  keep <- weights_vec > 0 &
+    !is.na(stats::predict(model, newdata = data_model, type = "link"))
+  data_model <- data_model[keep, , drop = FALSE]
   weights_vec <- weights_vec[keep]
 
   build_mm <- function(set_value) {
-    newdata <- data_model[keep, , drop = FALSE]
+    newdata <- data_model
     newdata[[exposure]] <- set_value
     stats::model.matrix(stats::delete.response(stats::terms(model)), data = newdata)
   }
@@ -429,12 +613,41 @@ build_publication_flextable <- function(data,
   ft <- flextable::autofit(ft)
   w <- dim(ft)$widths
   if (length(w) > 0 && is.finite(sum(w)) && sum(w) > 0) {
-    ft <- flextable::width(ft, width = w * (page_width_in / sum(w)))
+    # Proportional rescaling alone squeezed the narrow columns. When a wide table
+    # is scaled down to the text width, a column holding "37,233" can end up
+    # narrower than that string and Word then breaks the number after the comma.
+    # Short columns are given a floor first and the remaining width is shared
+    # among the rest in proportion to their content.
+    min_width_in <- 0.58
+    content_width <- vapply(data, function(column) max(nchar(as.character(column)), 0), numeric(1))
+    header_width <- if (!is.null(header_labels)) {
+      vapply(names(data), function(nm) nchar(as.character(header_labels[[nm]] %||% nm)), numeric(1))
+    } else {
+      vapply(names(data), nchar, numeric(1))
+    }
+    narrow <- pmax(content_width, 0) <= 8 & header_width <= 18
+    if (any(narrow) && !all(narrow)) {
+      floors <- pmin(pmax(w[narrow], min_width_in), page_width_in / 4)
+      remaining <- page_width_in - sum(floors)
+      wide_w <- w[!narrow]
+      if (remaining > 0 && sum(wide_w) > 0) {
+        w[narrow] <- floors
+        w[!narrow] <- wide_w * (remaining / sum(wide_w))
+      } else {
+        w <- w * (page_width_in / sum(w))
+      }
+    } else {
+      w <- w * (page_width_in / sum(w))
+    }
+    ft <- flextable::width(ft, width = w)
   }
   ft <- flextable::set_table_properties(
     ft,
     layout = "fixed",
-    opts_word = list(split = FALSE, keep_with_next = TRUE)
+    # split = TRUE lets a long table flow onto the next page instead of being
+    # pushed whole, which is what left most of a page blank above Table 6.
+    # paginate() below repeats the header row on each page it reaches.
+    opts_word = list(split = TRUE, keep_with_next = TRUE)
   )
 
   # Repeat the header on every page a long table spills onto, and keep the

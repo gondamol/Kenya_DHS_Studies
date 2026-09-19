@@ -207,7 +207,36 @@ analytic_adults <- pr %>%
       !is.na(cost_components_total) & cost_components_total > 0,
       dplyr::coalesce(cost_met_cash, 0) / cost_components_total,
       NA_real_
-    )
+    ),
+    # Internal consistency of the amount items. Three patterns occur and each is
+    # counted rather than silently carried into the estimates: a reported payment
+    # with a zero total, payer components summing above the reported total, and a
+    # cash amount above the reported total.
+    amount_zero_despite_payment = dplyr::case_when(
+      is.na(paid_outpatient) | is.na(cost_outpatient_total) ~ NA_integer_,
+      paid_outpatient == 1 & cost_outpatient_total == 0 ~ 1L,
+      TRUE ~ 0L
+    ),
+    amount_components_exceed_total = dplyr::case_when(
+      is.na(cost_components_total) | is.na(cost_outpatient_total) ~ NA_integer_,
+      cost_components_total > cost_outpatient_total + 0.001 ~ 1L,
+      TRUE ~ 0L
+    ),
+    amount_cash_exceeds_total = dplyr::case_when(
+      is.na(cost_met_cash) | is.na(cost_outpatient_total) ~ NA_integer_,
+      cost_met_cash > cost_outpatient_total + 0.001 ~ 1L,
+      TRUE ~ 0L
+    ),
+    amount_inconsistent = dplyr::case_when(
+      dplyr::coalesce(amount_zero_despite_payment, 0L) == 1L ~ 1L,
+      dplyr::coalesce(amount_components_exceed_total, 0L) == 1L ~ 1L,
+      dplyr::coalesce(amount_cash_exceeds_total, 0L) == 1L ~ 1L,
+      is.na(cost_outpatient_total) ~ NA_integer_,
+      TRUE ~ 0L
+    ),
+    # Row identifier, so that every domain estimate can be taken as a subset of
+    # one parent survey design rather than from a design rebuilt on filtered rows.
+    .row_id = dplyr::row_number()
   )
 
 consistency_check <- analytic_adults %>%
@@ -229,6 +258,19 @@ long_form_adults <- analytic_adults %>% dplyr::filter(long_questionnaire)
 analysis_base_flow <- long_form_adults %>%
   dplyr::filter(!dplyr::if_any(dplyr::all_of(wg_items), is.na))
 
+# The rows above count the survey items as they are asked. The payment analyses
+# additionally drop records with missing insurance status, because insurance is
+# a term in every one of those models, so their denominators are smaller than
+# the item-level counts. Both are reported: without the analysis rows the
+# manuscript's denominators cannot be reconciled with this table, which is the
+# denominator confusion the reporting is meant to prevent. These filters are the
+# ones applied in 03b_analysis_whole_sample.R.
+analysis_outpatient_users <- analysis_base_flow %>%
+  dplyr::filter(outpatient_last4w == 1, !is.na(paid_outpatient_recent), !is.na(insured_any))
+analysis_payers <- analysis_outpatient_users %>%
+  dplyr::filter(paid_outpatient_recent == 1, !is.na(cost_outpatient_total))
+analysis_payer_split <- analysis_payers %>% dplyr::filter(!is.na(nhif_met_any))
+
 sample_flow <- tibble::tibble(
   step = c(
     "Raw PR records",
@@ -242,7 +284,11 @@ sample_flow <- tibble::tibble(
     "  with non-missing hospitalisation (sh29)",
     "  outpatient users in the previous four weeks",
     "  outpatient users with a non-missing payment response (sh32)",
-    "  outpatient users who paid, with a usable cost amount (sh304)"
+    "  outpatient users who paid, with a usable cost amount (sh304)",
+    "Payment analysis populations, which additionally require non-missing insurance status",
+    "  outpatient users analysed",
+    "  of whom payers with a usable cost amount",
+    "  of whom payers with a recorded payer split"
   ),
   n = c(
     nrow(pr),
@@ -256,7 +302,38 @@ sample_flow <- tibble::tibble(
     analysis_base_flow %>% dplyr::filter(!is.na(inpatient_last12m)) %>% nrow(),
     analysis_base_flow %>% dplyr::filter(outpatient_last4w == 1) %>% nrow(),
     analysis_base_flow %>% dplyr::filter(outpatient_last4w == 1, !is.na(paid_outpatient)) %>% nrow(),
-    analysis_base_flow %>% dplyr::filter(outpatient_last4w == 1, paid_outpatient == 1, !is.na(cost_outpatient_total)) %>% nrow()
+    analysis_base_flow %>% dplyr::filter(outpatient_last4w == 1, paid_outpatient == 1, !is.na(cost_outpatient_total)) %>% nrow(),
+    NA_integer_,
+    nrow(analysis_outpatient_users),
+    nrow(analysis_payers),
+    nrow(analysis_payer_split)
+  ),
+  # Nesting depth, carried explicitly for the same reason as reference_n: the
+  # leading spaces that express it are stripped when this table is written to
+  # CSV and read back, so the indentation is restored from this column at
+  # rendering time rather than relied on surviving the round trip.
+  indent = c(0L, 0L, 1L, 0L, 0L, 0L, 1L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L),
+  # The denominator each row should be read against, carried as a number rather
+  # than re-derived downstream from the step label. Writing this table to CSV
+  # trims the leading spaces that mark nesting, so any attempt to recover the
+  # hierarchy from the text after a round trip silently matches nothing.
+  reference_n = c(
+    NA_integer_,
+    nrow(pr),
+    nrow(analytic_adults),
+    nrow(analytic_adults),
+    nrow(long_form_adults),
+    nrow(long_form_adults),
+    nrow(analysis_base_flow),
+    nrow(analysis_base_flow),
+    nrow(analysis_base_flow),
+    nrow(analysis_base_flow),
+    analysis_base_flow %>% dplyr::filter(outpatient_last4w == 1) %>% nrow(),
+    analysis_base_flow %>% dplyr::filter(outpatient_last4w == 1, !is.na(paid_outpatient)) %>% nrow(),
+    NA_integer_,
+    nrow(analysis_base_flow),
+    nrow(analysis_outpatient_users),
+    nrow(analysis_payers)
   )
 )
 
@@ -293,6 +370,20 @@ payment_missingness <- analysis_base_flow %>%
   )
 
 missingness_summary <- dplyr::bind_rows(missingness_summary, payment_missingness)
+
+amount_quality <- analysis_base_flow %>%
+  dplyr::filter(outpatient_last4w == 1, paid_outpatient == 1) %>%
+  dplyr::summarise(
+    payers = dplyr::n(),
+    with_amount = sum(!is.na(cost_outpatient_total)),
+    zero_total_despite_payment = sum(amount_zero_despite_payment == 1, na.rm = TRUE),
+    components_exceed_total = sum(amount_components_exceed_total == 1, na.rm = TRUE),
+    cash_exceeds_total = sum(amount_cash_exceeds_total == 1, na.rm = TRUE),
+    payer_split_missing = sum(is.na(cost_met_cash) & !is.na(cost_outpatient_total)),
+    any_inconsistency = sum(amount_inconsistent == 1, na.rm = TRUE)
+  )
+
+readr::write_csv(amount_quality, file.path(paths$logs_dir, "st02_amount_data_quality.csv"))
 
 questionnaire_coverage <- analytic_adults %>%
   dplyr::group_by(questionnaire_form) %>%
@@ -331,7 +422,8 @@ variable_map <- tibble::tribble(
   "insurer_met_any", "sh305b/sh305c", "NHIF or private insurance met any part of that cost",
   "cash_share_of_cost", "sh305a-sh305e", "Share of the reported amounts met in cash",
   "domain_burden", "hdis2/hdis4/hdis5/hdis6/hdis7/hdis8", "Count of WG domains at or above threshold: none, one, two or more",
-  "uninsured_incl_dk", "sh27", "Uninsured with don't-know responses grouped as uninsured (sensitivity coding)"
+  "uninsured_incl_dk", "sh27", "Uninsured with don't-know responses grouped as uninsured (sensitivity coding)",
+  "amount_inconsistent", "sh32/sh304/sh305a-e", "Any internal inconsistency in the reported amounts: payment reported with zero total, components above total, or cash above total"
 )
 
 save_rds_output(analytic_adults, "st02_analytic_pr_adults.rds")
